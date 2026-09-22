@@ -1,0 +1,276 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import { SITE_CONFIG } from '../../config/site';
+
+// Schematic Previews for Editorial Rows & Featured Story
+import VpnTunnelDiagram from '../../components/diagrams/VpnTunnelDiagram.astro';
+import VpnTrustShiftDiagram from '../../components/diagrams/VpnTrustShiftDiagram.astro';
+import DnsResolutionDiagram from '../../components/diagrams/DnsResolutionDiagram.astro';
+import LoginFlowDiagram from '../../components/diagrams/LoginFlowDiagram.astro';
+
+const pageTitle = "Mouhib Writeups — Technical Notes on Security, Networks & Systems";
+const pageDescription = "Independent technical editorial journal dissecting network architecture, application security boundaries, and protocol engineering. Written by Mouhib MH.";
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  lang="en"
+  arUrl="/ar/"
+  enUrl="/en/"
+  currentPath="/en/"
+>
+  <!-- Masthead with Homepage Navigation -->
+  <Header
+    currentLang="en"
+    arUrl="/ar/"
+    enUrl="/en/"
+    isHome={true}
+  />
+
+  <main class="container" style="max-width: 1120px; padding-block-end: 6rem;">
+    <!-- Publication Intro -->
+    <header class="cover-masthead-intro">
+      <div class="cover-intro-line">
+        <span class="cover-brand-tag">MOUHIB WRITEUPS</span>
+        <span class="cover-sep">—</span>
+        <span class="cover-tagline">Technical notes on security, networks and systems. Documenting lab tests, protocols, and how things actually work.</span>
+      </div>
+    </header>
+
+    <!-- Featured Story: Article 03 (What a VPN Actually Does) -->
+    <section class="featured-monograph-section" aria-label="Featured Story">
+      <div class="featured-grid">
+        <div class="featured-content">
+          <div class="featured-tag-badge">
+            <span class="dot" style="width: 6px; height: 6px; border-radius: 50%; background-color: var(--color-olive);"></span>
+            <span>03 / NETWORKING / PRIVACY</span>
+          </div>
+
+          <h2 class="featured-title">
+            <a href="/en/articles/what-a-vpn-actually-does/">
+              A VPN Does Not Make You Invisible. It Changes Who Can See What.
+            </a>
+          </h2>
+
+          <p class="featured-excerpt">
+            A clear look at what an encrypted tunnel actually does: what your ISP sees, what the VPN provider can see, how DNS leaks happen, and why a VPN is not a replacement for HTTPS.
+          </p>
+
+          <div class="featured-action-bar">
+            <a href="/en/articles/what-a-vpn-actually-does/" class="featured-read-link">
+              Read article →
+            </a>
+            <span class="featured-reading-time">14 min read</span>
+          </div>
+        </div>
+
+        <div class="pub-row-visual" style="border: 1px solid var(--color-hairline);">
+          <VpnTunnelDiagram lang="en" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Topic Filters Bar -->
+    <nav id="topics" class="topic-filters-wrapper" aria-label="Topic Filter">
+      <span class="topic-filters-label">Filter by Focus:</span>
+      <div class="topic-filter-buttons" role="tablist">
+        <button type="button" class="topic-btn is-active" data-filter="all">All (3)</button>
+        <button type="button" class="topic-btn" data-filter="cybersecurity">Cybersecurity (1)</button>
+        <button type="button" class="topic-btn" data-filter="networking">Networking (1)</button>
+        <button type="button" class="topic-btn" data-filter="privacy">Privacy &amp; Tunnels (1)</button>
+      </div>
+    </nav>
+
+    <!-- Editorial Publication Rows -->
+    <section id="articles" class="editorial-pub-rows" aria-label="Articles">
+      <div class="index-section-header">
+        <span class="index-section-title">ALL WRITEUPS</span>
+        <span class="index-section-count">3 PUBLISHED ARTICLES</span>
+      </div>
+
+      <!-- Row 03: What a VPN Actually Does -->
+      <article class="editorial-pub-row" data-category="privacy">
+        <div class="pub-row-content">
+          <div class="pub-row-meta">
+            <span class="pub-row-number">03</span>
+            <span>/</span>
+            <span class="pub-row-category">NETWORKING / PRIVACY</span>
+            <span>•</span>
+            <span class="pub-row-time">14 min read</span>
+          </div>
+
+          <h3 class="pub-row-title">
+            <a href="/en/articles/what-a-vpn-actually-does/">
+              A VPN Does Not Make You Invisible. It Changes Who Can See What.
+            </a>
+          </h3>
+
+          <p class="pub-row-excerpt">
+            A clear look at what an encrypted tunnel actually does: what your ISP sees, what the VPN provider can see, how DNS leaks happen, and why a VPN is not a replacement for HTTPS.
+          </p>
+
+          <div class="pub-row-action">
+            <a href="/en/articles/what-a-vpn-actually-does/" class="pub-row-link">
+              Read article →
+            </a>
+          </div>
+        </div>
+
+        <div class="pub-row-visual">
+          <VpnTrustShiftDiagram lang="en" />
+        </div>
+      </article>
+
+      <!-- Row 02: Network Request Journey (Asymmetric Inversion: Visual Start, Text End) -->
+      <article class="editorial-pub-row is-reversed" data-category="networking">
+        <div class="pub-row-content">
+          <div class="pub-row-meta">
+            <span class="pub-row-number">02</span>
+            <span>/</span>
+            <span class="pub-row-category">NETWORKING / WEB PROTOCOLS</span>
+            <span>•</span>
+            <span class="pub-row-time">16 min read</span>
+          </div>
+
+          <h3 class="pub-row-title">
+            <a href="/en/articles/what-happens-when-you-type-a-domain/">
+              You Typed a Domain and Pressed Enter. What Actually Happened?
+            </a>
+          </h3>
+
+          <p class="pub-row-excerpt">
+            A step-by-step walkthrough of what happens under the hood: from local cache, DNS and the gateway MAC to TCP/TLS handshakes, HTTP requests and browser rendering.
+          </p>
+
+          <div class="pub-row-action">
+            <a href="/en/articles/what-happens-when-you-type-a-domain/" class="pub-row-link">
+              Read article →
+            </a>
+          </div>
+        </div>
+
+        <div class="pub-row-visual">
+          <DnsResolutionDiagram lang="en" />
+        </div>
+      </article>
+
+      <!-- Row 01: Session Hijacking -->
+      <article class="editorial-pub-row" data-category="cybersecurity">
+        <div class="pub-row-content">
+          <div class="pub-row-meta">
+            <span class="pub-row-number">01</span>
+            <span>/</span>
+            <span class="pub-row-category">CYBERSECURITY / WEB SECURITY</span>
+            <span>•</span>
+            <span class="pub-row-time">12 min read</span>
+          </div>
+
+          <h3 class="pub-row-title">
+            <a href="/en/articles/session-hijacking/">
+              How Can a Session Be Stolen Without Stealing the Password?
+            </a>
+          </h3>
+
+          <p class="pub-row-excerpt">
+            A practical look at how session cookies work, why session tokens are targeted, and how a valid token lets someone into an account without the password.
+          </p>
+
+          <div class="pub-row-action">
+            <a href="/en/articles/session-hijacking/" class="pub-row-link">
+              Read article →
+            </a>
+          </div>
+        </div>
+
+        <div class="pub-row-visual">
+          <LoginFlowDiagram lang="en" />
+        </div>
+      </article>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="editorial-colophon" aria-label="About Mouhib Writeups">
+      <div class="colophon-grid">
+        <div>
+          <div class="colophon-header">About Mouhib Writeups</div>
+          <p class="colophon-text">
+            A place where I document what I learn and experiment with across cybersecurity, networking, Linux and systems.
+          </p>
+        </div>
+
+        <div>
+          <div class="colophon-header">The Goal</div>
+          <p class="colophon-text">
+            The goal is simple: understand how things work, then explain them clearly.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Editorial Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <img src="/assets/brand/logo.png" alt="" class="brand-logo-img" width="36" height="36" loading="lazy" />
+          <div>
+            <div class="footer-brand-title">MOUHIB WRITEUPS</div>
+            <div class="footer-brand-tagline">{SITE_CONFIG.tagline.en}</div>
+          </div>
+        </div>
+
+        <div class="footer-topics">
+          <span>Cybersecurity</span>
+          <span>•</span>
+          <span>Networking</span>
+          <span>•</span>
+          <span>Privacy</span>
+        </div>
+
+        <div class="footer-cover-meta">
+          <span class="footer-author">Mouhib MH</span>
+          <div class="footer-links">
+            <a href="/en/" class="is-active">EN</a>
+            <span>/</span>
+            <a href="/ar/">العربية</a>
+            <a href="#top">Back to top ↑</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Vanilla JS Interactive Topic Filter -->
+  <script>
+    function setupTopicFilters() {
+      const buttons = document.querySelectorAll<HTMLButtonElement>('.topic-btn');
+      const rows = document.querySelectorAll<HTMLElement>('.editorial-pub-row');
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+
+          const filter = btn.getAttribute('data-filter');
+          rows.forEach(row => {
+            const category = row.getAttribute('data-category');
+            if (filter === 'all' || category === filter) {
+              row.classList.remove('is-hidden');
+            } else {
+              row.classList.add('is-hidden');
+            }
+          });
+        });
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupTopicFilters);
+    } else {
+      setupTopicFilters();
+    }
+  </script>
+</BaseLayout>

@@ -1,0 +1,111 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط تدفق تسجيل الدخول وإنشاء الجلسة' : 'Login and session creation sequential flow diagram'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">{lang === 'ar' ? 'مخطط 01 / تدفق المصادقة' : 'FIGURE 01 / AUTH FLOW'}</span>
+    <span>{lang === 'ar' ? 'من المصادقة إلى الجلسة الدائمة' : 'CREDENTIALS TO STATEFUL SESSION'}</span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 800 240" width="100%" height="auto" style="min-width: 640px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="login-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.15"/>
+        </pattern>
+        <marker id="login-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="login-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="784" height="224" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Node 1: User / Browser Credentials -->
+      <g transform="translate(25, 45)">
+        <rect width="130" height="135" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="130" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">01 / CREDENTIALS</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">User Login</text>
+        <line x1="10" y1="52" x2="120" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="10" y="70" font-family="sans-serif" font-size="8" fill="#5F5D56">user: mouhib</text>
+        <text x="10" y="86" font-family="sans-serif" font-size="8" fill="#5F5D56">pass: •••••••••</text>
+        <rect x="10" y="100" width="110" height="20" fill="url(#login-hatch)" stroke="#151515" stroke-width="0.6"/>
+        <text x="16" y="113" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">POST /auth/login</text>
+      </g>
+
+      <!-- Arrow 1 -> 2 -->
+      <path d="M 155 110 L 185 110" stroke="#151515" stroke-width="1.4" marker-end="url(#login-arrow)"/>
+
+      <!-- Node 2: Server Verification -->
+      <g transform="translate(190, 45)">
+        <rect width="130" height="135" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="130" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">02 / VERIFICATION</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">Server Auth</text>
+        <line x1="10" y1="52" x2="120" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="10" y="70" font-family="sans-serif" font-size="8" fill="#5F5D56">Hash check (Argon2)</text>
+        <text x="10" y="86" font-family="sans-serif" font-size="8" fill="#5F5D56">MFA evaluation</text>
+        <text x="10" y="105" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#5F6849">STATUS: VALID</text>
+      </g>
+
+      <!-- Arrow 2 -> 3 -->
+      <path d="M 320 110 L 350 110" stroke="#151515" stroke-width="1.4" marker-end="url(#login-arrow)"/>
+
+      <!-- Node 3: Session Creation -->
+      <g transform="translate(355, 45)">
+        <rect width="130" height="135" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="130" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">03 / CREATION</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">Session Store</text>
+        <line x1="10" y1="52" x2="120" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="10" y="70" font-family="sans-serif" font-size="8" fill="#5F5D56">Generate CSPRNG</text>
+        <text x="10" y="86" font-family="sans-serif" font-size="8" fill="#5F5D56">Write to Redis/DB</text>
+        <text x="10" y="105" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F5D56">TTL: 24 Hours</text>
+      </g>
+
+      <!-- Arrow 3 -> 4 (Olive) -->
+      <path d="M 485 110 L 515 110" stroke="#5F6849" stroke-width="1.4" marker-end="url(#login-arrow-olive)"/>
+
+      <!-- Node 4: Session Identifier (Token) - Olive Highlight -->
+      <g transform="translate(520, 45)">
+        <rect width="130" height="135" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.8"/>
+        <rect width="130" height="22" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">04 / IDENTIFIER</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">Set-Cookie</text>
+        <line x1="10" y1="52" x2="120" y2="52" stroke="#5F6849" stroke-width="0.5" stroke-opacity="0.4"/>
+        <text x="10" y="70" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#5F6849">session_id=...</text>
+        <text x="10" y="86" font-family="sans-serif" font-size="8" fill="#5F5D56">HttpOnly; Secure</text>
+        <text x="10" y="105" font-family="sans-serif" font-size="8" fill="#5F5D56">Stored in browser</text>
+      </g>
+
+      <!-- Arrow 4 -> 5 -->
+      <path d="M 650 110 L 675 110" stroke="#151515" stroke-width="1.4" marker-end="url(#login-arrow)"/>
+
+      <!-- Node 5: Authenticated Requests -->
+      <g transform="translate(680, 45)">
+        <rect width="95" height="135" fill="#FAF8F2" stroke="#151515" stroke-width="1.4"/>
+        <rect width="95" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">05 / REQUESTS</text>
+        <text x="8" y="44" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">Subsequent</text>
+        <text x="8" y="66" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Cookie sent auto</text>
+        <text x="8" y="82" font-family="sans-serif" font-size="7.5" font-weight="600" fill="#5F6849">NO PASSWORD</text>
+        <text x="8" y="96" font-family="sans-serif" font-size="7.5" fill="#5F5D56">in request wire</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 01: تسلسل نقل الثقة — كلمة السر تُستخدم لمرة واحدة فقط عند البداية، وبعدها يتولى معرّف الجلسة (Session Cookie) إثبات الهوية.'
+      : 'Figure 01: The delegation of trust — passwords authenticate the initial boundary once; subsequent requests rely strictly on the session cookie.'}
+  </figcaption>
+</figure>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Mouhib Writeups</title>
+    <link>https://writeups.mouhibmahadbi.com/</link>
+    <description>Technical notes on security, networks and systems by Mouhib MH.</description>
+    <language>ar</language>
+    <atom:link href="https://writeups.mouhibmahadbi.com/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>كيف تُسرق جلسة تسجيل الدخول بدون سرقة كلمة السر؟</title>
+      <link>https://writeups.mouhibmahadbi.com/ar/articles/session-hijacking/</link>
+      <guid>https://writeups.mouhibmahadbi.com/ar/articles/session-hijacking/</guid>
+      <pubDate>Tue, 22 Sep 2026 12:00:00 GMT</pubDate>
+      <description>شرح تقني لكيفية عمل جلسات تسجيل الدخول، Session Cookies، ولماذا يمكن أن يؤدي تسريب جلسة صالحة إلى الوصول للحساب حتى بدون معرفة كلمة السر.</description>
+    </item>
+    <item>
+      <title>How Can a Session Be Stolen Without Stealing the Password?</title>
+      <link>https://writeups.mouhibmahadbi.com/en/articles/session-hijacking/</link>
+      <guid>https://writeups.mouhibmahadbi.com/en/articles/session-hijacking/</guid>
+      <pubDate>Tue, 22 Sep 2026 12:00:00 GMT</pubDate>
+      <description>A deep-dive technical examination into HTTP session cookies, bearer token trust models, and mitigating session hijacking.</description>
+    </item>
+  </channel>
+</rss>

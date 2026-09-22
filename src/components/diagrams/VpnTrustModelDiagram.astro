@@ -1,0 +1,126 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط خلاصة نموذج الثقة: بدون VPN مقابل مع VPN' : 'Final Trust Model synthesis: Direct ISP path vs VPN Relocation path'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">
+      {lang === 'ar' ? 'مخطط 07 / خلاصة نموذج الثقة' : 'DIAGRAM 07 / TRUST MODEL SUMMARY'}
+    </span>
+    <span>
+      {lang === 'ar' ? 'نموذج الثقة: الـVPN لا يلغي الثقة بل ينقلها' : 'Trust Summary: A VPN Does Not Eliminate Trust, It Relocates It'}
+    </span>
+  </div>
+
+  <div class="diagram-svg-container">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 640px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="model-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12" />
+        </pattern>
+        <marker id="model-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515" />
+        </marker>
+        <marker id="model-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849" />
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25" />
+      <line x1="8" y1="24" x2="8" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="8" y1="8" x2="24" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="256" x2="812" y2="272" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="272" x2="796" y2="272" stroke="#151515" stroke-width="2" />
+
+      <!-- TOP TRACK: WITHOUT VPN -->
+      <g transform="translate(25, 25)">
+        <rect width="770" height="85" fill="#F4F1E9" stroke="#151515" stroke-width="1.2" />
+        <rect width="770" height="20" fill="#EBE7DE" stroke="#151515" stroke-width="0.8" />
+        <text x="14" y="14" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">MODEL 1: WITHOUT VPN (LOCAL ISP TRUST MODEL)</text>
+
+        <!-- Node 1: Device -->
+        <rect x="20" y="30" width="130" height="42" fill="#FAF8F2" stroke="#151515" stroke-width="1" />
+        <text x="30" y="48" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">USER DEVICE</text>
+        <text x="30" y="60" font-family="sans-serif" font-size="7" fill="#5F5D56">Public IP assigned</text>
+
+        <!-- Arrow -->
+        <path d="M 150 51 L 285 51" stroke="#151515" stroke-width="1.4" marker-end="url(#model-arrow)" />
+
+        <!-- Node 2: Local ISP -->
+        <rect x="290" y="30" width="200" height="42" fill="#FAF8F2" stroke="#8F2D2D" stroke-width="1.2" />
+        <text x="300" y="46" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#8F2D2D">LOCAL ISP (OBSERVER)</text>
+        <text x="300" y="60" font-family="sans-serif" font-size="7" fill="#151515">Sees destinations + DNS requests</text>
+
+        <!-- Arrow -->
+        <path d="M 490 51 L 615 51" stroke="#151515" stroke-width="1.4" marker-end="url(#model-arrow)" />
+
+        <!-- Node 3: Target Website -->
+        <rect x="620" y="30" width="130" height="42" fill="#FAF8F2" stroke="#151515" stroke-width="1" />
+        <text x="630" y="48" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">TARGET WEBSITE</text>
+        <text x="630" y="60" font-family="sans-serif" font-size="7" fill="#5F5D56">Logs direct user IP</text>
+      </g>
+
+      <!-- BOTTOM TRACK: WITH VPN -->
+      <g transform="translate(25, 120)">
+        <rect width="770" height="95" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.5" />
+        <rect width="770" height="20" fill="#EBE7DE" stroke="#5F6849" stroke-width="0.8" />
+        <text x="14" y="14" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">MODEL 2: WITH VPN (RELOCATED TRUST MODEL)</text>
+
+        <!-- Node 1: Device -->
+        <rect x="15" y="30" width="115" height="52" fill="#FAF8F2" stroke="#151515" stroke-width="1" />
+        <text x="22" y="48" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">USER DEVICE</text>
+        <text x="22" y="60" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F6849">Tunnel Active</text>
+        <text x="22" y="72" font-family="sans-serif" font-size="6.8" fill="#5F5D56">L3 Enveloped</text>
+
+        <!-- Tunnel Arrow through ISP -->
+        <path d="M 130 54 L 215 54" stroke="#5F6849" stroke-width="2" stroke-dasharray="3 3" marker-end="url(#model-arrow-olive)" />
+
+        <!-- Node 2: Blind ISP -->
+        <rect x="220" y="30" width="145" height="52" fill="#FAF8F2" stroke="#151515" stroke-width="1" />
+        <text x="228" y="48" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">LOCAL ISP (BLIND)</text>
+        <text x="228" y="60" font-family="sans-serif" font-size="7" fill="#5F6849">Sees encrypted VPN IP</text>
+        <text x="228" y="72" font-family="sans-serif" font-size="6.8" fill="#5F5D56">Zero website visibility</text>
+
+        <!-- Arrow -->
+        <path d="M 365 54 L 415 54" stroke="#5F6849" stroke-width="2" stroke-dasharray="3 3" marker-end="url(#model-arrow-olive)" />
+
+        <!-- Node 3: VPN Provider (NEW TRUST ANCHOR) -->
+        <rect x="420" y="30" width="180" height="52" fill="#FAF8F2" stroke="#5F6849" stroke-width="1.4" />
+        <text x="428" y="48" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">VPN PROVIDER (NEW ANCHOR)</text>
+        <text x="428" y="60" font-family="sans-serif" font-size="7" fill="#8F2D2D">Sees destination IP + DNS</text>
+        <text x="428" y="72" font-family="sans-serif" font-size="6.8" fill="#5F5D56">Must trust their zero-log claim</text>
+
+        <!-- Arrow -->
+        <path d="M 600 54 L 640 54" stroke="#151515" stroke-width="1.4" marker-end="url(#model-arrow)" />
+
+        <!-- Node 4: Target Website -->
+        <rect x="645" y="30" width="115" height="52" fill="#FAF8F2" stroke="#151515" stroke-width="1" />
+        <text x="652" y="48" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">TARGET WEB</text>
+        <text x="652" y="60" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F6849">Sees Exit IP</text>
+        <text x="652" y="72" font-family="sans-serif" font-size="6.8" fill="#5F5D56">Original IP concealed</text>
+      </g>
+
+      <!-- FINAL BANNER -->
+      <g transform="translate(25, 226)">
+        <rect width="770" height="32" fill="#EBE7DE" stroke="#151515" stroke-width="1" />
+        <rect x="4" y="4" width="6" height="24" fill="#5F6849" />
+        <text x="20" y="21" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700" fill="#151515" letter-spacing="0.06em">
+          {lang === 'ar'
+            ? 'الـVPN لا يحذف الثقة — هو فقط ينقلها من مزود خدمة الإنترنت إلى مزود الـVPN.'
+            : 'A VPN does not eliminate trust. It relocates it from your ISP to the VPN operator.'}
+        </text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 07: المقارنة الهيكلية النهائية — بدون VPN يمتلك مزود الإنترنت الرؤية المركزية؛ ومع تفعيل الـVPN يتحول هذا الدور بالكامل إلى مزود الـVPN.'
+      : 'Figure 07: Final structural comparison — without a VPN, the local ISP is the central observer; with a VPN, that observation anchor moves entirely to the VPN provider.'}
+  </figcaption>
+</figure>

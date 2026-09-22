@@ -1,0 +1,113 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط مقارنة المسار الآمن للـDNS مقابل تسرب الـDNS خارج نفق الـVPN' : 'DNS resolution paths: Tunneled resolution vs DNS Leak outside tunnel'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">
+      {lang === 'ar' ? 'مخطط 04 / تسرب الـDNS' : 'DIAGRAM 04 / DNS LEAKS'}
+    </span>
+    <span>
+      {lang === 'ar' ? 'تحليل الـDNS الآمن عبر النفق مقابل الهروب إلى محلل الـISP' : 'Tunneled Encrypted DNS vs. Leaking Outside the Tunnel to the Local ISP'}
+    </span>
+  </div>
+
+  <div class="diagram-svg-container">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 640px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="leak-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#8F2D2D" stroke-width="0.8" stroke-opacity="0.25" />
+        </pattern>
+        <pattern id="safe-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#5F6849" stroke-width="0.8" stroke-opacity="0.25" />
+        </pattern>
+        <marker id="leak-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515" />
+        </marker>
+        <marker id="leak-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849" />
+        </marker>
+        <marker id="leak-arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#8F2D2D" />
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25" />
+      <line x1="8" y1="24" x2="8" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="8" y1="8" x2="24" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="256" x2="812" y2="272" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="272" x2="796" y2="272" stroke="#151515" stroke-width="2" />
+
+      <!-- PATH 1: SECURE TUNNELED RESOLUTION (TOP HALF) -->
+      <g transform="translate(25, 25)">
+        <rect width="770" height="100" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.5" />
+        <rect width="770" height="20" fill="#EBE7DE" stroke="#5F6849" stroke-width="0.8" />
+        <text x="14" y="14" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">SCENARIO A: PROPER TUNNELED DNS RESOLUTION (SECURE)</text>
+
+        <!-- Node A1: Client Device -->
+        <rect x="15" y="30" width="130" height="55" fill="#FAF8F2" stroke="#151515" stroke-width="1" />
+        <text x="22" y="46" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">DEVICE</text>
+        <text x="22" y="60" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F6849">DNS: 10.0.0.1</text>
+        <text x="22" y="74" font-family="sans-serif" font-size="7" fill="#5F5D56">Routed via VPN TUN</text>
+
+        <!-- Tunnel Path Arrow -->
+        <path d="M 145 58 L 440 58" stroke="#5F6849" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#leak-arrow-olive)" />
+        <rect x="210" y="46" width="160" height="18" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8" />
+        <text x="218" y="59" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">INSIDE ENCRYPTED TUNNEL</text>
+
+        <!-- Node A2: VPN DNS Server -->
+        <rect x="450" y="30" width="160" height="55" fill="url(#safe-hatch)" stroke="#5F6849" stroke-width="1.2" />
+        <text x="460" y="46" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">VPN INTERNAL RESOLVER</text>
+        <text x="460" y="60" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">IP: 10.0.0.1 (Internal)</text>
+        <text x="460" y="74" font-family="sans-serif" font-size="7" fill="#151515">ISP sees zero DNS names</text>
+
+        <!-- Evaluation Tag -->
+        <rect x="630" y="38" width="125" height="38" fill="#FAF8F2" stroke="#5F6849" stroke-width="1" />
+        <text x="640" y="54" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">✓ NO LEAK</text>
+        <text x="640" y="67" font-family="sans-serif" font-size="7.2" fill="#5F5D56">Zero ISP domain visibility</text>
+      </g>
+
+      <!-- PATH 2: FLAWED DNS LEAK (BOTTOM HALF) -->
+      <g transform="translate(25, 140)">
+        <rect width="770" height="110" fill="#F4F1E9" stroke="#8F2D2D" stroke-width="1.5" />
+        <rect width="770" height="20" fill="#EBE7DE" stroke="#8F2D2D" stroke-width="0.8" />
+        <text x="14" y="14" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#8F2D2D">SCENARIO B: DNS LEAK (RESOLVER MISCONFIGURATION / OS SPLIT-DNS)</text>
+
+        <!-- Node B1: Client Device -->
+        <rect x="15" y="30" width="130" height="65" fill="#FAF8F2" stroke="#151515" stroke-width="1" />
+        <text x="22" y="46" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">DEVICE</text>
+        <text x="22" y="58" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">Web traffic: Tunneled</text>
+        <text x="22" y="72" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#8F2D2D">DNS: 192.168.1.1 (ISP)</text>
+        <text x="22" y="86" font-family="sans-serif" font-size="7" fill="#8F2D2D">Escapes VPN adapter!</text>
+
+        <!-- Leaking Red Arrow -->
+        <path d="M 145 62 L 440 62" stroke="#8F2D2D" stroke-width="2" stroke-dasharray="3 3" marker-end="url(#leak-arrow-red)" />
+        <rect x="195" y="50" width="200" height="18" fill="#FAF8F2" stroke="#8F2D2D" stroke-width="0.8" />
+        <text x="202" y="63" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#8F2D2D">UNENCRYPTED UDP 53 TO ISP</text>
+
+        <!-- Node B2: ISP DNS Server -->
+        <rect x="450" y="30" width="160" height="65" fill="url(#leak-hatch)" stroke="#8F2D2D" stroke-width="1.2" />
+        <text x="460" y="46" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#8F2D2D">ISP RECURSIVE RESOLVER</text>
+        <text x="460" y="60" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">Receives cleartext query:</text>
+        <text x="460" y="74" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#8F2D2D">"mouhibmahadbi.com"</text>
+        <text x="460" y="86" font-family="sans-serif" font-size="7" fill="#5F5D56">ISP logs exact browsing intent</text>
+
+        <!-- Evaluation Tag -->
+        <rect x="630" y="42" width="125" height="42" fill="#FAF8F2" stroke="#8F2D2D" stroke-width="1" />
+        <text x="640" y="58" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#8F2D2D">✗ SEVERE LEAK</text>
+        <text x="640" y="72" font-family="sans-serif" font-size="7.2" fill="#151515">Defeats destination privacy</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 04: معضلة تسرب الـDNS — في الحالة السليمة تمر طلبات الأسماء داخل النفق إلى محلل خاص بالـVPN. في حال حدوث تسرب (DNS Leak)، ترسل طلبات الأسماء إلى موفر الإنترنت مباشرة، مما يكشف المواقع المطلوبة.'
+      : 'Figure 04: The DNS leak vulnerability — properly configured VPN clients route all DNS queries through the encrypted tunnel to an internal resolver. In a leak scenario, queries bypass the tunnel directly to the ISP resolver, exposing destination domains.'}
+  </figcaption>
+</figure>

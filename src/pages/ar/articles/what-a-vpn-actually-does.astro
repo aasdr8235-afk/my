@@ -1,0 +1,364 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import SectionHeading from '../../../components/SectionHeading.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import TechnicalNote from '../../../components/TechnicalNote.astro';
+import ContinueReading from '../../../components/ContinueReading.astro';
+
+// Technical SVG Diagrams
+import WithoutVpnDiagram from '../../../components/diagrams/WithoutVpnDiagram.astro';
+import VpnTunnelDiagram from '../../../components/diagrams/VpnTunnelDiagram.astro';
+import VpnTrustShiftDiagram from '../../../components/diagrams/VpnTrustShiftDiagram.astro';
+import DnsLeakDiagram from '../../../components/diagrams/DnsLeakDiagram.astro';
+import WebsiteIdentityDiagram from '../../../components/diagrams/WebsiteIdentityDiagram.astro';
+import VpnVsHttpsDiagram from '../../../components/diagrams/VpnVsHttpsDiagram.astro';
+import VpnTrustModelDiagram from '../../../components/diagrams/VpnTrustModelDiagram.astro';
+
+const tocItems = [
+  { id: 'sec-01', num: '01', title: 'الاتصال الطبيعي بدون نفق' },
+  { id: 'sec-02', num: '02', title: 'حدود نفق الـVPN المشفر' },
+  { id: 'sec-03', num: '03', title: 'ما يراه مزود الإنترنت (ISP)' },
+  { id: 'sec-04', num: '04', title: 'ما يستطيع مزود الـVPN رؤيته' },
+  { id: 'sec-05', num: '05', title: 'ما يراه الموقع الهدف والهوية' },
+  { id: 'sec-06', num: '06', title: 'استعلامات DNS ومعضلة التسرب' },
+  { id: 'sec-07', num: '07', title: 'ما يحميه الـVPN بالفعل' },
+  { id: 'sec-08', num: '08', title: 'ما يعجز الـVPN عن حله' },
+  { id: 'sec-09', num: '09', title: 'الـVPN مقابل HTTPS' },
+  { id: 'sec-10', num: '10', title: 'الخلاصة: نقل الثقة' }
+];
+
+const pageTitle = "الـVPN لا يجعلك مختفيًا… هو فقط يغيّر من يرى ماذا";
+const pageSubtitle = "الـVPN لا يحذف الثقة. هو فقط ينقلها.";
+const pageDescription = "شرح مباشر وهادئ لما يفعله الـVPN فعليًا: ما يراه مزود الإنترنت، ما يراه مزود الـVPN، متى تحدث تسريبات DNS، ولماذا لا يعتبر الـVPN بديلاً عن HTTPS أو مانعًا للتتبع.";
+---
+
+<ArticleLayout
+  title={pageTitle}
+  subtitle={pageSubtitle}
+  description={pageDescription}
+  lang="ar"
+  arUrl="/ar/articles/what-a-vpn-actually-does/"
+  enUrl="/en/articles/what-a-vpn-actually-does/"
+  currentPath="/ar/articles/what-a-vpn-actually-does/"
+  tocItems={tocItems}
+  categoryText="الشبكات / الخصوصية"
+  articleMeta="مقال 03 / الخصوصية والأنفاق"
+>
+
+  <!-- 01 / WITHOUT VPN -->
+  <section class="article-section">
+    <SectionHeading
+      number="01"
+      tag="STANDARD TOPOLOGY"
+      title="الاتصال المباشر: كيف تسافر بياناتك في الوضع الافتراضي؟"
+      id="sec-01"
+    />
+
+    <p>
+      في المشهد التسويقي لشركات الأمن التجاري، يُصوّر الإنترنت بدون <span class="term" dir="ltr">VPN</span> بوصفه نفقًا مظلمًا ومكشوفًا بالكامل، حيث يمكن لأي عابر سبيل قراءة رسائلك وسرقة بطاقاتك الائتمانية. هذا الادعاء مضلل هندسيًا ويتجاهل أعظم إنجاز أمني شهدته الشبكة خلال العقد الأخير: الانتشار الشامل لبروتوكول <bdi dir="ltr">HTTPS</bdi>.
+    </p>
+
+    <p>
+      في الوضع الطبيعي دون تشغيل أي نفق، يمر اتصالك بالمسار التالي:
+    </p>
+
+    <!-- Diagram 01: Without VPN -->
+    <WithoutVpnDiagram lang="ar" />
+
+    <p>
+      في هذا المسار، يرى مزود خدمة الإنترنت (<span class="term" dir="ltr">ISP</span>) عنوان جهازك الحقيقي، وعناوين الـ<span class="term" dir="ltr">IP</span> لكل موقع تتصل به، وأسماء النطاقات المطلوبة في استعلامات <bdi dir="ltr">DNS</bdi> وحقل <bdi dir="ltr">SNI</bdi>.
+    </p>
+
+    <p>
+      <strong>ولكن:</strong> بفضل تشفير <bdi dir="ltr">TLS / HTTPS</bdi>، فإن محتوى الصفحات التي تقرؤها، وكلمات المرور التي تدخلها، وملفات الكوكيز التي ترسلها، تظل مشفرة تشفيرًا تامًا بين متصفحك وسيرفر الموقع. لا يستطيع موفر الإنترنت ولا مشغل الواي فاي المنزلي فك تشفير هذا المحتوى.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 02 / VPN TUNNEL -->
+  <section class="article-section">
+    <SectionHeading
+      number="02"
+      tag="TUNNEL BOUNDARY"
+      id="sec-02"
+    >
+      نفق <span class="term" dir="ltr">VPN</span>: أين يبدأ التشفير وأين ينتهي؟
+    </SectionHeading>
+
+    <p>
+      عندما تقوم بتفعيل تطبيق <span class="term" dir="ltr">VPN</span> (باستخدام بروتوكولات مثل <span class="term" dir="ltr">WireGuard</span> أو <span class="term" dir="ltr">OpenVPN</span>)، يُنشئ نظام التشغيل واجهة شبكة افتراضية (<bdi dir="ltr">Virtual TUN Interface</bdi>).
+    </p>
+
+    <p>
+      يقوم البرنامج بتغليف كل حزمة بيانات (<bdi dir="ltr">Encapsulation</bdi>) تصدر من جهازك داخل غلاف تشفيري جديد، ويوجهها نحو خادم محدد تابع لمزود الخدمة.
+    </p>
+
+    <!-- Diagram 02: VPN Tunnel Scope -->
+    <VpnTunnelDiagram lang="ar" />
+
+    <TechnicalNote title="حقيقة هندسية حاسمة: نفق الـVPN لا يمتد إلى الموقع النهائي">
+      أهم نقطة يغفل عنها المستخدمون هي <strong>حدود النفق</strong>. نفق الـ<span class="term" dir="ltr">VPN</span> ينتهي تمامًا عند خادم الـ<span class="term" dir="ltr">VPN</span>. بمجرد أن تصل الحزمة إلى ذلك السيرفر، يقوم بفك غلاف النفق، وإرسال البيانات كحزمة إنترنت عامة وعادية إلى خادم الموقع المطلوب. الـ<span class="term" dir="ltr">VPN</span> لا يشفر المسار بين خادمه وبين موقع الويب؛ بل يعتمد هذا المسار الأخير كليًا على تشفير <bdi dir="ltr">HTTPS</bdi>.
+    </TechnicalNote>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 03 / WHAT ISP SEES -->
+  <section class="article-section">
+    <SectionHeading
+      number="03"
+      tag="ISP VISIBILITY"
+      title="ماذا يرى موفر خدمة الإنترنت عند تشغيل الـVPN؟"
+      id="sec-03"
+    />
+
+    <p>
+      كثير من الإعلانات تعدك بـ <em>"التخفي الكامل عن مزود الإنترنت"</em>. من الناحية الواقعية، هذا غير دقيق. البيانات الوصفية (<bdi dir="ltr">Metadata</bdi>) لا تختفي في عالم الشبكات.
+    </p>
+
+    <p>
+      ما يحدث فعليًا هو تقليص الرؤية المباشرة للوجهات النهائية:
+    </p>
+    <ul>
+      <li>
+        <strong>ما يُحجب عن الـISP:</strong> لا يستطيع مزود الإنترنت رؤية عناوين الـ<span class="term" dir="ltr">IP</span> للمواقع التي تتصفحها، ولا أسماء النطاقات (إذا كانت استعلامات الـ<span class="term" dir="ltr">DNS</span> تمر داخل النفق بشكل سليم)، ولا ترويسات الطلبات.
+      </li>
+      <li>
+        <strong>ما يظل مكشوفًا للـISP:</strong> يرى المزود بوضوح أنك متصل بخادم <span class="term" dir="ltr">VPN</span>، ويعرف عنوان خادم الـ<span class="term" dir="ltr">VPN</span> الدقيق، والمنفذ المستخدم، ومواعيد بدء وانتهاء الاتصال، وحجم البيانات المنقولة في كل ثانية.
+      </li>
+    </ul>
+
+    <p>
+      في حالات التحليل الإحصائي المتقدم لحركة المرور (<bdi dir="ltr">Traffic Analysis</bdi>)، يمكن للجهات التي ترصد الشبكة تخمين طبيعة النشاط (مثل بث فيديو عالي الدقة، أو مكالمة صوتية، أو تنزيل ملفات ضخمة) بمجرد فحص أحجام الحزم وتواترها الزمني، حتى وإن كانت مشفرة بالكامل.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 04 / WHAT VPN PROVIDER SEES -->
+  <section class="article-section">
+    <SectionHeading
+      number="04"
+      tag="TRUST SHIFT"
+      title="ما يستطيع مزود الـVPN نفسه رؤيته"
+      id="sec-04"
+    />
+
+    <p>
+      هنا نصل إلى الفكرة الأساسية: <strong>أنت لم تحذف الثقة؛ جزء من الثقة ينتقل ببساطة من مزود الإنترنت إلى مزود الـVPN.</strong>
+    </p>
+
+    <!-- Diagram 03: Trust Shift -->
+    <VpnTrustShiftDiagram lang="ar" />
+
+    <p>
+      لأن نفق الـ<span class="term" dir="ltr">VPN</span> ينتهي عند خوادم المزود، فإن مشغل تلك الخوادم يمتلك موقعًا استراتيجيًا يتيح له رؤية شبكية فائقة:
+    </p>
+    <ul>
+      <li>يعرف عنوان <span class="term" dir="ltr">IP</span> الحقيقي الذي اتصلت منه، وربما هويتك الحقيقية عبر وسيلة الدفع أو الحساب المسجل.</li>
+      <li>يرى كل عنوان وجهة (<bdi dir="ltr">Destination IP</bdi>) يخرج إليه اتصالك من خادمه.</li>
+      <li>يتلقى كافة استعلامات الـ<bdi dir="ltr">DNS</bdi> الصادرة من جهازك إذا كنت تستخدم المحلل الخاص به.</li>
+      <li>يسجل مواعيد الاتصال، ومعدلات نقل البيانات، والأنظمة المستخدمة.</li>
+    </ul>
+
+    <p>
+      لذلك، فإن شعارات <em>"Zero Logs / لا نسجل أي بيانات"</em> ليست خاصية تشفيرية رياضية يمكن التحقق منها برمجيًا من طرف العميل؛ بل هي <strong>وعد سياسي وقانوني</strong> يعتمد على ثقتك في نزاهة تلك الشركة والتزامها الأخلاقي وعدم خضوعها لأوامر قضائية سرية.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 05 / WHAT WEBSITE SEES -->
+  <section class="article-section">
+    <SectionHeading
+      number="05"
+      tag="WEBSITE PERSPECTIVE"
+      id="sec-05"
+    >
+      ماذا يرى الموقع الهدف؟ اختلاف الـ<span class="term" dir="ltr">IP</span> لا يعني مجهولية الهوية
+    </SectionHeading>
+
+    <p>
+      الهدف الأكبر لكثير من مستخدمي الـ<span class="term" dir="ltr">VPN</span> هو منع المواقع من تتبعهم. ولكن في معمارية الويب الحديثة، لم يعد عنوان الـ<span class="term" dir="ltr">IP</span> سوى إحداثية توجيه شبكية، ولا يمثل الهوية بحد ذاته.
+    </p>
+
+    <!-- Diagram 05: Digital Identity Vectors -->
+    <WebsiteIdentityDiagram lang="ar" />
+
+    <p>
+      الموقع الهدف يرى بالفعل عنوان خروج الـ<span class="term" dir="ltr">VPN</span> بدلاً من عنوانك المنزلي، لكنه يستمر في التعرف عليك بدقة عبر طبقات التطبيق المتعددة:
+    </p>
+
+    <ol>
+      <li>
+        <strong>تسجيل الدخول بالحسابات (<bdi dir="ltr">Authenticated Sessions</bdi>):</strong> إذا دخلت إلى حسابك في <span class="term" dir="ltr">Google</span> أو <span class="term" dir="ltr">GitHub</span> أو فيسبوك، فإن الموقع يربط كل نشاطك بهويتك الرقمية مباشرة. الـ<span class="term" dir="ltr">VPN</span> لا يقدم أي إخفاء هنا.
+      </li>
+      <li>
+        <strong>ملفات تعريف الارتباط والتخزين المحلي (<bdi dir="ltr">Cookies &amp; LocalStorage</bdi>):</strong> ملفات الكوكي التتبعية ومعرّفات الجلسات المخزنة في متصفحك تنتقل مع كل طلب وتثبت هويتك بدقة متناهية.
+      </li>
+      <li>
+        <strong>بصمة المتصفح (<bdi dir="ltr">Browser Fingerprinting</bdi>):</strong> محركات الإعلانات تجمع مؤشرات تقنية من بيئة جهازك: نوع بطاقة الشاشة عبر <bdi dir="ltr">WebGL</bdi>، مخرجات رسم خطوط <bdi dir="ltr">Canvas</bdi>، دقة الشاشة، الخطوط المثبتة، واستجابة معالجة الصوت، مما يولد بصمة شبه فريدة تميزك حتى لو قمت بتغيير الـ<span class="term" dir="ltr">IP</span> مئة مرة.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 06 / DNS LEAKS -->
+  <section class="article-section">
+    <SectionHeading
+      number="06"
+      tag="DNS LEAKS"
+      id="sec-06"
+    >
+      استعلامات <span class="term" dir="ltr">DNS</span> ومعضلة التسرب خارج النفق
+    </SectionHeading>
+
+    <p>
+      حتى يعمل الـ<span class="term" dir="ltr">VPN</span> كما ينبغي، يجب ألا تقتصر حركة مرور البيانات (<bdi dir="ltr">TCP / UDP</bdi>) على النفق المشفر، بل يجب أن تمر استعلامات أسماء النطاقات (<bdi dir="ltr">DNS Queries</bdi>) داخله أيضًا.
+    </p>
+
+    <!-- Diagram 04: DNS Leak Comparison -->
+    <DnsLeakDiagram lang="ar" />
+
+    <p>
+      تحدث ثغرة <strong>تسرب الـDNS (<bdi dir="ltr">DNS Leak</bdi>)</strong> عندما يفشل تطبيق الـ<span class="term" dir="ltr">VPN</span> في ضبط إعدادات المحلل داخل نظام التشغيل بشكل صحيح، أو عند تفعيل ميزات مثل <bdi dir="ltr">Split Tunneling</bdi> بطريقة معيبة. في هذه الحالة:
+    </p>
+    <ul>
+      <li>تمر بياناتك المشفرة عبر خادم الـ<span class="term" dir="ltr">VPN</span>.</li>
+      <li>لكن حاسوبك يستمر في إرسال استعلامات الأسماء (مثل <em>"أريد IP موقع كذا"</em>) مباشرة إلى خادم الـ<span class="term" dir="ltr">DNS</span> التابع لمزود الإنترنت المحلي بصيغة مكشوفة!</li>
+    </ul>
+
+    <p>
+      هذا الخلل يلغي الغرض الأساسي من استخدام الـ<span class="term" dir="ltr">VPN</span>، إذ يمنح موفر الإنترنت سجلاً كاملاً بكل المواقع التي نويت زيارتها دون أي حماية.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 07 / WHAT VPN HELPS WITH -->
+  <section class="article-section">
+    <SectionHeading
+      number="07"
+      tag="THE VALUE"
+      title="متى يكون الـVPN أداة هندسية مفيدة حقًا؟"
+      id="sec-07"
+    />
+
+    <p>
+      بعيدًا عن المبالغات التسويقية، يظل الـ<span class="term" dir="ltr">VPN</span> أداة شبكية بالغة القيمة في سيناريوهات مهنية محددة بدقة:
+    </p>
+
+    <ul>
+      <li>
+        <strong>تأمين الاتصال على الشبكات المحلية غير الموثوقة:</strong> في مقاهي الإنترنت والمطارات، يحميك نفق الـ<span class="term" dir="ltr">VPN</span> من هجمات التسمم المحلي (<bdi dir="ltr">ARP Spoofing</bdi>)، والتنصت على حركة المرور في الطبقة الثانية، ومحاولات التلاعب بالـ<span class="term" dir="ltr">DNS</span> المحلي.
+      </li>
+      <li>
+        <strong>إخفاء عنوان الـIP الحقيقي عن خوادم الوجهة:</strong> لمنع المواقع الخارجية من تسجيل موقعك الجغرافي الدقيق أو معرفة مزود الإنترنت الخاص بك.
+      </li>
+      <li>
+        <strong>حجب سجل الوجهات عن مشغل الشبكة المحلي:</strong> منع مزودي الخدمة أو إدارات الشبكات المؤسسية المقيدة من تجميع سجلات تصفحك وبيعها للمعلنين.
+      </li>
+      <li>
+        <strong>الوصول إلى الشبكات الداخلية المغلقة (<bdi dir="ltr">Intranets</bdi>):</strong> وهذا هو الغرض الأصلي الذي ابتُكر الـ<span class="term" dir="ltr">VPN</span> من أجله: تمكين الموظفين والمهندسين من الوصول إلى خوادم العمل الداخلية وقواعد البيانات المغلقة من خارج مقر الشركة بأمان تام.
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 08 / WHAT VPN DOES NOT SOLVE -->
+  <section class="article-section">
+    <SectionHeading
+      number="08"
+      tag="LIMITATIONS"
+      title="ما هي التهديدات التي يعجز الـVPN عن حلها؟"
+      id="sec-08"
+    />
+
+    <p>
+      الـ<span class="term" dir="ltr">VPN</span> هو تقنية توجيه وتشفير شبكي (<bdi dir="ltr">Routing &amp; Tunneling</bdi>)، وليس برنامج مكافحة فيروسات ولا جدار حماية للمتصفح. الـ<span class="term" dir="ltr">VPN</span> لن يحميك من:
+    </p>
+
+    <ul>
+      <li>
+        <strong>هجمات التصيد الاحتيالي (<bdi dir="ltr">Phishing</bdi>):</strong> إذا قمت بفتح رابط مشبوه وأدخلت كلمة المرور في صفحة احتيالية، سينقل الـ<span class="term" dir="ltr">VPN</span> بياناتك للمهاجم داخل نفق مشفر بكل كفاءة!
+      </li>
+      <li>
+        <strong>البرمجيات الخبيثة وسارقات الجلسات (<bdi dir="ltr">Malware &amp; Infostealers</bdi>):</strong> إذا أصاب جهازك ملف خبيث، فإنه يستخرج ملفات الكوكيز وكلمات المرور من القرص الصلب مباشرة دون أن يعنيه وجود الـ<span class="term" dir="ltr">VPN</span> إطلاقًا.
+      </li>
+      <li>
+        <strong>تتبع ملفات الكوكيز وبصمات المنصات:</strong> كما شرحنا، التتبع الحديث يحدث داخل بيئة التطبيق ولا يعتمد على ثبات الـ<span class="term" dir="ltr">IP</span>.
+      </li>
+      <li>
+        <strong>اختراق الأجهزة ونقاط النهاية (<bdi dir="ltr">Endpoint Compromise</bdi>):</strong> إذا كان نظام التشغيل أو المتصفح يحتوي على ثغرة تنفيذ كود عن بعد، فالنفق الشبكي عاجز عن صد الهجوم.
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 09 / VPN VS HTTPS -->
+  <section class="article-section">
+    <SectionHeading
+      number="09"
+      tag="COMPARISON"
+      id="sec-09"
+    >
+      الـ<span class="term" dir="ltr">VPN</span> مقابل <span class="term" dir="ltr">HTTPS</span>: أيهما يحميك أكثر؟
+    </SectionHeading>
+
+    <p>
+      المقارنة بينهما ليست مجرد تصنيف هرمي لطبقات الشبكة، بل هي فهم دقيق لـ <strong>حدود الحماية والتشفير</strong> التي يرسمها كل نظام:
+    </p>
+
+    <!-- Diagram 06: VPN vs HTTPS -->
+    <VpnVsHttpsDiagram lang="ar" />
+
+    <p>
+      <strong>حدود حماية نفق الـ<span class="term" dir="ltr">VPN</span>:</strong> تمتد حصريًا من جهازك إلى نقطة خروج مزود الـ<span class="term" dir="ltr">VPN</span> (<bdi dir="ltr">Device ↔ VPN endpoint</bdi>). بمجرد خروج البيانات من خادم الـ<span class="term" dir="ltr">VPN</span>، ينتهي النفق وتسافر الحزم كبيانات عادية في الإنترنت العام نحو السيرفر المستهدف.
+    </p>
+
+    <p>
+      <strong>حدود حماية <span class="term" dir="ltr">HTTPS / TLS</span>:</strong> تمتد مباشرة من تطبيق العميل (المتصفح) إلى نقطة نهاية الـ<span class="term" dir="ltr">TLS</span> التي تخدم الموقع (<bdi dir="ltr">Application ↔ TLS endpoint</bdi>). وفي معمارية الويب الحديثة، تكون هذه النقطة غالبًا خادم شبكة توزيع محتوى (<bdi dir="ltr">CDN Edge</bdi>) أو وكيلاً عكسيًا (<bdi dir="ltr">Reverse Proxy / WAF</bdi>) ينهي جلسة التشفير قبل تمرير البيانات للسيرفر الأصلي الداخلي (<bdi dir="ltr">Backend Origin</bdi>). لا يستطيع أي طرف على مسار النقل — بما في ذلك مزود الـ<span class="term" dir="ltr">VPN</span> نفسه — قراءة محتوى الطلبات المشفرة بـ<span class="term" dir="ltr">HTTPS</span> أو التلاعب بها دون إطلاق تحذيرات أمنية فورية لفشل الشهادة.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 10 / TRUST MODEL -->
+  <section class="article-section">
+    <SectionHeading
+      number="10"
+      tag="الخلاصة"
+      id="sec-10"
+    >
+      الـ<span class="term" dir="ltr">VPN</span> لا يحذف الثقة. هو فقط ينقلها.
+    </SectionHeading>
+
+    <!-- Diagram 07: Final Trust Model -->
+    <VpnTrustModelDiagram lang="ar" />
+
+    <p style="font-size: 1.25rem; font-weight: 600; color: var(--color-ink); line-height: 1.8;">
+      عندما لا تستخدم <span class="term" dir="ltr">VPN</span>، أنت تضع ثقتك في مزود الإنترنت المحلي (<span class="term" dir="ltr">ISP</span>) وتعتمد على <span class="term" dir="ltr">HTTPS</span> لحماية محتواك. وعندما تفعّل <span class="term" dir="ltr">VPN</span>، أنت تسحب تلك الثقة من المزود المحلي وتضعها بالكامل في يد شركة الـ<span class="term" dir="ltr">VPN</span>.
+    </p>
+
+    <p>
+      إذا كان مزود الـ<span class="term" dir="ltr">VPN</span> أكثر أمانًا ونزاهة واستقلالية من مزود الإنترنت المحلي في بلدك، فالتبديل خطوة مفهومة ومبررة. أما إذا قمت بتثبيت تطبيق <span class="term" dir="ltr">VPN</span> مجاني مجهول الهوية، فقد استبدلت مزود إنترنت معروفًا وخاضعًا للرقابة بطرف مجهول يملك كل الحوافز لبيع بياناتك لمن يدفع أكثر.
+    </p>
+
+    <div style="padding: 1.5rem; border: 1px solid var(--color-hairline); background-color: var(--color-bg-warm); margin-block: 2.5rem;">
+      <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--color-olive); margin-block-end: 0.5rem;">
+        الخلاصة
+      </div>
+      <p style="margin: 0; font-size: 1.15rem; font-weight: 600; line-height: 1.85; color: var(--color-ink);">
+        الأمان في الشبكات لا يأتي من تطبيقات تَعِد بالمعجزات؛ بل من فهم أين توجد الثقة، وكيف تمر البيانات، وما الذي يحميه كل بروتوكول بدقة.
+      </p>
+    </div>
+  </section>
+
+  <!-- Related Articles -->
+  <ContinueReading currentArticleId="what-a-vpn-actually-does" lang="ar" />
+
+</ArticleLayout>

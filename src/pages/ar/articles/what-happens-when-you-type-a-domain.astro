@@ -1,0 +1,432 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import SectionHeading from '../../../components/SectionHeading.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import TechnicalNote from '../../../components/TechnicalNote.astro';
+import ContinueReading from '../../../components/ContinueReading.astro';
+
+// Technical SVG Diagrams
+import DnsResolutionDiagram from '../../../components/diagrams/DnsResolutionDiagram.astro';
+import ArpGatewayDiagram from '../../../components/diagrams/ArpGatewayDiagram.astro';
+import RoutingPathDiagram from '../../../components/diagrams/RoutingPathDiagram.astro';
+import TransportHandshakeDiagram from '../../../components/diagrams/TransportHandshakeDiagram.astro';
+import TlsHandshakeDiagram from '../../../components/diagrams/TlsHandshakeDiagram.astro';
+import CdnOriginDiagram from '../../../components/diagrams/CdnOriginDiagram.astro';
+import BrowserRenderPipelineDiagram from '../../../components/diagrams/BrowserRenderPipelineDiagram.astro';
+
+const tocItems = [
+  { id: 'sec-01', num: '01', title: 'قبل الاستعلام الشبكي (الذاكرة المحلية)' },
+  { id: 'sec-02', num: '02', title: 'تحليل اسم النطاق (DNS Lookup)' },
+  { id: 'sec-03', num: '03', title: 'استكشاف موجه البوابة (ARP / NDP)' },
+  { id: 'sec-04', num: '04', title: 'التوجيه الشبكي وعبور المسارات' },
+  { id: 'sec-05', num: '05', title: 'تأسيس اتصال النقل (TCP مقابل QUIC)' },
+  { id: 'sec-06', num: '06', title: 'نفق التشفير والأمان (TLS 1.3)' },
+  { id: 'sec-07', num: '07', title: 'بث طلب الـHTTP في أسلاك الشبكة' },
+  { id: 'sec-08', num: '08', title: 'شبكات الحافة والخادم الأصلي (CDN)' },
+  { id: 'sec-09', num: '09', title: 'استقبال الاستجابة واكتشاف الموارد' },
+  { id: 'sec-10', num: '10', title: 'معالجة المتصفح للشاشات (Rendering)' }
+];
+
+const pageTitle = "كتبت اسم موقع وضغطت Enter… ماذا حدث فعلًا؟";
+const pageSubtitle = "بين كتابة اسم الموقع وظهور أول pixel، مرّت البيانات عبر عدة مراحل تقنية في جهازك والشبكة.";
+const pageDescription = "شرح خطوة بخطوة لما يحدث خلف الكواليس: من الذاكرة المحلية وDNS وبوابة الراوتر إلى مصافحات TCP/TLS والـHTTP وعرض الصفحة في المتصفح.";
+---
+
+<ArticleLayout
+  title={pageTitle}
+  subtitle={pageSubtitle}
+  description={pageDescription}
+  lang="ar"
+  arUrl="/ar/articles/what-happens-when-you-type-a-domain/"
+  enUrl="/en/articles/what-happens-when-you-type-a-domain/"
+  currentPath="/ar/articles/what-happens-when-you-type-a-domain/"
+  tocItems={tocItems}
+  categoryText="الشبكات / بروتوكولات الويب"
+  articleMeta="مقال 02 / رحلة الطلب الشبكي"
+>
+
+  <!-- 01 / BEFORE DNS -->
+  <section class="article-section">
+    <SectionHeading
+      number="01"
+      tag="BEFORE DNS"
+      title="قبل أن تخرج أي حزمة: الذاكرة المحلية"
+      id="sec-01"
+    />
+
+    <p>
+      في اللحظة التي تضغط فيها على زر <span class="term" dir="ltr">Enter</span> داخل المتصفح، تمر أجزاء خاطفة من الثانية قبل أن تبدأ الصفحة في الظهور. في هذه اللحظات، تقطع بياناتك مسارًا تقنيًا كاملاً. خلينا نتبع هذا الطلب من جهازك إلى السيرفر خطوة بخطوة.
+    </p>
+
+    <p>
+      قبل أن تخرج أي بيانات إلى الإنترنت، يفحص المتصفح ونظام التشغيل الذاكرة المحلية أولاً:
+    </p>
+
+    <ol>
+      <li>
+        <strong>ذاكرة المتصفح المؤقتة (<bdi dir="ltr">Browser DNS Cache</bdi>):</strong> يحتفظ المتصفح بسجل داخلي لأسماء النطاقات التي قمت بزيارتها مؤخرًا لفترة زمنية وجيزة (بضع دقائق)، لتقليل زمن الاستجابة (<bdi dir="ltr">Latency</bdi>).
+      </li>
+      <li>
+        <strong>ذاكرة نظام التشغيل (<bdi dir="ltr">OS Resolver Cache</bdi>):</strong> إذا لم يجد المتصفح السجل داخله، يستدعي دالة النظام القياسية (مثل <code dir="ltr">getaddrinfo</code> في أنظمة <span class="term" dir="ltr">POSIX</span>) التي تفحص كاش النظام المحلي.
+      </li>
+      <li>
+        <strong>ملف المضيفين الثابت (<code dir="ltr">/etc/hosts</code>):</strong> يفحص النظام ملف المطابقة المحلي الثابت المخزن على القرص؛ فإذا وُجد توجيه يدوي لنطاق معين إلى عنوان محدد، يتم اعتماده فورًا دون إجراء أي استعلام شبكي.
+      </li>
+    </ol>
+
+    <p>
+      إذا لم يجد المتصفح العنوان في أي من هذه الفحوصات (<bdi dir="ltr">Cache Miss</bdi>)، يرسل جهازك طلب استعلام لمعرفة العنوان عبر الإنترنت.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 02 / DNS LOOKUP -->
+  <section class="article-section">
+    <SectionHeading
+      number="02"
+      tag="DNS RESOLUTION"
+      id="sec-02"
+    >
+      استعلام <span class="term" dir="ltr">DNS</span>: تفكيك الاسم إلى عنوان
+    </SectionHeading>
+
+    <p>
+      إذا لم يُعثر على العنوان داخل كاش المتصفح أو ملفات النظام، يتولى <strong>محلل العميل البسيط (<bdi dir="ltr">Stub Resolver</bdi>)</strong> في نظام التشغيل (مثل دالة <code dir="ltr">getaddrinfo()</code> أو خدمة <code dir="ltr">systemd-resolved</code>) إرسال طلب استعلام إلى <strong>المحلل التكراري (<bdi dir="ltr">Recursive Resolver</bdi>)</strong> التابع لمزود الإنترنت أو خدمة عامة مثل <code dir="ltr">1.1.1.1</code> أو <code dir="ltr">8.8.8.8</code>.
+    </p>
+
+    <p>
+      يُشار هندسيًا إلى أن بروتوكولات مثل <bdi dir="ltr">DoH (DNS over HTTPS)</bdi> و<bdi dir="ltr">DoT (DNS over TLS)</bdi> تمثل <em>خيارات نقل مشفرة</em> بين محلل العميل البسيط والمحلل التكراري لحماية الاتصال من التنصت، وليست مراحل استعلام هرمية متعاقبة.
+    </p>
+
+    <!-- Diagram 01: DNS Resolution -->
+    <DnsResolutionDiagram lang="ar" />
+
+    <p>
+      يفحص المحلل التكراري ذاكرته المؤقتة أولاً؛ فإذا وجد سجلاً صالحًا (<bdi dir="ltr">TTL</bdi>) أعاد الرد فورًا دون اتصال خارجي. وفقط عند غياب النتيجة من الكاش، يبدأ المحلل مساره التكراري عبر البنية التحتية الهرمية:
+    </p>
+
+    <ul>
+      <li>يسأل خوادم الجذر (<bdi dir="ltr">Root Nameservers</bdi>) التي تدله على خوادم النطاق الأعلى (<bdi dir="ltr">TLD Nameservers</bdi>) المسؤول عن <code dir="ltr">.com</code>.</li>
+      <li>يسأل خادم الـ<bdi dir="ltr">TLD</bdi> الذي يدله بدوره على خادم الأسماء المعتمد (<bdi dir="ltr">Authoritative Nameserver</bdi>) الخاص بنطاق الموقع.</li>
+      <li>يسأل الخادم المعتمد الذي يحمل سجلات النطاق الحقيقية، فيحصل على سجل الـ<bdi dir="ltr">A</bdi> (لعناوين <bdi dir="ltr">IPv4</bdi>) وسجل الـ<bdi dir="ltr">AAAA</bdi> (لعناوين <bdi dir="ltr">IPv6</bdi>).</li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 03 / ARP / NDP -->
+  <section class="article-section">
+    <SectionHeading
+      number="03"
+      tag="LINK LAYER"
+      id="sec-03"
+    >
+      طبقة الربط: استكشاف عنوان <span class="term" dir="ltr">MAC</span> للراوتر المحلي
+    </SectionHeading>
+
+    <p>
+      الآن يمتلك جهازك عنوان <span class="term" dir="ltr">IP</span> الهدف (مثلاً: <code dir="ltr">93.184.216.34</code>). ولكن بطاقة الشبكة في حاسوبك تعمل على الطبقة الفيزيائية وطبقة ربط البيانات (<bdi dir="ltr">Data Link Layer / Layer 2</bdi>)، ولا تستطيع إرسال إطارات إيثرنت (<bdi dir="ltr">Ethernet Frames</bdi>) دون معرفة عنوان فيزيائي (<bdi dir="ltr">MAC Address</bdi>).
+    </p>
+
+    <TechnicalNote title="ملاحظة مهمة: جهازك لا يستعلم عن MAC لخادم الويب البعيد">
+      من الأخطاء الشائعة الاعتقاد بأن حاسوبك يحتاج لمعرفة عنوان <span class="term" dir="ltr">MAC</span> الخاص بخادم الويب في كاليفورنيا أو فرانكفورت. في شبكات الـ<span class="term" dir="ltr">IP</span>، لا تغادر عناوين الـ<span class="term" dir="ltr">MAC</span> نطاق البث المحلي (<bdi dir="ltr">Broadcast Domain</bdi>) أبدًا. عندما يدرك جهازك أن عنوان الوجهة خارج شبكته الفرعية (<bdi dir="ltr">Subnet</bdi>)، فإن عنوان الـ<span class="term" dir="ltr">MAC</span> الوحيد الذي يطلبه هو عنوان <strong>البوابة الافتراضية (<bdi dir="ltr">Default Gateway</bdi>)</strong> — أي الراوتر الموجود في منزلك أو مكتبك.
+    </TechnicalNote>
+
+    <!-- Diagram 02: ARP & Gateway -->
+    <ArpGatewayDiagram lang="ar" />
+
+    <p>
+      لمعرفة عنوان الـ<span class="term" dir="ltr">MAC</span> الخاص بالراوتر المحلي:
+    </p>
+    <ul>
+      <li>في شبكات <bdi dir="ltr">IPv4</bdi>: يُرسل الجهاز استعلام <bdi dir="ltr">ARP (Address Resolution Protocol)</bdi> بصيغة بث عام: <em>"من يملك IP البوابة 192.168.1.1؟ يرجى إخباري بعنوان MAC الخاص به"</em>.</li>
+      <li>في شبكات <bdi dir="ltr">IPv6</bdi>: يؤدي بروتوكول <bdi dir="ltr">NDP (Neighbor Discovery Protocol)</bdi> نفس الوظيفة بالاعتماد على رسائل <bdi dir="ltr">ICMPv6</bdi> الموجهة لمجموعات مخصصة.</li>
+    </ul>
+
+    <p>
+      بمجرد أن يرد الراوتر بعنوانه الفيزيائي، يضع جهازك حزمة الـ<span class="term" dir="ltr">IP</span> داخل إطار إيثرنت موجه إلى عنوان <span class="term" dir="ltr">MAC</span> الراوتر، ويسلمها عبر السلك أو الهواء.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 04 / ROUTING -->
+  <section class="article-section">
+    <SectionHeading
+      number="04"
+      tag="ROUTING PATH"
+      title="رحلة الحزمة عبر موجهات الإنترنت"
+      id="sec-04"
+    />
+
+    <p>
+      عندما يتلقى الراوتر المحلي الإطار الفيزيائي، يقوم بنزع غلاف الإيثرنت القديم (<bdi dir="ltr">De-encapsulation</bdi>)، ثم يفحص ترويسة <span class="term" dir="ltr">IP</span> في الطبقة الثالثة (<bdi dir="ltr">Layer 3</bdi>).
+    </p>
+
+    <p>
+      إذا كنت متصلاً عبر شبكة منزلية، يطبّق الراوتر أولاً تقنية ترجمة عناوين الشبكة (<bdi dir="ltr">NAT / NAPT</bdi>): يستبدل عنوان جهازك المحلي الخاص (مثل <code dir="ltr">192.168.1.50</code>) بعنوانك العام المعين من قِبل المزود (<bdi dir="ltr">Public WAN IP</bdi>)، ويسجل ذلك في جدول التتبع ليتمكن لاحقًا من إعادة توجيه الردود إليك.
+    </p>
+
+    <!-- Diagram 03: Routing Path -->
+    <RoutingPathDiagram lang="ar" />
+
+    <p>
+      ثم تبدأ الحزمة رحلتها عبر الإنترنت العام:
+    </p>
+    <ul>
+      <li>تمر الحزمة من راوترك إلى موجه النفاذ التابع لمزود الخدمة (<bdi dir="ltr">ISP</bdi>).</li>
+      <li>يتنقل الموجهون عبر الأنظمة المستقلة (<bdi dir="ltr">Autonomous Systems — AS</bdi>) مسترشدين ببروتوكول البوابة الحدودية (<bdi dir="ltr">BGP — Border Gateway Protocol</bdi>) الذي يحدد أفضل مسار عبر شبكات العبور والنقاط التبادلية (<bdi dir="ltr">IXPs</bdi>).</li>
+      <li>في كل خطوة (<bdi dir="ltr">Hop</bdi>) يمر بها الباكيت، يقوم كل راوتر بإنقاص حقل مدة الحياة (<bdi dir="ltr">TTL / Hop Limit</bdi>) بمقدار واحد، ويعيد تغليف الحزمة بعنوان <span class="term" dir="ltr">MAC</span> جديد خاص بالموجه التالي في المسار.</li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 05 / TRANSPORT -->
+  <section class="article-section">
+    <SectionHeading
+      number="05"
+      tag="TRANSPORT LAYER"
+      id="sec-05"
+    >
+      تأسيس اتصال النقل: مصافحة <span class="term" dir="ltr">TCP</span> مقابل <span class="term" dir="ltr">QUIC</span>
+    </SectionHeading>
+
+    <p>
+      حزم <span class="term" dir="ltr">IP</span> بطبيعتها غير موثوقة وقد تضيع أو تصل مبعثرة الترتيب. لكي يتمكن المتصفح من تبادل طلبات صفحات الويب، يحتاج إلى قناة اتصال منظمة في طبقة النقل (<bdi dir="ltr">Transport Layer / Layer 4</bdi>).
+    </p>
+
+    <!-- Diagram 04: Transport Handshake -->
+    <TransportHandshakeDiagram lang="ar" />
+
+    <h3>أ) المسار الكلاسيكي: مصافحة TCP الثلاثية (HTTP/1.1 و HTTP/2)</h3>
+    <p>
+      في المواقع التي تعمل عبر الإصدارات السابقة، يؤسس المتصفح اتصال <span class="term" dir="ltr">TCP</span> عبر المصافحة الثلاثية الشهيرة (<bdi dir="ltr">Three-Way Handshake</bdi>):
+    </p>
+    <ul>
+      <li><strong>SYN:</strong> يرسل العميل حزمة برقم تسلسلي عشوائي مبدئي (<bdi dir="ltr">ISN</bdi>).</li>
+      <li><strong>SYN-ACK:</strong> يرد السيرفر بالموافقة معلنًا رقمه التسلسلي الخاص وتأكيد استلام رقم العميل.</li>
+      <li><strong>ACK:</strong> يؤكد العميل استلام رد السيرفر، وتصبح القناة جاهزة لنقل البيانات.</li>
+    </ul>
+
+    <h3>ب) المسار الحديث: <span dir="ltr">HTTP/3</span> عبر بروتوكول <span class="term" dir="ltr">QUIC</span> فوق <span class="term" dir="ltr">UDP</span></h3>
+    <p>
+      في المواقع الحديثة الداعمة لـ <span class="term" dir="ltr">HTTP/3</span>، لا يُستخدم <span class="term" dir="ltr">TCP</span>، بل يُبنى الاتصال فوق بروتوكول <span class="term" dir="ltr">QUIC</span> العامل على <span class="term" dir="ltr">UDP</span>. يتطلب الاتصال الأولي عادةً مصافحة من نمط <bdi dir="ltr">1-RTT</bdi> تدمج معايير النقل وتبادل مفاتيح تشفير <bdi dir="ltr">TLS 1.3</bdi> في دورة واحدة. أما ميزة <bdi dir="ltr">0-RTT</bdi> فتتاح فقط عند استئناف الجلسات السابقة عند وجود حالة ومفاتيح صالحة مخزنة مسبقًا، مما يلغي ظاهرة حظر مقدمة الصف (<bdi dir="ltr">Head-of-Line Blocking</bdi>) في طبقة النقل.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 06 / TLS -->
+  <section class="article-section">
+    <SectionHeading
+      number="06"
+      tag="SECURITY HANDSHAKE"
+      id="sec-06"
+    >
+      نفق التشفير: مصافحة <span class="term" dir="ltr">TLS 1.3</span>
+    </SectionHeading>
+
+    <p>
+      حتى هذه اللحظة، القناة المنشأة بين جهازك والسيرفر قناة مكشوفة يمكن لأي وسيط شبكي قراءة كل بايت يمر خلالها. لجعل الاتصال آمنًا وخاصًا عبر <bdi dir="ltr">HTTPS</bdi>، تبدأ طبقة أمان النقل (<bdi dir="ltr">TLS — Transport Layer Security</bdi>) في العمل.
+    </p>
+
+    <!-- Diagram 05: TLS Handshake -->
+    <TlsHandshakeDiagram lang="ar" />
+
+    <p>
+      وفق مواصفات <bdi dir="ltr">TLS 1.3</bdi> الحديثة، تُنفذ المصافحة التشفيرية في دورة واحدة كاملة (<bdi dir="ltr">1-RTT</bdi>):
+    </p>
+    <ol>
+      <li>
+        <strong>ClientHello:</strong> يرسل المتصفح قائمة بخوارزميات التشفير المدعومة، اسم النطاق المطلوب (<bdi dir="ltr">SNI — Server Name Indication</bdi>)، وحصة المفتاح العشوائي المولدة محليًا عبر خوارزمية ديفي-هيلمان للمنحنيات الإهليلجية (<bdi dir="ltr">ECDH Key Share</bdi>).
+      </li>
+      <li>
+        <strong>ServerHello:</strong> يختار السيرفر خوارزمية التشفير المشتركة، ويرسل حصة مفتاحه هو الآخر. انطلاقًا من هذه الحصص فقط، يستطيع كلا الطرفين اشتقاق مفاتيح تشفير متماثلة (<bdi dir="ltr">Symmetric Keys</bdi>) دون أن تمر المفاتيح في أسلاك الشبكة أبدًا.
+      </li>
+      <li>
+        <strong>التحقق من الشهادة الرقمية (<bdi dir="ltr">Certificate Validation</bdi>):</strong> يرسل السيرفر شهادته الموقعة من سلطة مصادقة معتمدة (<bdi dir="ltr">Certificate Authority — CA</bdi>). يتحقق المتصفح من صحة التوقيع التشفيري، وأن اسم النطاق يتطابق مع الشهادة، وأنها سارية المفعول ولم تُلغَ.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 07 / HTTP REQUEST -->
+  <section class="article-section">
+    <SectionHeading
+      number="07"
+      tag="APPLICATION LAYER"
+      id="sec-07"
+    >
+      بث طلب <span class="term" dir="ltr">HTTP</span> الحقيقي داخل النفق
+    </SectionHeading>
+
+    <p>
+      بعد اكتمال بناء القناة المشفرة، يرسل المتصفح أول رسالة في طبقة التطبيق (<bdi dir="ltr">Application Layer / Layer 7</bdi>): طلب <span class="term" dir="ltr">HTTP</span> للحصول على مستند الصفحة.
+    </p>
+
+    <p>
+      في سلك الشبكة، تظهر الرسالة مهيكلة وفق معايير البروتوكول، محتوية على أمر الجلب، مسار المورد، والترويسات التعريفية:
+    </p>
+
+    <CodeBlock
+      title="HTTP/1.1 Wire Request Example"
+      code={`GET / HTTP/1.1
+Host: writeups.mouhibmahadbi.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: ar,en-US;q=0.7,en;q=0.3
+Accept-Encoding: gzip, deflate, br, zstd
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1`}
+      language="http"
+    />
+
+    <p>
+      تحمل هذه الترويسات إرشادات هامة للسيرفر: أنواع المحتوى المقبولة (<span class="term" dir="ltr">Accept</span>)، خوارزميات الضغط المدعومة لتوفير الباندويث (<span class="term" dir="ltr">br / gzip</span>)، ومعلومات المتصفح وسياق التنقل.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 08 / CDN & ORIGIN -->
+  <section class="article-section">
+    <SectionHeading
+      number="08"
+      tag="EDGE INFRASTRUCTURE"
+      id="sec-08"
+    >
+      شبكات الحافة (<span class="term" dir="ltr">CDN</span>) مقابل الخادم الأصلي
+    </SectionHeading>
+
+    <p>
+      أغلب المواقع ذات الزيارات العالية لا تجعل استعلامات زوارها تتجه مباشرة إلى جهاز سيرفر وحيد في غرفة بعيدة؛ بل تعتمد على شبكات توصيل المحتوى (<bdi dir="ltr">CDNs — Content Delivery Networks</bdi>) الموزعة جغرافيًا عبر خوادم حافة (<bdi dir="ltr">Edge PoPs</bdi>).
+    </p>
+
+    <!-- Diagram 06: CDN vs Origin -->
+    <CdnOriginDiagram lang="ar" />
+
+    <p>
+      عندما يصل الطلب إلى خادم الحافة، يواجه أحد مسارين:
+    </p>
+    <ul>
+      <li>
+        <strong>إصابة الذاكرة المؤقتة (<bdi dir="ltr">Cache Hit</bdi>):</strong> إذا كان المورد المطلوب (مثل صفحة مقروءة، أو ملف تنسيق <span class="term" dir="ltr">CSS</span>، أو صورة) مخزنًا بالفعل في ذاكرة الحافة وضمن فترة صلاحيته، يُعيده خادم الـ<span class="term" dir="ltr">CDN</span> للعميل فورًا خلال 5 إلى 15 ميلي ثانية دون إشغال الخادم الأصلي.
+      </li>
+      <li>
+        <strong>فوات الذاكرة المؤقتة (<bdi dir="ltr">Cache Miss / Dynamic Path</bdi>):</strong> إذا كان المورد ديناميكيًا أو مخصصًا للمستخدم، يمرر خادم الحافة الطلب عبر شبكته التحتية الخاصة إلى <strong>الخادم الأصلي (<bdi dir="ltr">Origin Server</bdi>)</strong> الذي يعالج الطلب ويعيد الناتج.
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 09 / RESPONSE -->
+  <section class="article-section">
+    <SectionHeading
+      number="09"
+      tag="RESOURCE DISCOVERY"
+      id="sec-09"
+    >
+      استقبال الاستجابة واكتشاف الموارد التابعة
+    </SectionHeading>
+
+    <p>
+      يرد السيرفر بترويسة استجابة تبدأ برمز الحالة (<bdi dir="ltr">HTTP Status Code</bdi>)، متبوعة بترويسات التحكم والأمان ومحتوى المستند:
+    </p>
+
+    <CodeBlock
+      title="HTTP/1.1 Wire Response Header"
+      code={`HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Content-Encoding: br
+Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'
+X-Content-Type-Options: nosniff
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+Date: Tue, 22 Sep 2026 18:20:00 GMT`}
+      language="http"
+    />
+
+    <p>
+      بمجرد أن تصل أولى بايتات مستند <bdi dir="ltr">HTML</bdi> المضغوط، لا ينتظر المتصفح اكتمال تنزيل الملف بأكمله؛ بل يبدأ محلل المتصفح في قراءة الحزم لحظة بلحظة عبر تدفق البيانات المتواصل (<bdi dir="ltr">Streaming Parser</bdi>).
+    </p>
+
+    <p>
+      أثناء قراءة الأسطر الأولى من المستند، يكتشف المتصفح إشارات لموارد إضافية مطلوبة لبناء الصفحة:
+    </p>
+    <ul>
+      <li>ملفات الأنماط والتنسيق (<code dir="ltr">&lt;link rel="stylesheet"&gt;</code>)</li>
+      <li>خطوط الطباعة المخصصة (<code dir="ltr">fonts.googleapis.com</code>)</li>
+      <li>أكواد البرمجة التفاعلية (<code dir="ltr">&lt;script src="..."&gt;</code>)</li>
+      <li>الصور والرسومات البيانية (<code dir="ltr">&lt;img src="..."&gt;</code>)</li>
+    </ul>
+
+    <p>
+      يقوم محرك فحص التحميل المسبق (<bdi dir="ltr">Preload Scanner</bdi>) بمسح المستند سريعًا لفتح اتصالات فرعية موازية وجلب هذه الموارد بأعلى كفاءة ممكنة.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 10 / RENDERING -->
+  <section class="article-section">
+    <SectionHeading
+      number="10"
+      tag="THE RENDER"
+      id="sec-10"
+    >
+      محرك العرض: من البايتات إلى أول <span class="term" dir="ltr">Pixel</span> على الشاشة
+    </SectionHeading>
+
+    <p>
+      هنا تنتقل المهمة من بطاقة الشبكة إلى وحدة المعالجة المركزية (<span class="term" dir="ltr">CPU</span>) والمعالج الرسومي (<span class="term" dir="ltr">GPU</span>) داخل حاسوبك لتحويل البايتات النصية إلى شاشة بصرية تفاعلية.
+    </p>
+
+    <!-- Diagram 07: Browser Render Pipeline -->
+    <BrowserRenderPipelineDiagram lang="ar" />
+
+    <p>
+      هذه العملية ليست خطًا تسلسليًا صلبًا، بل هي مراحل متداخلة ومتوازية تدار ببراعة داخل محرك المتصفح:
+    </p>
+
+    <ol>
+      <li>
+        <strong>بناء شجرة الكائنات (<bdi dir="ltr">DOM Tree</bdi>):</strong> تحويل نصوص وسوم <bdi dir="ltr">HTML</bdi> إلى عقد برمجية هرمية تمثل عناصر المستند.
+      </li>
+      <li>
+        <strong>بناء شجرة الأنماط (<bdi dir="ltr">CSSOM Tree</bdi>):</strong> تحليل قواعد التنسيق وحساب الخصائص المتتالية والموروثة لكل عنصر. ملفات <span class="term" dir="ltr">CSS</span> تحظر العرض (<bdi dir="ltr">Render-Blocking</bdi>) لأن المتصفح يرفض رسم أي بكسل دون معرفة قواعد الألوان والخطوط.
+      </li>
+      <li>
+        <strong>توليد شجرة العرض (<bdi dir="ltr">Render Tree</bdi>):</strong> دمج العقد المرئية فقط من الـ<bdi dir="ltr">DOM</bdi> مع قواعد الـ<bdi dir="ltr">CSSOM</bdi> المحسوبة (واستبعاد العناصر المخفية مثل <code dir="ltr">display: none</code>).
+      </li>
+      <li>
+        <strong>حساب التخطيط والهندسة (<bdi dir="ltr">Layout / Reflow</bdi>):</strong> حساب المواقع الدقيقة والإحداثيات الهندسية (<span class="term" dir="ltr">x, y</span>) وعرض وارتفاع كل صندوق بالنسبة لحجم نافذة المتصفح (<bdi dir="ltr">Viewport</bdi>).
+      </li>
+      <li>
+        <strong>الرسم النقطي (<bdi dir="ltr">Painting / Rasterization</bdi>):</strong> تحويل الصناديق الهندسية والألوان والحدود والنصوص إلى بكسلات نقطية ملونة مقسمة على طبقات مستقلة.
+      </li>
+      <li>
+        <strong>تجميع الطبقات (<bdi dir="ltr">Compositing</bdi>):</strong> إرسال الطبقات الرسومية إلى المعالج الرسومي (<bdi dir="ltr">GPU</bdi>) لتركيبها معًا وعرض المشهد المتكامل النهائي على الشاشة أمام عينيك.
+      </li>
+    </ol>
+
+    <div style="padding: 1.5rem; border: 1px solid var(--color-hairline); background-color: var(--color-bg-warm); margin-block: 2.5rem;">
+      <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--color-olive); margin-block-end: 0.5rem;">
+        الخلاصة
+      </div>
+      <p style="margin: 0; font-size: 1.15rem; font-weight: 600; line-height: 1.85; color: var(--color-ink);">
+        بين كتابة اسم الموقع وضغطك على زر <span class="term" dir="ltr">Enter</span> وظهور أول <span class="term" dir="ltr">pixel</span> على شاشتك، مرّت بياناتك عبر عدة طبقات من الشبكات والبروتوكولات، وعبرت مسارات طويلة وعالجت مئات العمليات في أجزاء خاطفة من الثانية.
+      </p>
+    </div>
+  </section>
+
+  <!-- Related Articles -->
+  <ContinueReading currentArticleId="what-happens-when-you-type-a-domain" lang="ar" />
+
+</ArticleLayout>

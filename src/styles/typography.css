@@ -1,0 +1,281 @@
+/* Typography System — Mouhib Writeups */
+
+/* Google Fonts pre-connect and imports for editorial feel */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+  --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-arabic: 'IBM Plex Sans Arabic', 'Noto Naskh Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif;
+}
+
+/* Global Font Assignment based on language and context */
+html[lang="ar"] {
+  font-family: var(--font-arabic);
+  direction: rtl;
+  text-align: right;
+}
+
+html[lang="en"] {
+  font-family: var(--font-serif);
+  direction: ltr;
+  text-align: left;
+}
+
+/* Arabic Typography Rules - Zero Letter Spacing to protect cursive ligatures */
+html[lang="ar"] * {
+  letter-spacing: normal !important;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-ink);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  margin-block-start: 0;
+  text-wrap: balance;
+}
+
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3,
+html[lang="ar"] h4 {
+  font-family: var(--font-arabic);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: normal !important;
+  text-align: start;
+}
+
+/* Fluid Hero Heading */
+.hero-title {
+  font-size: clamp(2.1rem, 5.2vw, 3.8rem);
+  line-height: 1.18;
+  font-weight: 700;
+  color: var(--color-ink);
+  margin-block-end: 1.25rem;
+}
+
+html[lang="ar"] .hero-title {
+  font-family: var(--font-arabic);
+  font-weight: 800;
+  line-height: 1.22;
+  letter-spacing: normal !important;
+  text-align: start;
+}
+
+/* Subtitle */
+.hero-subtitle {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  line-height: 1.65;
+  color: var(--color-ink-muted);
+  max-inline-size: 44ch;
+  font-weight: 400;
+}
+
+html[lang="ar"] .hero-subtitle {
+  font-family: var(--font-arabic);
+  font-size: clamp(1.12rem, 1.8vw, 1.35rem);
+  line-height: 1.85;
+  font-weight: 400;
+  color: var(--color-ink-muted);
+  max-inline-size: 54ch;
+  text-align: start;
+}
+
+/* Section Headings */
+.section-marker {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-olive);
+  font-weight: 600;
+  margin-block-end: 0.5rem;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+html[lang="ar"] .section-marker {
+  letter-spacing: 0.08em !important;
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+}
+
+.section-title {
+  font-size: clamp(1.5rem, 3.2vw, 2.2rem);
+  line-height: 1.3;
+  margin-block-end: 1.5rem;
+  padding-block-end: 0.75rem;
+  border-block-end: 1px solid var(--color-hairline-subtle);
+  text-align: start;
+}
+
+html[lang="ar"] .section-title {
+  font-family: var(--font-arabic);
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: normal !important;
+  text-align: start;
+}
+
+/* Article Body Typography */
+.article-content p {
+  font-size: clamp(1.05rem, 1.25vw, 1.18rem);
+  line-height: 1.85;
+  color: var(--color-ink-muted);
+  margin-block-end: 1.6rem;
+  text-align: start;
+}
+
+html[lang="ar"] .article-content p {
+  font-family: var(--font-arabic);
+  font-size: clamp(1.08rem, 1.25vw, 1.22rem);
+  line-height: 1.95;
+  color: #2b2926;
+  text-align: start;
+  max-inline-size: 68ch;
+}
+
+.article-content strong {
+  color: var(--color-ink);
+  font-weight: 700;
+}
+
+.article-content ul,
+.article-content ol {
+  padding-inline-start: 1.75rem;
+  margin-block-end: 1.75rem;
+  color: var(--color-ink-muted);
+  text-align: start;
+}
+
+.article-content li {
+  margin-block-end: 0.75rem;
+  line-height: 1.75;
+  font-size: 1.05rem;
+  text-align: start;
+}
+
+html[lang="ar"] .article-content li {
+  font-family: var(--font-arabic);
+  line-height: 1.9;
+  font-size: 1.12rem;
+  text-align: start;
+}
+
+.article-content li::marker {
+  color: var(--color-olive);
+}
+
+/* BiDi Technical Terms System */
+.term,
+.latin-term {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline;
+  font-family: inherit;
+  font-size: 1em;
+  font-weight: inherit;
+  line-height: inherit;
+  vertical-align: baseline;
+  color: inherit;
+}
+
+bdi,
+bdi[dir="ltr"] {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline;
+  font-family: inherit;
+  font-size: inherit;
+  vertical-align: baseline;
+}
+
+.ar-prefix-term {
+  display: inline;
+  unicode-bidi: isolate;
+  direction: rtl;
+  white-space: nowrap;
+}
+
+.ar-prefix-term .term,
+.ar-prefix-term bdi {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline;
+  font-family: inherit;
+  font-size: 1em;
+  font-weight: inherit;
+  vertical-align: baseline;
+}
+
+/* Inline Code Elements inside Arabic paragraphs */
+html[lang="ar"] :not(pre) > code {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline;
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  padding: 0.15em 0.35em;
+  background-color: var(--color-bg-code);
+  border: 1px solid var(--color-hairline-subtle);
+  border-radius: 2px;
+  color: var(--color-ink);
+  vertical-align: baseline;
+}
+
+/* Arabic TOC and Diagram Headers: Protect cursive Arabic ligatures */
+html[lang="ar"] .article-toc {
+  font-family: var(--font-arabic) !important;
+}
+
+html[lang="ar"] .toc-header {
+  font-family: var(--font-arabic) !important;
+  letter-spacing: normal !important;
+  font-size: 0.75rem;
+}
+
+html[lang="ar"] .toc-item a {
+  font-family: var(--font-arabic) !important;
+  letter-spacing: normal !important;
+}
+
+html[lang="ar"] .toc-title {
+  font-family: var(--font-arabic) !important;
+  letter-spacing: normal !important;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+html[lang="ar"] .toc-num,
+html[lang="ar"] .toc-number {
+  font-family: var(--font-mono) !important;
+  direction: ltr !important;
+  unicode-bidi: isolate;
+  display: inline;
+}
+
+html[lang="ar"] .diagram-header {
+  font-family: var(--font-arabic) !important;
+  letter-spacing: normal !important;
+  font-size: 0.82rem;
+}
+
+html[lang="ar"] .diagram-tag {
+  font-family: var(--font-arabic) !important;
+  letter-spacing: normal !important;
+}
+
+html[lang="ar"] .masthead-category {
+  font-family: var(--font-arabic) !important;
+  letter-spacing: normal !important;
+  font-size: 0.8rem;
+}

@@ -1,0 +1,51 @@
+---
+interface Props {
+  title?: string;
+  code: string;
+  language?: string;
+}
+
+const { title = "HTTP / Wire Payload", code, language = "http" } = Astro.props;
+---
+
+<figure class="code-figure" dir="ltr">
+  <div class="code-header" dir="ltr">
+    <div class="code-title">
+      <span class="code-title-dot"></span>
+      <span>{title}</span>
+    </div>
+    <button type="button" class="copy-button" data-code={code} aria-label="Copy code to clipboard">
+      COPY
+    </button>
+  </div>
+  <pre dir="ltr"><code class={`language-${language}`} dir="ltr">{code}</code></pre>
+</figure>
+
+<script>
+  function setupCopyButtons() {
+    document.querySelectorAll('.copy-button').forEach(button => {
+      button.addEventListener('click', async () => {
+        const code = button.getAttribute('data-code');
+        if (!code) return;
+        try {
+          await navigator.clipboard.writeText(code);
+          const originalText = button.textContent;
+          button.textContent = 'COPIED!';
+          button.style.backgroundColor = 'var(--color-olive)';
+          button.style.color = '#FFFFFF';
+          setTimeout(() => {
+            button.textContent = originalText;
+            button.style.backgroundColor = '';
+            button.style.color = '';
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy', err);
+        }
+      });
+    });
+  }
+
+  // Setup on initial load and after any astro page transitions
+  setupCopyButtons();
+  document.addEventListener('astro:page-load', setupCopyButtons);
+</script>

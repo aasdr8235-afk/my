@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Build Output
+dist/
+.astro/
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+.dev.vars
+
+# Cloudflare Local State
+.wrangler/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Test & Preview Artifacts
+coverage/
+playwright-report/
+test-results/
+screenshots/
+
+# Operating System
+.DS_Store
+Thumbs.db
+
+# IDE & Editors
+.vscode/
+.idea/
+
+# Cache & Temporary Directories
+.tmp/
+temp/
+.cache/
+.config/

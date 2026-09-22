@@ -1,0 +1,15 @@
+{
+  "name": "mouhib-writeups",
+  "version": "1.0.0",
+  "description": "Mouhib Writeups — Technical notes on security, networks and systems",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^4.16.18"
+  }
+}

@@ -1,0 +1,137 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط التوجيه الشبكي عبر الأنظمة المستقلة ومسار الحزم' : 'Dynamic internet routing and packet traversal across Autonomous Systems'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">
+      {lang === 'ar' ? 'مخطط 03 / مسار التوجيه' : 'DIAGRAM 03 / ROUTING PATH'}
+    </span>
+    <span>
+      {lang === 'ar' ? 'رحلة الحزمة عبر موجهات الإنترنت والأنظمة المستقلة (BGP)' : 'Dynamic Multi-Hop Packet Traversal Across Autonomous Systems'}
+    </span>
+  </div>
+
+  <div class="diagram-svg-container">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 640px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="route-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12" />
+        </pattern>
+        <marker id="route-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515" />
+        </marker>
+        <marker id="route-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849" />
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25" />
+      <line x1="8" y1="24" x2="8" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="8" y1="8" x2="24" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="256" x2="812" y2="272" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="272" x2="796" y2="272" stroke="#151515" stroke-width="2" />
+
+      <!-- Step 1: Client Host -->
+      <g transform="translate(24, 45)">
+        <rect width="125" height="180" fill="#F4F1E9" stroke="#151515" stroke-width="1.4" />
+        <rect width="125" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="0.8" />
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">01 / SOURCE</text>
+        <text x="10" y="45" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">CLIENT HOST</text>
+        <line x1="10" y1="52" x2="115" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.25" />
+        <text x="10" y="70" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">Local IP: 192.168.1.50</text>
+        <text x="10" y="84" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">Target: 93.184.216.34</text>
+        <rect x="8" y="98" width="109" height="30" fill="url(#route-hatch)" stroke="#151515" stroke-width="0.6" />
+        <text x="12" y="112" font-family="'JetBrains Mono', monospace" font-size="6.8" fill="#151515">L3 Packet built</text>
+        <text x="12" y="122" font-family="'JetBrains Mono', monospace" font-size="6.8" font-weight="600" fill="#5F6849">TTL = 64</text>
+      </g>
+
+      <!-- Arrow 1 -> 2 -->
+      <path d="M 149 110 L 175 110" stroke="#151515" stroke-width="1.4" marker-end="url(#route-arrow)" />
+
+      <!-- Step 2: Gateway Router (NAT) -->
+      <g transform="translate(180, 45)">
+        <rect width="125" height="180" fill="#F4F1E9" stroke="#151515" stroke-width="1.4" />
+        <rect width="125" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="0.8" />
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">02 / GATEWAY</text>
+        <text x="10" y="45" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">HOME ROUTER</text>
+        <line x1="10" y1="52" x2="115" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.25" />
+        <rect x="8" y="62" width="109" height="42" fill="#FAF8F2" stroke="#151515" stroke-width="0.8" />
+        <text x="12" y="76" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#5F6849">SNAT MAPPING</text>
+        <text x="12" y="88" font-family="'JetBrains Mono', monospace" font-size="6.8" fill="#151515">Replaces private IP</text>
+        <text x="12" y="98" font-family="'JetBrains Mono', monospace" font-size="6.8" fill="#5F5D56">with Public IP</text>
+        <text x="10" y="122" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">Public WAN IP</text>
+        <text x="10" y="134" font-family="'JetBrains Mono', monospace" font-size="6.8" font-weight="600" fill="#5F6849">198.51.100.12</text>
+      </g>
+
+      <!-- Arrow 2 -> 3 -->
+      <path d="M 305 110 L 335 110" stroke="#151515" stroke-width="1.4" marker-end="url(#route-arrow)" />
+
+      <!-- Step 3: ISP Edge & Core Network -->
+      <g transform="translate(340, 45)">
+        <rect width="130" height="180" fill="#F4F1E9" stroke="#151515" stroke-width="1.4" />
+        <rect width="130" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="0.8" />
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">03 / ACCESS ISP</text>
+        <text x="10" y="45" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">ISP CORE ROUTER</text>
+        <line x1="10" y1="52" x2="120" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.25" />
+        <text x="10" y="70" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">Autonomous System</text>
+        <text x="10" y="82" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">AS1234 (Local ISP)</text>
+        <rect x="8" y="96" width="114" height="40" fill="#FAF8F2" stroke="#151515" stroke-width="0.8" />
+        <text x="12" y="110" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">Forwarding Table (FIB)</text>
+        <text x="12" y="122" font-family="'JetBrains Mono', monospace" font-size="6.8" fill="#5F5D56">Evaluates best egress</text>
+        <text x="10" y="152" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">Decrement TTL (63)</text>
+      </g>
+
+      <!-- Arrow 3 -> 4 -->
+      <path d="M 470 110 L 500 110" stroke="#151515" stroke-width="1.4" marker-end="url(#route-arrow)" />
+
+      <!-- Step 4: Tier-1 Transit / IXP (Alternative Paths) -->
+      <g transform="translate(505, 45)">
+        <rect width="145" height="180" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.5" />
+        <rect width="145" height="22" fill="#EBE7DE" stroke="#5F6849" stroke-width="0.8" />
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">04 / TRANSIT &amp; BGP</text>
+        <text x="10" y="45" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">INTERNET BACKBONE</text>
+        <line x1="10" y1="52" x2="135" y2="52" stroke="#5F6849" stroke-width="0.5" stroke-opacity="0.3" />
+        <text x="10" y="68" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">Tier-1 Carriers / IXP</text>
+        <text x="10" y="80" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">Lumen / Telia / Cogent</text>
+        
+        <!-- Multi-path dynamic visualization -->
+        <rect x="8" y="92" width="129" height="50" fill="#FAF8F2" stroke="#5F6849" stroke-width="1" />
+        <text x="12" y="106" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#5F6849">DYNAMIC PATH SELECTION</text>
+        <text x="12" y="118" font-family="sans-serif" font-size="7" fill="#151515">Path A: Subsea Cable 1</text>
+        <text x="12" y="130" font-family="sans-serif" font-size="7" fill="#5F5D56">Path B: Peering Exchange</text>
+
+        <text x="10" y="156" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">No fixed single wire</text>
+      </g>
+
+      <!-- Arrow 4 -> 5 -->
+      <path d="M 650 110 L 675 110" stroke="#151515" stroke-width="1.4" marker-end="url(#route-arrow)" />
+
+      <!-- Step 5: Destination Network -->
+      <g transform="translate(680, 45)">
+        <rect width="115" height="180" fill="#FAF8F2" stroke="#151515" stroke-width="1.4" />
+        <rect width="115" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="0.8" />
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">05 / DESTINATION</text>
+        <text x="10" y="45" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">DATACENTER</text>
+        <line x1="10" y1="52" x2="105" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.25" />
+        <text x="10" y="70" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">Ingress Router</text>
+        <text x="10" y="84" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">TARGET SERVER</text>
+        <rect x="8" y="98" width="99" height="38" fill="url(#route-hatch)" stroke="#151515" stroke-width="0.6" />
+        <text x="12" y="112" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">93.184.216.34</text>
+        <text x="12" y="124" font-family="'JetBrains Mono', monospace" font-size="6.8" fill="#5F6849">TCP port 443</text>
+        <text x="10" y="152" font-family="'JetBrains Mono', monospace" font-size="6.8" fill="#5F5D56">TTL final = 52</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 03: مسار التوجيه الشبكي — تنتقل الحزمة عبر سلسلة من الموجهات والأنظمة المستقلة (AS) عبر بروتوكول BGP. لا يوجد مسار فيزيائي وحيد وثابت، بل يعاد توجيه الحزم ديناميكيًا.'
+      : 'Figure 03: Internet packet routing path — packets traverse a series of intermediate routers and Autonomous Systems governed by BGP. There is no single guaranteed fixed path.'}
+  </figcaption>
+</figure>

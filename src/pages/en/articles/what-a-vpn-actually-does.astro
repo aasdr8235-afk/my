@@ -1,0 +1,362 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import SectionHeading from '../../../components/SectionHeading.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import TechnicalNote from '../../../components/TechnicalNote.astro';
+import ContinueReading from '../../../components/ContinueReading.astro';
+
+// Technical SVG Diagrams
+import WithoutVpnDiagram from '../../../components/diagrams/WithoutVpnDiagram.astro';
+import VpnTunnelDiagram from '../../../components/diagrams/VpnTunnelDiagram.astro';
+import VpnTrustShiftDiagram from '../../../components/diagrams/VpnTrustShiftDiagram.astro';
+import DnsLeakDiagram from '../../../components/diagrams/DnsLeakDiagram.astro';
+import WebsiteIdentityDiagram from '../../../components/diagrams/WebsiteIdentityDiagram.astro';
+import VpnVsHttpsDiagram from '../../../components/diagrams/VpnVsHttpsDiagram.astro';
+import VpnTrustModelDiagram from '../../../components/diagrams/VpnTrustModelDiagram.astro';
+
+const tocItems = [
+  { id: 'sec-01', num: '01', title: 'Direct Connection Without a Tunnel' },
+  { id: 'sec-02', num: '02', title: 'Encrypted VPN Tunnel Boundaries' },
+  { id: 'sec-03', num: '03', title: 'What Your ISP Can Still See' },
+  { id: 'sec-04', num: '04', title: 'What the VPN Provider Observes' },
+  { id: 'sec-05', num: '05', title: 'Destination Perspective & Identity Vectors' },
+  { id: 'sec-06', num: '06', title: 'DNS Queries & The Leak Hazard' },
+  { id: 'sec-07', num: '07', title: 'What a VPN Actually Protects' },
+  { id: 'sec-08', num: '08', title: 'What a VPN Cannot Solve' },
+  { id: 'sec-09', num: '09', title: 'VPN vs. HTTPS Architecture' },
+  { id: 'sec-10', num: '10', title: 'The Main Idea: Relocating Trust' }
+];
+
+const pageTitle = "A VPN Does Not Make You Invisible. It Changes Who Can See What.";
+const pageSubtitle = "A VPN does not eliminate trust. It relocates it.";
+const pageDescription = "A clear look at what an encrypted tunnel actually does: what your ISP sees, what the VPN provider can see, how DNS leaks happen, and why a VPN is not a replacement for HTTPS.";
+---
+
+<ArticleLayout
+  title={pageTitle}
+  subtitle={pageSubtitle}
+  description={pageDescription}
+  lang="en"
+  arUrl="/ar/articles/what-a-vpn-actually-does/"
+  enUrl="/en/articles/what-a-vpn-actually-does/"
+  currentPath="/en/articles/what-a-vpn-actually-does/"
+  tocItems={tocItems}
+  categoryText="NETWORKING / PRIVACY"
+  articleMeta="ARTICLE 03 / PRIVACY & TUNNELS"
+>
+
+  <!-- 01 / WITHOUT VPN -->
+  <section class="article-section">
+    <SectionHeading
+      number="01"
+      tag="STANDARD TOPOLOGY"
+      title="Direct Connection: How Your Data Travels by Default"
+      id="sec-01"
+    />
+
+    <p>
+      In commercial marketing narratives, browsing the Internet without a consumer VPN is routinely depicted as an unshielded death trap where arbitrary third parties can trivially intercept your messages and siphon off credit cards. This framing is technically disingenuous. It systematically ignores the single most transformative security achievement of the modern web: the universal deployment of <code>HTTPS</code> via <code>TLS</code>.
+    </p>
+
+    <p>
+      Under ordinary operational conditions without an encrypted tunnel active, your packet path flows directly through local access nodes:
+    </p>
+
+    <!-- Diagram 01: Without VPN -->
+    <WithoutVpnDiagram lang="en" />
+
+    <p>
+      Across this default path, your Internet Service Provider (<code>ISP</code>) has clear visibility into your public IP address, the destination IP address of every server you contact, domain resolution queries via standard DNS, and the target hostname exposed in the TLS <code>Server Name Indication</code> (SNI) extension.
+    </p>
+
+    <p>
+      <strong>However:</strong> because of transport-layer encryption (<code>TLS 1.2 / 1.3</code>), the actual application payload—the articles you read, credentials you submit, session cookies you transmit, and dynamic responses returned—is end-to-end encrypted between your browser and the origin server. Neither your residential ISP nor an untrusted local Wi-Fi administrator can decrypt the contents of these packets.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 02 / VPN TUNNEL -->
+  <section class="article-section">
+    <SectionHeading
+      number="02"
+      tag="TUNNEL BOUNDARY"
+      title="The Encrypted Tunnel: Where Encryption Begins and Ends"
+      id="sec-02"
+    />
+
+    <p>
+      When you activate a modern VPN client (operating protocols like <code>WireGuard</code> or <code>OpenVPN</code>), the operating system provisions a virtual network adapter—typically a <code>TUN</code> interface.
+    </p>
+
+    <p>
+      The client software captures outgoing IP datagrams, wraps each packet in an outer encapsulation header, encrypts the inner payload with high-grade symmetric primitives (such as <code>ChaCha20-Poly1305</code> or <code>AES-256-GCM</code>), and routes the encapsulated datagram over UDP or TCP to a designated VPN gateway server.
+    </p>
+
+    <!-- Diagram 02: VPN Tunnel Scope -->
+    <VpnTunnelDiagram lang="en" />
+
+    <TechnicalNote title="A Critical Architectural Reality: The Tunnel Terminates at the VPN Gateway">
+      The most common mental misconception among end users is the belief that the VPN tunnel stretches directly into the destination website. <strong>It does not.</strong> The encrypted tunnel terminates strictly at the VPN server. The moment the VPN gateway decrypts your packet, it forwards it across the public transit internet to the final web server as standard traffic. The VPN provides zero additional transport encryption between itself and the destination server; that link relies exclusively on standard <code>HTTPS</code>.
+    </TechnicalNote>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 03 / WHAT ISP SEES -->
+  <section class="article-section">
+    <SectionHeading
+      number="03"
+      tag="ISP VISIBILITY"
+      title="What Your ISP Can Still See When a VPN Is Active"
+      id="sec-03"
+    />
+
+    <p>
+      Consumer VPN advertisements frequently promise <em>"absolute anonymity from your Internet provider."</em> From an engineering perspective, this is demonstrably false. Metadata cannot vanish from a routed packet network.
+    </p>
+
+    <p>
+      What an encrypted tunnel actually achieves is a reduction in destination granularity:
+    </p>
+
+    <ul>
+      <li>
+        <strong>Shielded from the ISP:</strong> The local ISP cannot observe the destination IP addresses of the services you visit, the domain names requested (provided DNS queries traverse the tunnel cleanly), or individual HTTP headers.
+      </li>
+      <li>
+        <strong>Exposed to the ISP:</strong> The ISP clearly observes that your network interface is maintaining a continuous tunnel with a known VPN endpoint IP. They see the exact server address, port numbers (e.g., WireGuard port <code>51820</code>), connection start and end timestamps, and real-time byte counters indicating instantaneous traffic volume.
+      </li>
+    </ul>
+
+    <p>
+      Under advanced passive traffic analysis, state-level network observers can deduce activity classifications—distinguishing streaming high-bitrate video, interactive VoIP calls, or bulk archive downloads—purely by evaluating packet size distributions, burst cadence, and directional flow ratios, even when payload encryption is unbreakable.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 04 / WHAT VPN PROVIDER SEES -->
+  <section class="article-section">
+    <SectionHeading
+      number="04"
+      tag="TRUST SHIFT"
+      title="What the VPN Provider Observes at the Exit Node"
+      id="sec-04"
+    />
+
+    <p>
+      Here is the main idea: <strong>You have not eliminated trust; a VPN simply moves part of that trust from your ISP to the VPN provider.</strong>
+    </p>
+
+    <!-- Diagram 03: Trust Shift -->
+    <VpnTrustShiftDiagram lang="en" />
+
+    <p>
+      Because your encrypted tunnel terminates inside the infrastructure of the VPN provider, that single operator occupies a privileged vantage point over your digital footprint:
+    </p>
+
+    <ul>
+      <li>They record your true residential source IP address, and frequently correlate it with customer account records or payment identity.</li>
+      <li>They see every destination IP address and port that your exit traffic connects to across the public Internet.</li>
+      <li>They handle and resolve every DNS lookup if you use their internal recursive resolvers.</li>
+      <li>They possess aggregate connection telemetry: session durations, bandwidth utilization, and operating system signatures.</li>
+    </ul>
+
+    <p>
+      Consequently, marketing declarations of <em>"Zero Logs"</em> are not verifiable cryptographic invariants that a client can mathematically prove through code; they represent a <strong>policy commitment and legal assertion</strong>. You are substituting institutional trust in your domestic broadband operator with commercial trust in an offshore corporate entity.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 05 / WHAT WEBSITE SEES -->
+  <section class="article-section">
+    <SectionHeading
+      number="05"
+      tag="WEBSITE PERSPECTIVE"
+      title="What the Destination Website Sees: IP Masking Is Not Anonymity"
+      id="sec-05"
+    />
+
+    <p>
+      A frequent motivation for using a VPN is preventing online platforms and ad networks from tracking the user. Yet in modern web engineering, an IP address is primarily a layer-3 routing parameter—not a reliable user identity token.
+    </p>
+
+    <!-- Diagram 05: Digital Identity Vectors -->
+    <WebsiteIdentityDiagram lang="en" />
+
+    <p>
+      While the target server sees the VPN exit gateway's IP address rather than your residential line, it continues to correlate and track your identity across higher application layers:
+    </p>
+
+    <ol>
+      <li>
+        <strong>Authenticated Sessions:</strong> If you log into your Google, GitHub, or social media account while routing through a VPN, every action taken is instantly mapped to your verified user profile. The network tunnel offers zero identity obfuscation here.
+      </li>
+      <li>
+        <strong>Stateful Cookies &amp; Storage:</strong> First-party and third-party tracking cookies, partition keys, and <code>localStorage</code> entries reside in your browser engine. They are transmitted alongside your HTTP requests regardless of what exit node you switch to.
+      </li>
+      <li>
+        <strong>Browser Fingerprinting:</strong> Telemetry libraries harvest hardware and software signals from your runtime: WebGL vendor renderer strings, Canvas rasterization anomalies, installed system fonts, audio context clock jitter, and display color depth. This creates an entropy hash capable of re-identifying your machine even across dynamic IP shifts.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 06 / DNS LEAKS -->
+  <section class="article-section">
+    <SectionHeading
+      number="06"
+      tag="DNS LEAKS"
+      title="DNS Queries and the Hazard of Tunnel Leaks"
+      id="sec-06"
+    />
+
+    <p>
+      For a VPN configuration to maintain confidentiality, it is insufficient to merely route payload TCP and UDP packets through the tunnel. Domain Name System queries (<code>DNS</code>) must be strictly captured and forwarded through the encrypted tunnel as well.
+    </p>
+
+    <!-- Diagram 04: DNS Leak Comparison -->
+    <DnsLeakDiagram lang="en" />
+
+    <p>
+      A <strong>DNS Leak</strong> occurs when the client operating system bypasses the virtual TUN interface resolver configuration, or when flawed split-tunneling policies leave default DNS resolvers assigned to the physical adapter. Under this failure mode:
+    </p>
+
+    <ul>
+      <li>Your HTTPS application payloads are securely encapsulated to the VPN gateway.</li>
+      <li>Simultaneously, your workstation issues plaintext DNS queries directly to the local ISP resolver before initiating connections!</li>
+    </ul>
+
+    <p>
+      This architectural defect completely destroys the intended privacy benefit, handing your domestic provider an unencrypted chronological catalog of every host you attempt to resolve.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 07 / WHAT VPN HELPS WITH -->
+  <section class="article-section">
+    <SectionHeading
+      number="07"
+      tag="THE VALUE"
+      title="Where a VPN Is Actually Useful"
+      id="sec-07"
+    />
+
+    <p>
+      Stripping away commercial hyperbole reveals that VPN protocols remain vital networking tools when deployed in appropriate threat contexts:
+    </p>
+
+    <ul>
+      <li>
+        <strong>Untrusted Local Networks:</strong> In public Wi-Fi environments (airports, cafes, conference venues), an encrypted tunnel shields local layer-2 attacks such as <code>ARP spoofing</code>, rogue rogue access points, and local DNS tampering.
+      </li>
+      <li>
+        <strong>Source IP Masking from Remote Origins:</strong> Preventing edge servers, torrent peers, or remote services from logging your residential geolocation coordinates or broadband provider.
+      </li>
+      <li>
+        <strong>Concealing Destinations from Local Gateways:</strong> Preventing local network operators or restrictive corporate firewalls from cataloging visited hosts and monetizing clickstream metadata.
+      </li>
+      <li>
+        <strong>Enterprise Remote Access (Intranets):</strong> The foundational purpose for which VPNs were conceived: securely interconnecting distributed workstations to isolated internal subnets and corporate datacenters over public infrastructure.
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 08 / WHAT VPN DOES NOT SOLVE -->
+  <section class="article-section">
+    <SectionHeading
+      number="08"
+      tag="LIMITATIONS"
+      title="What a VPN Does Not Protect Against"
+      id="sec-08"
+    />
+
+    <p>
+      A VPN is a point-to-point tunneling protocol, not an endpoint protection agent or runtime browser sandbox. A VPN provides zero mitigation against:
+    </p>
+
+    <ul>
+      <li>
+        <strong>Credential Phishing:</strong> If you navigate to a spoofed authentication portal and enter your passwords or MFA tokens, the VPN faithfully encrypts and transmits your credentials to the adversary.
+      </li>
+      <li>
+        <strong>Malware &amp; Infostealers:</strong> If malicious binaries or browser extensions execute on your host, they extract session tokens, master passwords, and private keys directly from disk, completely orthogonal to network transport.
+      </li>
+      <li>
+        <strong>Application-Layer Tracking:</strong> Session cookies, device fingerprinting, and account telemetry operate at Layer 7 and remain untouched by network tunneling.
+      </li>
+      <li>
+        <strong>Endpoint Zero-Days:</strong> Remote code execution vulnerabilities in your browser or operating system compromise host integrity irrespective of routing topology.
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 09 / VPN VS HTTPS -->
+  <section class="article-section">
+    <SectionHeading
+      number="09"
+      tag="COMPARISON"
+      title="VPN vs. HTTPS: Structural Differences in the Stack"
+      id="sec-09"
+    />
+
+    <p>
+      Comparing a VPN to HTTPS is fundamentally an analysis of distinct <strong>protection boundaries</strong> rather than a simple layer classification:
+    </p>
+
+    <!-- Diagram 06: VPN vs HTTPS -->
+    <VpnVsHttpsDiagram lang="en" />
+
+    <p>
+      <strong>The VPN Protection Boundary</strong> stretches strictly from your device to the VPN provider's exit gateway (<strong>Device ↔ VPN Endpoint</strong>). Once packets exit the VPN server, tunnel encapsulation ends, and packets traverse the public transit internet as standard routed traffic.
+    </p>
+
+    <p>
+      <strong>The HTTPS / TLS Protection Boundary</strong> stretches from the client application directly to the TLS endpoint serving the website (<strong>Application ↔ TLS Endpoint</strong>). In modern distributed infrastructure, this terminating endpoint is frequently a Content Delivery Network (CDN) edge node, cloud load balancer, or reverse proxy that terminates TLS before communicating with an internal backend origin. No transit intermediary—including the VPN provider itself—can decrypt or tamper with the payload without triggering certificate trust failures.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 10 / TRUST MODEL -->
+  <section class="article-section">
+    <SectionHeading
+      number="10"
+      tag="KEY TAKEAWAY"
+      title="The Main Idea: A VPN Relocates Trust"
+      id="sec-10"
+    />
+
+    <!-- Diagram 07: Final Trust Model -->
+    <VpnTrustModelDiagram lang="en" />
+
+    <p style="font-size: 1.25rem; font-weight: 600; color: var(--color-ink); line-height: 1.75;">
+      When you operate without a VPN, you place trust in your local ISP for routing while relying on HTTPS to protect application content. When you activate a VPN, you take that trust away from the local ISP and transfer it to the VPN provider.
+    </p>
+
+    <p>
+      If your chosen VPN provider is more trustworthy and independent than your local ISP, that choice makes sense. But installing a random, free VPN app simply replaces a known ISP with an unknown third party that may have every incentive to log and sell your data.
+    </p>
+
+    <div style="padding: 1.5rem; border: 1px solid var(--color-hairline); background-color: var(--color-bg-warm); margin-block: 2.5rem;">
+      <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--color-olive); margin-block-end: 0.5rem; text-transform: uppercase; letter-spacing: 0.08em;">
+        KEY TAKEAWAY
+      </div>
+      <p style="margin: 0; font-size: 1.15rem; font-weight: 600; line-height: 1.75; color: var(--color-ink);">
+        Network security is not about buying apps that promise miracles. It comes from understanding where trust resides, how packets travel, and what each protocol actually protects.
+      </p>
+    </div>
+  </section>
+
+  <!-- Related Articles -->
+  <ContinueReading currentArticleId="what-a-vpn-actually-does" lang="en" />
+
+</ArticleLayout>

@@ -1,0 +1,31 @@
+---
+interface Props {
+  currentLang: 'ar' | 'en';
+  arUrl: string;
+  enUrl: string;
+}
+
+const { currentLang, arUrl, enUrl } = Astro.props;
+---
+
+<nav class="lang-switcher" aria-label="Language Selector">
+  <a 
+    href={arUrl} 
+    class:list={['lang-btn', { active: currentLang === 'ar' }]}
+    lang="ar"
+    dir="rtl"
+    title="النسخة العربية"
+  >
+    العربية
+  </a>
+  <span style="color: var(--color-hairline);">/</span>
+  <a 
+    href={enUrl} 
+    class:list={['lang-btn', { active: currentLang === 'en' }]}
+    lang="en"
+    dir="ltr"
+    title="English version"
+  >
+    EN
+  </a>
+</nav>

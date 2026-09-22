@@ -1,0 +1,116 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط المقارنة المعمارية بين نفق الـVPN وتشفير HTTPS' : 'Architectural comparison: VPN network tunnel vs HTTPS application encryption'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">
+      {lang === 'ar' ? 'مخطط 06 / المقارنة المعمارية' : 'DIAGRAM 06 / LAYER COMPARISON'}
+    </span>
+    <span>
+      {lang === 'ar' ? 'الـVPN مقابل HTTPS: حماية طبقة النقل والشبكة مقابل حماية التطبيق' : 'VPN vs. HTTPS: Network Tunnel Boundary vs. End-to-End Application Encryption'}
+    </span>
+  </div>
+
+  <div class="diagram-svg-container">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 640px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="vs-vpn-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#5F6849" stroke-width="0.8" stroke-opacity="0.3" />
+        </pattern>
+        <pattern id="vs-https-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.15" />
+        </pattern>
+        <marker id="vs-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515" />
+        </marker>
+        <marker id="vs-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849" />
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25" />
+      <line x1="8" y1="24" x2="8" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="8" y1="8" x2="24" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="256" x2="812" y2="272" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="272" x2="796" y2="272" stroke="#151515" stroke-width="2" />
+
+      <!-- ROW 1: VPN PROTECTION BOUNDARY -->
+      <g transform="translate(25, 25)">
+        <rect width="770" height="100" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.5" />
+        <rect width="770" height="20" fill="#EBE7DE" stroke="#5F6849" stroke-width="0.8" />
+        <text x="14" y="14" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">BOUNDARY 1: VPN TUNNEL (DEVICE ↔ VPN ENDPOINT)</text>
+
+        <!-- Node 1: Client Device -->
+        <rect x="15" y="30" width="120" height="58" fill="#FAF8F2" stroke="#151515" stroke-width="1" />
+        <text x="22" y="48" font-family="'JetBrains Mono', monospace" font-size="7.8" font-weight="700" fill="#151515">DEVICE (OS)</text>
+        <text x="22" y="62" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">Encapsulates packets</text>
+
+        <!-- The VPN Tunnel Bar -->
+        <g transform="translate(140, 48)">
+          <rect width="280" height="24" fill="url(#vs-vpn-hatch)" stroke="#5F6849" stroke-width="1.2" />
+          <text x="45" y="16" font-family="'JetBrains Mono', monospace" font-size="7.8" font-weight="700" fill="#5F6849">ENCRYPTED L3/L4 TUNNEL BOUNDARY</text>
+        </g>
+
+        <!-- Node 2: VPN Endpoint -->
+        <rect x="425" y="30" width="130" height="58" fill="#FAF8F2" stroke="#5F6849" stroke-width="1.4" />
+        <text x="435" y="48" font-family="'JetBrains Mono', monospace" font-size="7.8" font-weight="700" fill="#5F6849">VPN ENDPOINT</text>
+        <text x="435" y="62" font-family="sans-serif" font-size="7" fill="#8F2D2D">VPN encryption terminates!</text>
+
+        <!-- Public WAN Hop to Website -->
+        <path d="M 560 60 L 635 60" stroke="#151515" stroke-width="1.4" stroke-dasharray="3 3" marker-end="url(#vs-arrow)" />
+        <text x="565" y="52" font-family="'JetBrains Mono', monospace" font-size="6.8" fill="#5F5D56">Public WAN</text>
+
+        <!-- Node 3: Target Web Server -->
+        <rect x="640" y="30" width="115" height="58" fill="#FAF8F2" stroke="#151515" stroke-width="1" />
+        <text x="648" y="48" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">WEB SERVICE</text>
+        <text x="648" y="62" font-family="sans-serif" font-size="7" fill="#5F5D56">Receives exit IP</text>
+      </g>
+
+      <!-- ROW 2: HTTPS / TLS PROTECTION BOUNDARY -->
+      <g transform="translate(25, 135)">
+        <rect width="770" height="115" fill="#F4F1E9" stroke="#151515" stroke-width="1.5" />
+        <rect width="770" height="20" fill="#EBE7DE" stroke="#151515" stroke-width="0.8" />
+        <text x="14" y="14" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">BOUNDARY 2: HTTPS/TLS (CLIENT/APPLICATION ↔ TLS TERMINATION ENDPOINT)</text>
+
+        <!-- Node 1: Browser -->
+        <rect x="15" y="30" width="120" height="70" fill="#FAF8F2" stroke="#151515" stroke-width="1" />
+        <text x="22" y="48" font-family="'JetBrains Mono', monospace" font-size="7.8" font-weight="700" fill="#151515">APPLICATION</text>
+        <text x="22" y="62" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">Browser TLS Client</text>
+        <text x="22" y="76" font-family="sans-serif" font-size="7" fill="#5F6849">Payload encrypted</text>
+
+        <!-- TLS Channel to TLS Termination Endpoint -->
+        <g transform="translate(140, 48)">
+          <rect width="365" height="30" fill="url(#vs-https-hatch)" stroke="#151515" stroke-width="1.4" />
+          <text x="40" y="20" font-family="'JetBrains Mono', monospace" font-size="7.8" font-weight="700" fill="#151515">TLS 1.3 ENCRYPTION: CLIENT ↔ TLS ENDPOINT</text>
+        </g>
+
+        <!-- Node 2: TLS Termination Endpoint (CDN / Reverse Proxy) -->
+        <rect x="510" y="30" width="125" height="70" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" />
+        <text x="516" y="46" font-family="'JetBrains Mono', monospace" font-size="7.2" font-weight="700" fill="#151515">TLS ENDPOINT</text>
+        <text x="516" y="58" font-family="sans-serif" font-size="6.8" fill="#5F5D56">CDN Edge / Proxy</text>
+        <text x="516" y="70" font-family="sans-serif" font-size="6.8" fill="#8F2D2D">Terminates TLS</text>
+
+        <!-- Origin Forwarding Link -->
+        <path d="M 640 65 L 670 65" stroke="#151515" stroke-width="1.2" stroke-dasharray="2 2" marker-end="url(#vs-arrow)" />
+
+        <!-- Node 3: Backend Origin Server -->
+        <rect x="675" y="30" width="80" height="70" fill="#FAF8F2" stroke="#151515" stroke-width="0.8" />
+        <text x="682" y="48" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#151515">ORIGIN</text>
+        <text x="682" y="62" font-family="sans-serif" font-size="6.5" fill="#5F5D56">Internal</text>
+        <text x="682" y="74" font-family="sans-serif" font-size="6.5" fill="#5F5D56">Backend</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 06: حدود الحماية — نفق الـVPN ينتهي عند خادم الـVPN (Device ↔ VPN endpoint)، بينما يحمي HTTPS/TLS البيانات بين التطبيق ونقطة نهاية الـTLS التي تخدم الموقع (Application ↔ TLS endpoint)، والتي غالبًا ما تكون خادم CDN أو وكيل عكسي (Reverse Proxy) يقوم بإنهاء جلسة التشفير قبل نقل الطلب للأصل.'
+      : 'Figure 06: Protection boundaries — the VPN tunnel protects strictly between device and VPN endpoint (Device ↔ VPN endpoint). HTTPS/TLS protects between application and the TLS endpoint serving the website (Application ↔ TLS endpoint), noting that a CDN edge or reverse proxy frequently terminates TLS prior to backend origin servers.'}
+  </figcaption>
+</figure>

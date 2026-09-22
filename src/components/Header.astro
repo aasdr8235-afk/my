@@ -1,0 +1,56 @@
+---
+import LanguageSwitch from './LanguageSwitch.astro';
+
+interface Props {
+  currentLang: 'ar' | 'en';
+  arUrl: string;
+  enUrl: string;
+  categoryText?: string;
+  articleMeta?: string;
+  isHome?: boolean;
+}
+
+const { 
+  currentLang, 
+  arUrl, 
+  enUrl, 
+  categoryText,
+  articleMeta,
+  isHome = false
+} = Astro.props;
+
+const homeUrl = Astro.url.pathname === '/' ? '/' : (currentLang === 'ar' ? '/ar/' : '/en/');
+---
+
+<header class="masthead">
+  <div class="container">
+    <div class="masthead-inner">
+      <!-- Brand Lockup -->
+      <a href={homeUrl} class="brand-lockup" aria-label="Mouhib Writeups">
+        <img src="/assets/brand/logo.png" alt="" class="brand-logo-img" width="38" height="38" loading="eager" />
+        <span>MOUHIB WRITEUPS</span>
+      </a>
+
+      {isHome ? (
+        <!-- Restrained Homepage Navigation -->
+        <nav class="masthead-nav" aria-label={currentLang === 'ar' ? 'التنقل الرئيسي' : 'Main Navigation'}>
+          <a href="#articles">{currentLang === 'ar' ? 'المقالات' : 'Articles'}</a>
+          <a href="#topics">{currentLang === 'ar' ? 'المواضيع' : 'Topics'}</a>
+          <a href="#about">{currentLang === 'ar' ? 'عن الموقع' : 'About'}</a>
+        </nav>
+      ) : (
+        <!-- Category & Issue Meta for Articles -->
+        <div class="masthead-category">
+          <span class="dot"></span>
+          <span>{categoryText || (currentLang === 'ar' ? 'الأمن السيبراني' : 'CYBERSECURITY')}</span>
+          <span style="opacity: 0.35;">/</span>
+          <span style="color: var(--color-ink); font-weight: 500;">{articleMeta || (currentLang === 'ar' ? 'مقال تقني' : 'TECHNICAL WRITEUP')}</span>
+        </div>
+      )}
+
+      <!-- Language Toggle -->
+      <LanguageSwitch currentLang={currentLang} arUrl={arUrl} enUrl={enUrl} />
+    </div>
+  </div>
+</header>
+

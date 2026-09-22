@@ -1,0 +1,281 @@
+---
+import { SITE_CONFIG, getCanonicalUrl } from '../config/site';
+import '../styles/typography.css';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  lang: 'ar' | 'en';
+  arUrl: string;
+  enUrl: string;
+  currentPath: string;
+  publishedDate?: string;
+  modifiedDate?: string;
+}
+
+const {
+  title,
+  description,
+  lang,
+  arUrl,
+  enUrl,
+  currentPath,
+  publishedDate = '2026-09-22',
+  modifiedDate = '2026-09-22'
+} = Astro.props;
+
+const canonicalUrl = getCanonicalUrl(currentPath);
+const fullArUrl = getCanonicalUrl(arUrl);
+const fullEnUrl = getCanonicalUrl(enUrl);
+const dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+// JSON-LD Schemas
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  'headline': title,
+  'description': description,
+  'inLanguage': lang,
+  'mainEntityOfPage': {
+    '@type': 'WebPage',
+    '@id': canonicalUrl
+  },
+  'author': {
+    '@type': 'Person',
+    'name': SITE_CONFIG.author.name
+  },
+  'publisher': {
+    '@type': 'Organization',
+    'name': SITE_CONFIG.name,
+    'logo': {
+      '@type': 'ImageObject',
+      'url': `${SITE_CONFIG.url}/assets/brand/logo.png`
+    }
+  },
+  'datePublished': publishedDate,
+  'dateModified': modifiedDate
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  'itemListElement': [
+    {
+      '@type': 'ListItem',
+      'position': 1,
+      'name': SITE_CONFIG.name,
+      'item': SITE_CONFIG.url
+    },
+    {
+      '@type': 'ListItem',
+      'position': 2,
+      'name': lang === 'ar' ? 'المقالات' : 'Articles',
+      'item': `${SITE_CONFIG.url}/${lang}/`
+    },
+    {
+      '@type': 'ListItem',
+      'position': 3,
+      'name': title,
+      'item': canonicalUrl
+    }
+  ]
+};
+---
+
+<!doctype html>
+<html lang={lang} dir={dir}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- Title & SEO Metadata -->
+    <title>{title} | {SITE_CONFIG.name}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={SITE_CONFIG.author.name} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Hreflang Alternates -->
+    <link rel="alternate" hreflang="ar" href={fullArUrl} />
+    <link rel="alternate" hreflang="en" href={fullEnUrl} />
+    <link rel="alternate" hreflang="x-default" href={fullArUrl} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/assets/brand/logo.png" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content={SITE_CONFIG.name} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={`${title} | ${SITE_CONFIG.name}`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={`${SITE_CONFIG.url}${SITE_CONFIG.defaultOgImage}`} />
+    <meta property="og:locale" content={lang === 'ar' ? 'ar_AR' : 'en_US'} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={`${title} | ${SITE_CONFIG.name}`} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${SITE_CONFIG.url}${SITE_CONFIG.defaultOgImage}`} />
+
+    <!-- Structured Data JSON-LD -->
+    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
+    <!-- Zero-Flash Branded Fast Loader Styles -->
+    <style is:inline>
+      #app-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background-color: #FAF8F2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s;
+        pointer-events: auto;
+      }
+      html.is-loaded #app-loader {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      .loader-brand-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.85rem;
+        transform: translateY(0);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        direction: ltr !important;
+      }
+      html.is-loaded .loader-brand-box {
+        transform: translateY(-8px);
+      }
+      .loader-logo-img {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: contain;
+        display: block;
+        box-shadow: 0 0 0 1px rgba(21, 21, 21, 0.12);
+        transform: none !important;
+      }
+      .loader-title {
+        font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #151515;
+        margin: 0;
+      }
+      .loader-tagline {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        color: #5F5D56;
+        margin: 0;
+        letter-spacing: 0.04em;
+      }
+      .loader-bar-track {
+        width: 140px;
+        height: 2px;
+        background-color: rgba(21, 21, 21, 0.08);
+        margin-top: 1.25rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .loader-bar-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 0%;
+        background-color: #5F6849;
+        animation: loader-progress 0.75s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      }
+      @keyframes loader-progress {
+        0% { width: 0%; }
+        50% { width: 70%; }
+        100% { width: 100%; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .loader-bar-fill {
+          animation: none;
+          width: 100%;
+        }
+        #app-loader {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Branded Initial Loading Overlay -->
+    <div id="app-loader" aria-hidden="true" role="status">
+      <div class="loader-brand-box">
+        <img src="/assets/brand/logo.png" alt="Mouhib Writeups" class="loader-logo-img" width="48" height="48" />
+        <h2 class="loader-title">MOUHIB WRITEUPS</h2>
+        <p class="loader-tagline">Technical notes on security, networks & systems</p>
+        <div class="loader-bar-track">
+          <div class="loader-bar-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dismiss Script: Instant for repeat navigation, gentle for first load -->
+    <script is:inline>
+      (function() {
+        var isVisited = sessionStorage.getItem('mouhib_visited');
+        var loader = document.getElementById('app-loader');
+
+        function dismissLoader() {
+          document.documentElement.classList.add('is-loaded');
+          sessionStorage.setItem('mouhib_visited', 'true');
+          if (loader) {
+            setTimeout(function() {
+              if (loader && loader.parentNode) {
+                loader.parentNode.removeChild(loader);
+              }
+            }, 380);
+          }
+        }
+
+        if (isVisited) {
+          dismissLoader();
+          return;
+        }
+
+        var startTime = Date.now();
+        var hardTimeout = setTimeout(dismissLoader, 1100);
+
+        function onReady() {
+          var elapsed = Date.now() - startTime;
+          var minDuration = 350;
+          if (elapsed >= minDuration) {
+            clearTimeout(hardTimeout);
+            dismissLoader();
+          } else {
+            setTimeout(function() {
+              clearTimeout(hardTimeout);
+              dismissLoader();
+            }, minDuration - elapsed);
+          }
+        }
+
+        if (document.readyState === 'complete') {
+          onReady();
+        } else {
+          window.addEventListener('load', onReady, { once: true });
+        }
+      })();
+    </script>
+
+    <slot />
+  </body>
+</html>

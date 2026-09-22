@@ -1,0 +1,410 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import SectionHeading from '../../../components/SectionHeading.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import TechnicalNote from '../../../components/TechnicalNote.astro';
+import ContinueReading from '../../../components/ContinueReading.astro';
+
+// Technical SVG Diagrams
+import LoginFlowDiagram from '../../../components/diagrams/LoginFlowDiagram.astro';
+import SessionStateDiagram from '../../../components/diagrams/SessionStateDiagram.astro';
+import HttpRequestDiagram from '../../../components/diagrams/HttpRequestDiagram.astro';
+import TrustBoundaryDiagram from '../../../components/diagrams/TrustBoundaryDiagram.astro';
+import LeakageVectorsDiagram from '../../../components/diagrams/LeakageVectorsDiagram.astro';
+import TwoFactorTimelineDiagram from '../../../components/diagrams/TwoFactorTimelineDiagram.astro';
+import CookieFlagsDiagram from '../../../components/diagrams/CookieFlagsDiagram.astro';
+import LifecycleDiagram from '../../../components/diagrams/LifecycleDiagram.astro';
+import ActiveSessionsDiagram from '../../../components/diagrams/ActiveSessionsDiagram.astro';
+import KeyPassDiagram from '../../../components/diagrams/KeyPassDiagram.astro';
+
+const tocItems = [
+  { id: 'sec-01', num: '01', title: 'The Login' },
+  { id: 'sec-02', num: '02', title: 'Session State' },
+  { id: 'sec-03', num: '03', title: 'The Request' },
+  { id: 'sec-04', num: '04', title: 'Trust Boundary' },
+  { id: 'sec-05', num: '05', title: 'How Sessions Leak' },
+  { id: 'sec-06', num: '06', title: 'The 2FA Limit' },
+  { id: 'sec-07', num: '07', title: 'Cookie Flags' },
+  { id: 'sec-08', num: '08', title: 'Session Lifecycle' },
+  { id: 'sec-09', num: '09', title: 'User Implications' },
+  { id: 'sec-10', num: '10', title: 'Key Takeaway' }
+];
+
+const pageTitle = "How Can a Session Be Stolen Without Stealing the Password?";
+const pageSubtitle = "Sometimes the attacker does not need the password. They only need the thing that proves you already authenticated.";
+const pageDescription = "A practical walkthrough of how web sessions and session cookies work, why session tokens are targeted, and how a valid token grants account access without credentials.";
+---
+
+<ArticleLayout
+  title={pageTitle}
+  subtitle={pageSubtitle}
+  description={pageDescription}
+  lang="en"
+  arUrl="/ar/articles/session-hijacking/"
+  enUrl="/en/articles/session-hijacking/"
+  currentPath="/en/articles/session-hijacking/"
+  tocItems={tocItems}
+  categoryText="Cybersecurity / Web Security"
+  articleMeta="ARTICLE 01 / SESSION SECURITY"
+>
+
+  <!-- 01 / THE LOGIN -->
+  <section class="article-section">
+    <SectionHeading
+      number="01"
+      tag="THE LOGIN"
+      title="What Happens After Login?"
+      id="sec-01"
+    />
+
+    <p>
+      We often think of the password as the constant protector of an account: as long as the password is safe, the account is safe. But on the web, things work differently. The password only verifies who you are at the beginning.
+    </p>
+
+    <p>
+      Once you log in, the website relies on a session rather than asking for your password on every request.
+    </p>
+
+    <p>
+      The reason is simple: <strong>HTTP is a stateless protocol</strong>. Every request you send—whether checking messages or opening settings—is treated in isolation. To avoid asking for your password on every click, the server creates a session and gives your browser a random string called a <strong>Session Identifier</strong> (or session cookie).
+    </p>
+
+    <!-- Diagram 01: Login Flow -->
+    <LoginFlowDiagram lang="en" />
+
+    <p>
+      From that second forward, normal user operations cease to touch passwords. The browser attaches this session identifier to subsequent requests. The authority of identity has officially transitioned from <em>what you know</em> (the password) to <em>what you hold</em> (the session token).
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 02 / SESSION STATE -->
+  <section class="article-section">
+    <SectionHeading
+      number="02"
+      tag="SESSION STATE"
+      title="What Is a Session Cookie Really?"
+      id="sec-02"
+    />
+
+    <p>
+      A common architectural confusion is conflating HTTP session cookies with client-held signed tokens like JSON Web Tokens (JWTs). While both facilitate state management over stateless HTTP, their security profiles and state boundaries differ markedly:
+    </p>
+
+    <h3>A) Server-Side Sessions (Reference-Based)</h3>
+    <p>
+      In the classic, robust server-side model, the browser stores nothing more than an opaque, random identifier:
+      <code>session_id=a3f9e7c4b281f90e3d5a...</code>
+      This string carries zero intrinsic user data and cannot be decoded into claims. The actual session record—mapping the identifier to an internal <code>user_id</code>, role scopes, IP addresses, and creation timestamps—resides strictly inside a fast server-side data store such as Redis or Memcached.
+    </p>
+
+    <h3>B) Token-Based Authentication (Value-Based)</h3>
+    <p>
+      In token architectures, the client stores a self-contained payload containing user claims, authenticated by a digital signature produced by the server's cryptographic private key. When requests arrive, the server verifies the signature mathematically without necessarily querying a shared session database.
+    </p>
+
+    <!-- Diagram 02: Session Architecture Comparison -->
+    <SessionStateDiagram lang="en" />
+
+    <TechnicalNote title="Engineering Trade-off: Instant Invalidation">
+      Server-side sessions allow instantaneous revocation: when a user clicks "Log Out" or flags an unauthorized action, the server deletes the key from Redis, immediately invalidating subsequent requests. Pure stateless JWTs, by contrast, remain valid across all distributed verification nodes until their expiration timestamp elapses, unless supplemented by an active revocation denylist.
+    </TechnicalNote>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 03 / REQUEST -->
+  <section class="article-section">
+    <SectionHeading
+      number="03"
+      tag="THE REQUEST"
+      title="How Does the Server Know You're Still Logged In?"
+      id="sec-03"
+    />
+
+    <p>
+      The transport mechanism governing cookies is strictly standardized under RFC 6265bis. After the initial response sets the cookie, the browser's networking stack inspects every outgoing HTTP request matching the target domain, path, and security flags.
+    </p>
+
+    <p>
+      When conditions align, the browser transparently inserts the <code>Cookie</code> header into the raw HTTP wireframe without requiring JavaScript intervention:
+    </p>
+
+    <CodeBlock
+      title="HTTP/1.1 Wire Request Example"
+      code={`GET /api/v1/account/dashboard HTTP/1.1
+Host: writeups.mouhibmahadbi.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Cookie: session_id=a3f9e7c4b281f90e3d5a892b1c4e7f60; theme=light
+Connection: keep-alive
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin`}
+      language="http"
+    />
+
+    <!-- Diagram 03: Request Processing -->
+    <HttpRequestDiagram lang="en" />
+
+    <p>
+      Upon packet arrival at the server:
+    </p>
+    <ul>
+      <li>The HTTP parser extracts the <code>session_id</code> cookie parameter.</li>
+      <li>The server issues an O(1) in-memory lookup against its active session repository.</li>
+      <li>If a matching, unexpired record exists, the server binds the internal user identity (e.g. <code>User: Mouhib</code>) to the request context and executes the controller logic.</li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 04 / TRUST -->
+  <section class="article-section">
+    <SectionHeading
+      number="04"
+      tag="TRUST BOUNDARY"
+      title="The Server Doesn't See 'You' — It Sees What Proves the Session"
+      id="sec-04"
+    />
+
+    <p>
+      This brings us to the foundational premise of session hijacking: standard web session tokens are <strong>Bearer Credentials</strong>. Much like physical cash or bearer bonds, possession equals authorization. The system architecture inherently presumes that anyone presenting the valid token is the rightful bearer.
+    </p>
+
+    <!-- Diagram 04: Trust Model -->
+    <TrustBoundaryDiagram lang="en" />
+
+    <p>
+      Servers communicate over TCP sockets and TLS tunnels. A server has no optical lens observing the physical operator typing at the keyboard, nor does it continually sample biometric signatures. The server evaluates incoming requests under a single logical deduction:
+    </p>
+    <blockquote>
+      <em>"A request arrived bearing token <code>session_id=a3f9e7c4...</code>. This token is currently active in the database and assigned to Mouhib. Therefore, this request is authorized as Mouhib."</em>
+    </blockquote>
+
+    <p>
+      If an adversary extracts this identifier and injects it into a completely separate browser across the globe, the server processes the incoming request with the identical level of trust—<strong>without prompting for a password, without requiring MFA, and without any visible anomaly in the core application logic</strong>.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 05 / HOW SESSIONS LEAK -->
+  <section class="article-section">
+    <SectionHeading
+      number="05"
+      tag="LEAKAGE VECTORS"
+      title="How Can a Session Leak?"
+      id="sec-05"
+    />
+
+    <p>
+      For session hijacking to occur, the secret token must escape the isolated sandbox established by the client operating system and browser. From a defensive engineering standpoint, these leaks stem from four distinct attack surfaces:
+    </p>
+
+    <!-- Diagram 05: Leakage Vectors -->
+    <LeakageVectorsDiagram lang="en" />
+
+    <h3>1. Cross-Site Scripting (XSS)</h3>
+    <p>
+      If an application fails to sanitize untrusted user input and permits arbitrary JavaScript execution within the page origin, an injected payload can query the Document Object Model:
+      <code>const exfiltrated = document.cookie;</code>
+      Unless the cookie is guarded against script access, the malicious code can transmit the token to an external listener.
+    </p>
+
+    <h3>2. Malware &amp; Infostealers</h3>
+    <p>
+      Modern infostealers (such as RedLine, Lumma, and Vidar) represent the most prolific real-world source of session compromise. Rather than attempting keylogging or credential brute-forcing, infostealers target the browser profile directory on disk (e.g., Chromium's SQLite <code>Cookies</code> database). They harvest unencrypted or DPAPI-decrypted cookie archives and compress active session tokens for automated exfiltration.
+    </p>
+
+    <h3>3. Malicious Browser Extensions &amp; Endpoint Compromise</h3>
+    <p>
+      Browser extensions granted high-level permissions can invoke privileged APIs like <code>chrome.cookies.getAll()</code>. If a reputable extension changes ownership or is backdoored, it can extract session cookies silently without breaking any web-layer firewalls.
+    </p>
+
+    <h3>4. Flawed Session Lifecycles</h3>
+    <p>
+      Architectural vulnerabilities in the application itself—such as failing to regenerate session IDs upon login (Session Fixation), neglecting to invalidate sessions on logout, or relying on indefinite session lifetimes.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 06 / 2FA -->
+  <section class="article-section">
+    <SectionHeading
+      number="06"
+      tag="2FA BOUNDARY"
+      title="Why Doesn't 2FA Solve the Problem Alone?"
+      id="sec-06"
+    />
+
+    <p>
+      A widespread misconception among both users and developers is that multi-factor authentication (2FA / MFA) provides an impermeable defense against unauthorized access. This belief overlooks where 2FA physically operates within the software architecture.
+    </p>
+
+    <p>
+      MFA secures the <strong>initial authentication boundary</strong>. It verifies possession of a second factor (such as a TOTP code or FIDO hardware key) prior to provisioning the session. However, once that verification succeeds, authentication is complete, and the server issues a standard session token.
+    </p>
+
+    <!-- Diagram 06: 2FA Timeline -->
+    <TwoFactorTimelineDiagram lang="en" />
+
+    <p>
+      If an adversary steals an established session cookie, they never encounter the initial authentication perimeter. They bypass the login form entirely and jump directly into the active session. The application does not challenge routine GET or POST requests with 2FA prompts.
+    </p>
+
+    <TechnicalNote title="Engineering Mitigation: Step-Up Authentication">
+      To defend against post-authentication session abuse, mature platforms implement <strong>Step-Up Authentication</strong>: whenever a user triggers a sensitive operation (such as modifying credentials, updating recovery emails, creating API keys, or transferring capital), the server pauses normal cookie trust and demands immediate password or biometric re-authentication.
+    </TechnicalNote>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 07 / COOKIE FLAGS -->
+  <section class="article-section">
+    <SectionHeading
+      number="07"
+      tag="COOKIE FLAGS"
+      title="Three Small Attributes That Change Protection Drastically"
+      id="sec-07"
+    />
+
+    <p>
+      When an application issues a session identifier via the <code>Set-Cookie</code> header, bare key-value pairs offer insufficient protection. The HTTP specification provides three vital security attributes:
+    </p>
+
+    <CodeBlock
+      title="Hardened Set-Cookie Header Directive"
+      code={`Set-Cookie: session_id=a3f9e7c4b281f90e3d5a; Path=/; Domain=writeups.mouhibmahadbi.com; Secure; HttpOnly; SameSite=Lax; Max-Age=43200`}
+      language="http"
+    />
+
+    <!-- Diagram 07: Cookie Flags -->
+    <CookieFlagsDiagram lang="en" />
+
+    <h3>1. The <code>HttpOnly</code> Attribute</h3>
+    <p>
+      Instructs the browser engine that the cookie must never be accessible via client-side scripts. <code>document.cookie</code> will return an empty string for this token, rendering classical DOM-based XSS session exfiltration ineffective.
+    </p>
+
+    <h3>2. The <code>Secure</code> Attribute</h3>
+    <p>
+      Prohibits the browser from transmitting the cookie over unencrypted HTTP channels. This guarantees the token travels exclusively within an encrypted TLS tunnel, preventing passive network sniffing on untrusted networks.
+    </p>
+
+    <h3>3. The <code>SameSite</code> Attribute</h3>
+    <p>
+      Governs cross-site cookie transmission behavior. Setting <code>SameSite=Lax</code> (or <code>Strict</code> for high-security portals) prevents third-party sites from forcing the browser to send session cookies in cross-origin background requests, providing critical protection against Cross-Site Request Forgery (CSRF).
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 08 / SESSION LIFECYCLE -->
+  <section class="article-section">
+    <SectionHeading
+      number="08"
+      tag="SESSION LIFECYCLE"
+      title="Security Is Not One Cookie — It's a Complete Lifecycle"
+      id="sec-08"
+    />
+
+    <p>
+      Defending web sessions requires holistic lifecycle management extending from initial token entropy generation to absolute revocation:
+    </p>
+
+    <!-- Diagram 08: Lifecycle -->
+    <LifecycleDiagram lang="en" />
+
+    <ol>
+      <li>
+        <strong>CSPRNG Entropy Generation:</strong> Identifiers must be generated using cryptographically secure pseudorandom number generators with at least 128 bits of entropy to prevent statistical prediction.
+      </li>
+      <li>
+        <strong>Session ID Rotation:</strong> The session identifier must be rotated upon authentication and any privilege escalation. The previous identifier must be discarded immediately.
+      </li>
+      <li>
+        <strong>Dual Expiration Timeouts:</strong>
+        <ul>
+          <li><strong>Idle Timeout:</strong> Invalidate sessions following inactivity (e.g., 30 minutes).</li>
+          <li><strong>Absolute Timeout:</strong> Terminate sessions after a fixed window (e.g., 12 to 24 hours) regardless of ongoing activity, enforcing fresh authentication.</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Global Invalidation on Password Reset:</strong> When a user updates their password, the server must destroy all active session keys across all stored records, expelling any adversary holding a cloned token.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 09 / USER SIDE -->
+  <section class="article-section">
+    <SectionHeading
+      number="09"
+      tag="USER PERSPECTIVE"
+      title="What Does This Mean for the User?"
+      id="sec-09"
+    />
+
+    <p>
+      Given that attackers can bypass passwords and 2FA via stolen session tokens, practical defensive precautions must align directly with how session tokens are retained:
+    </p>
+
+    <!-- Diagram 09: Active Sessions Management -->
+    <ActiveSessionsDiagram lang="en" />
+
+    <ul>
+      <li>
+        <strong>Audit Active Sessions Periodically:</strong> Services like GitHub, Google, and Cloudflare provide a centralized active session management dashboard. Regularly review recognized devices and revoke unfamiliar or dormant sessions.
+      </li>
+      <li>
+        <strong>Enforce Browser Extension Hygiene:</strong> Audit installed extensions ruthlessly. Avoid sideloaded extensions or tools from unverified vendors that demand broad host permissions.
+      </li>
+      <li>
+        <strong>Exercise Caution Regarding Cracked Software:</strong> Pirated utilities, game cracks, and questionable loaders are the primary vector for infostealer malware. If the local OS kernel or user profile is compromised, browser-level protections are bypassed.
+      </li>
+      <li>
+        <strong>Explicitly Log Out on Shared Hardware:</strong> Clicking "Log Out" transmits a purge instruction to the server, invalidating the session identifier permanently in the central database.
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 10 / FINAL IDEA -->
+  <section class="article-section">
+    <SectionHeading
+      number="10"
+      tag="KEY TAKEAWAY"
+      title="The Password Opens the Door. The Session Keeps You Inside."
+      id="sec-10"
+    />
+
+    <!-- Diagram 10: Final Synthesis -->
+    <KeyPassDiagram lang="en" />
+
+    <p style="font-size: 1.25rem; font-weight: 600; color: var(--color-ink); line-height: 1.75;">
+      The password opens the door once; the session token is the pass you carry with you the entire time you use the site.
+    </p>
+
+    <p>
+      If you protect the password but let the session token leak, anyone holding that token can access the account directly as if they were you.
+    </p>
+
+    <div style="padding: 1.5rem; border: 1px solid var(--color-hairline); background-color: var(--color-bg-warm); margin-block: 2rem;">
+      <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--color-olive); margin-block-end: 0.5rem;">
+        SECURITY DOES NOT END AT LOGIN
+      </div>
+      <p style="margin: 0; font-size: 1.05rem; line-height: 1.8; color: var(--color-ink);">
+        Real web security begins the moment login succeeds and the session is issued.
+      </p>
+    </div>
+  </section>
+
+  <!-- Related Articles -->
+  <ContinueReading currentArticleId="session-hijacking" lang="en" />
+
+</ArticleLayout>

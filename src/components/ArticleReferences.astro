@@ -1,0 +1,53 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+
+const references = [
+  {
+    num: '[01]',
+    title: 'RFC 6265bis: Cookies: HTTP State Management Mechanism',
+    org: 'IETF (Internet Engineering Task Force)',
+    link: 'https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis'
+  },
+  {
+    num: '[02]',
+    title: 'Session Management Cheat Sheet & Bearer Token Guidance',
+    org: 'OWASP (Open Web Application Security Project)',
+    link: 'https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html'
+  },
+  {
+    num: '[03]',
+    title: 'NIST SP 800-63B: Digital Identity Guidelines — Authentication and Lifecycle Management',
+    org: 'NIST (National Institute of Standards and Technology)',
+    link: 'https://pages.nist.gov/800-63-3/sp800-63b.html'
+  },
+  {
+    num: '[04]',
+    title: 'MDN Web Docs: Using HTTP cookies & Security Attributes',
+    org: 'Mozilla Developer Network',
+    link: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies'
+  }
+];
+---
+
+<section class="references-card" aria-label={lang === 'ar' ? 'المراجع والمصادر التقنية' : 'Technical References'}>
+  <div class="references-title">
+    {lang === 'ar' ? 'المصادر والمراجع التقنية' : 'TECHNICAL REFERENCES & STANDARDS'}
+  </div>
+  <ul class="references-list">
+    {references.map(ref => (
+      <li class="reference-item">
+        <span class="reference-num">{ref.num}</span>
+        <div>
+          <a href={ref.link} target="_blank" rel="noopener noreferrer" style="text-decoration: underline; text-decoration-color: var(--color-hairline);">
+            <strong>{ref.title}</strong>
+          </a>
+          <span style="color: var(--color-ink-light); margin-inline-start: 0.5rem;">— {ref.org}</span>
+        </div>
+      </li>
+    ))}
+  </ul>
+</section>

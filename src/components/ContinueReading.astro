@@ -1,0 +1,212 @@
+---
+import { getArticleById, getRelatedArticle, getPublishedArticles } from '../data/articles';
+
+interface Props {
+  currentArticleId: string;
+  lang: 'ar' | 'en';
+}
+
+const { currentArticleId, lang } = Astro.props;
+const current = getArticleById(currentArticleId);
+const related = getRelatedArticle(currentArticleId);
+const allArticles = getPublishedArticles().filter(a => a.id !== currentArticleId);
+---
+
+<section class="continue-reading-section" aria-label={lang === 'ar' ? 'تابع القراءة' : 'Continue Reading'}>
+  <div class="divider-hairline" style="margin-block: 4rem 3rem;"></div>
+
+  <div class="continue-header">
+    <span class="continue-tag">
+      {lang === 'ar' ? 'تابع القراءة' : 'CONTINUE READING'}
+    </span>
+    <span class="continue-sub">
+      {lang === 'ar' ? 'مقالات أخرى' : 'MORE WRITEUPS'}
+    </span>
+  </div>
+
+  {related && (
+    <div class="primary-related-card">
+      <div class="related-meta">
+        <span class="related-number">{related.number}</span>
+        <span class="related-category">{lang === 'ar' ? related.category.ar : related.category.en}</span>
+        <span class="related-time">{lang === 'ar' ? related.readingTime.ar : related.readingTime.en}</span>
+      </div>
+
+      <h3 class="related-title">
+        <a href={`/${lang}/articles/${related.slug}/`}>
+          {lang === 'ar' ? related.title.ar : related.title.en}
+        </a>
+      </h3>
+
+      <p class="related-excerpt">
+        {lang === 'ar' ? related.excerpt.ar : related.excerpt.en}
+      </p>
+
+      <div class="related-action">
+        <a href={`/${lang}/articles/${related.slug}/`} class="editorial-read-btn">
+          {lang === 'ar' ? 'اقرأ المقال التالي ←' : 'Read Next Article →'}
+        </a>
+      </div>
+    </div>
+  )}
+
+  <div class="all-writeups-link-strip">
+    <a href={`/${lang}/#articles`} class="back-to-index-link">
+      {lang === 'ar' ? '← تصفح جميع المقالات' : '← Back to all writeups'}
+    </a>
+  </div>
+</section>
+
+<style>
+  .continue-reading-section {
+    margin-block-start: 3rem;
+  }
+
+  .continue-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-block-end: 1.5rem;
+    padding-block-end: 0.5rem;
+    border-block-end: 1px solid var(--color-hairline);
+    font-family: var(--font-mono);
+  }
+
+  .continue-tag {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-olive);
+  }
+
+  .continue-sub {
+    font-size: 0.72rem;
+    color: var(--color-ink-light);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .primary-related-card {
+    padding: 2.25rem;
+    background-color: var(--color-bg-warm);
+    border: 1px solid var(--color-hairline);
+    text-align: start;
+  }
+
+  .related-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    margin-block-end: 1rem;
+    color: var(--color-ink-muted);
+  }
+
+  .related-number {
+    color: var(--color-olive);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .related-category {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .related-time {
+    color: var(--color-ink-light);
+    font-size: 0.72rem;
+  }
+
+  .related-title {
+    font-size: clamp(1.35rem, 2.2vw, 1.85rem);
+    line-height: 1.35;
+    margin-block-end: 0.85rem;
+    text-align: start;
+  }
+
+  .related-title a {
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-decoration-color: var(--color-hairline);
+    transition: color 0.15s ease;
+  }
+
+  .related-title a:hover {
+    color: var(--color-olive);
+  }
+
+  .related-excerpt {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--color-ink-muted);
+    margin-block-end: 1.5rem;
+    max-inline-size: 64ch;
+    text-align: start;
+  }
+
+  .related-action {
+    display: flex;
+    align-items: center;
+  }
+
+  .editorial-read-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.1rem;
+    border: 1px solid var(--color-hairline);
+    background-color: var(--color-bg-paper);
+    color: var(--color-ink);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+
+  .editorial-read-btn:hover {
+    background-color: var(--color-ink);
+    color: var(--color-bg-paper);
+    border-color: var(--color-ink);
+  }
+
+  .all-writeups-link-strip {
+    margin-block-start: 1.5rem;
+    text-align: start;
+  }
+
+  .back-to-index-link {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--color-ink-muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .back-to-index-link:hover {
+    color: var(--color-ink);
+  }
+
+  :global(html[lang="ar"]) .continue-tag,
+  :global(html[lang="ar"]) .continue-sub,
+  :global(html[lang="ar"]) .related-category,
+  :global(html[lang="ar"]) .editorial-read-btn,
+  :global(html[lang="ar"]) .back-to-index-link {
+    font-family: var(--font-arabic) !important;
+    letter-spacing: normal !important;
+  }
+
+  :global(html[lang="ar"]) .related-title {
+    font-family: var(--font-arabic) !important;
+    line-height: 1.45;
+  }
+
+  :global(html[lang="ar"]) .related-excerpt {
+    font-family: var(--font-arabic) !important;
+    line-height: 1.85;
+  }
+</style>

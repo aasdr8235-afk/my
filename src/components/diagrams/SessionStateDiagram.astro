@@ -1,0 +1,105 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مقارنة بين معمارية الجلسات المدارة بالسيرفر والتوكن الموقع' : 'Server-side session vs client-held signed token architecture comparison'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">{lang === 'ar' ? 'مخطط 02 / نماذج إدارة الحالة' : 'FIGURE 02 / STATE ARCHITECTURE'}</span>
+    <span>{lang === 'ar' ? 'الجلسات المدارة بالسيرفر مقابل التوكنات الموقعة' : 'SERVER-SIDE SESSION VS. SIGNED TOKEN'}</span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 300" width="100%" height="auto" style="min-width: 660px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="state-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+        <marker id="state-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="state-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <rect x="8" y="8" width="804" height="284" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- ARCHITECTURE A: SERVER-SIDE SESSION -->
+      <g transform="translate(25, 25)">
+        <rect width="365" height="245" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="365" height="28" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="14" y="19" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700" fill="#151515">MODEL A: SERVER-SIDE SESSION</text>
+        
+        <!-- Client Box -->
+        <rect x="15" y="45" width="145" height="90" fill="#FAF8F2" stroke="#151515" stroke-width="1"/>
+        <text x="23" y="62" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">BROWSER STORAGE</text>
+        <text x="23" y="78" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Opaque Session ID Only:</text>
+        <rect x="23" y="88" width="128" height="24" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.2"/>
+        <text x="28" y="103" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#5F6849">sid=a3f9e7c4...</text>
+        <text x="23" y="124" font-family="sans-serif" font-size="7" fill="#8E8C84">Contains no user data</text>
+
+        <!-- Server Box -->
+        <rect x="195" y="45" width="155" height="110" fill="#FAF8F2" stroke="#151515" stroke-width="1"/>
+        <text x="205" y="62" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">CENTRAL STORE (DB/REDIS)</text>
+        <rect x="205" y="72" width="135" height="52" fill="url(#state-hatch)" stroke="#151515" stroke-width="0.8"/>
+        <text x="212" y="88" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">Key: a3f9e7c4...</text>
+        <text x="212" y="102" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F6849">→ user_id: 108</text>
+        <text x="212" y="116" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">role: admin, exp: 2h</text>
+        <text x="205" y="145" font-family="sans-serif" font-size="7" fill="#5F6849">✓ Instant Revocation</text>
+
+        <!-- Arrow Client to Server lookup -->
+        <path d="M 160 90 L 195 90" stroke="#151515" stroke-width="1.4" marker-end="url(#state-arrow)"/>
+
+        <!-- Model A Evaluation Footer -->
+        <rect x="15" y="170" width="335" height="60" fill="#EBE7DE" stroke="#151515" stroke-width="0.8"/>
+        <text x="25" y="187" font-family="sans-serif" font-size="8" font-weight="600" fill="#151515">Characteristics:</text>
+        <text x="25" y="202" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Requires database/RAM lookup on each request.</text>
+        <text x="25" y="216" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Immediate revocation: delete key from store.</text>
+      </g>
+
+      <!-- ARCHITECTURE B: CLIENT-HELD SIGNED TOKEN (JWT) -->
+      <g transform="translate(425, 25)">
+        <rect width="365" height="245" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="365" height="28" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="14" y="19" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700" fill="#151515">MODEL B: SIGNED TOKEN (JWT)</text>
+
+        <!-- Client Box -->
+        <rect x="15" y="45" width="165" height="110" fill="#FAF8F2" stroke="#151515" stroke-width="1"/>
+        <text x="23" y="62" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">BROWSER STORAGE</text>
+        <text x="23" y="78" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Self-Contained Signed Token:</text>
+        <rect x="23" y="88" width="148" height="42" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.2"/>
+        <text x="28" y="102" font-family="'JetBrains Mono', monospace" font-size="7" fill="#8F2D2D">eyJhbGciOi...</text>
+        <text x="28" y="114" font-family="'JetBrains Mono', monospace" font-size="7" fill="#2B5777">.eyJzdWIiOi...</text>
+        <text x="28" y="125" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F6849">.SflKxwRJS...</text>
+        <text x="23" y="145" font-family="sans-serif" font-size="7" fill="#8E8C84">Payload carried on client</text>
+
+        <!-- Server Box -->
+        <rect x="215" y="45" width="135" height="90" fill="#FAF8F2" stroke="#151515" stroke-width="1"/>
+        <text x="223" y="62" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">SERVER VERIFIER</text>
+        <rect x="223" y="72" width="118" height="38" fill="url(#state-hatch)" stroke="#151515" stroke-width="0.8"/>
+        <text x="228" y="88" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">Verify Signature</text>
+        <text x="228" y="100" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F6849">via Public/Secret Key</text>
+        <text x="223" y="125" font-family="sans-serif" font-size="7" fill="#8F2D2D">✗ Hard to revoke early</text>
+
+        <!-- Arrow Client to Server verification -->
+        <path d="M 180 90 L 215 90" stroke="#151515" stroke-width="1.4" marker-end="url(#state-arrow)"/>
+
+        <!-- Model B Evaluation Footer -->
+        <rect x="15" y="170" width="335" height="60" fill="#EBE7DE" stroke="#151515" stroke-width="0.8"/>
+        <text x="25" y="187" font-family="sans-serif" font-size="8" font-weight="600" fill="#151515">Characteristics:</text>
+        <text x="25" y="202" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Stateless: no central session database required.</text>
+        <text x="25" y="216" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Revocation challenge: valid until expiry timestamp.</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 02: الفرق المعماري الجذري بين الجلسة المخزنة في السيرفر (مفتاح عشوائي غير مفهوم) والتوكن الموقع الذاتي (JWT) الذي يحمل البيانات والتوقيع.'
+      : 'Figure 02: Architectural distinction between server-stored sessions (opaque random pointers) and client-held signed tokens carrying signed claims.'}
+  </figcaption>
+</figure>

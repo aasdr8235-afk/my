@@ -1,0 +1,91 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط انتقال الثقة والمراقبة بين مزود الإنترنت ومزود الـVPN' : 'The shift of trust and visibility: ISP vs VPN Provider comparison'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">
+      {lang === 'ar' ? 'مخطط 03 / نموذج الثقة' : 'DIAGRAM 03 / TRUST SHIFT'}
+    </span>
+    <span>
+      {lang === 'ar' ? 'ما يراه مزود الإنترنت (ISP) مقابل ما يراه مزود الـVPN' : 'Network Visibility: What the ISP Observes vs. What the VPN Provider Observes'}
+    </span>
+  </div>
+
+  <div class="diagram-svg-container">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 640px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="trust-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12" />
+        </pattern>
+        <pattern id="trust-olive-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#5F6849" stroke-width="0.75" stroke-opacity="0.25" />
+        </pattern>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25" />
+      <line x1="8" y1="24" x2="8" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="8" y1="8" x2="24" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="256" x2="812" y2="272" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="272" x2="796" y2="272" stroke="#151515" stroke-width="2" />
+
+      <!-- BOX 1: WHAT THE ISP OBSERVES (LEFT) -->
+      <g transform="translate(25, 30)">
+        <rect width="365" height="185" fill="#F4F1E9" stroke="#151515" stroke-width="1.4" />
+        <rect width="365" height="26" fill="#EBE7DE" stroke="#151515" stroke-width="1" />
+        <text x="14" y="17" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">01 / WHAT YOUR ISP SEES (WHEN VPN ACTIVE)</text>
+
+        <rect x="14" y="38" width="337" height="60" fill="#FAF8F2" stroke="#5F6849" stroke-width="1" />
+        <text x="22" y="54" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">REDUCED DIRECT VISIBILITY:</text>
+        <text x="22" y="68" font-family="sans-serif" font-size="7.5" fill="#151515">✓ Cannot see final website domains (if DNS tunneled)</text>
+        <text x="22" y="82" font-family="sans-serif" font-size="7.5" fill="#151515">✓ Cannot see specific destination IP addresses</text>
+        <text x="22" y="94" font-family="sans-serif" font-size="7.5" fill="#151515">✓ Cannot see HTTP headers, cookies, or queries</text>
+
+        <rect x="14" y="106" width="337" height="60" fill="#FAF8F2" stroke="#8F2D2D" stroke-width="1" />
+        <text x="22" y="122" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#8F2D2D">METADATA STILL OBSERVED BY ISP:</text>
+        <text x="22" y="136" font-family="sans-serif" font-size="7.5" fill="#151515">• You are actively connecting to a VPN server</text>
+        <text x="22" y="148" font-family="sans-serif" font-size="7.5" fill="#151515">• Exact VPN IP address and port (e.g. WireGuard 51820)</text>
+        <text x="22" y="160" font-family="sans-serif" font-size="7.5" fill="#151515">• Connection duration, timestamps &amp; data volume transfer</text>
+      </g>
+
+      <!-- BOX 2: WHAT THE VPN PROVIDER CAN OBSERVE (RIGHT) -->
+      <g transform="translate(430, 30)">
+        <rect width="365" height="185" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.6" />
+        <rect width="365" height="26" fill="#EBE7DE" stroke="#5F6849" stroke-width="1" />
+        <text x="14" y="17" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#5F6849">02 / WHAT THE VPN PROVIDER SEES</text>
+
+        <rect x="14" y="38" width="337" height="60" fill="#FAF8F2" stroke="#8F2D2D" stroke-width="1" />
+        <text x="22" y="54" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#8F2D2D">CENTRALIZED NETWORK VISIBILITY:</text>
+        <text x="22" y="68" font-family="sans-serif" font-size="7.5" fill="#151515">• Your original home public IP address &amp; ISP account</text>
+        <text x="22" y="82" font-family="sans-serif" font-size="7.5" fill="#151515">• Every external destination server IP you visit</text>
+        <text x="22" y="94" font-family="sans-serif" font-size="7.5" fill="#151515">• All DNS requests (if using the VPN provider's resolver)</text>
+
+        <rect x="14" y="106" width="337" height="60" fill="url(#trust-olive-hatch)" stroke="#5F6849" stroke-width="1" />
+        <text x="22" y="122" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">PROTECTED BY HTTPS (OUT OF REACH):</text>
+        <text x="22" y="136" font-family="sans-serif" font-size="7.5" fill="#151515">Even a dishonest VPN cannot decrypt HTTPS traffic</text>
+        <text x="22" y="148" font-family="sans-serif" font-size="7.5" fill="#151515">(passwords, banking tokens, encrypted payloads) unless</text>
+        <text x="22" y="160" font-family="sans-serif" font-size="7.5" fill="#5F6849">a rogue root CA certificate is installed on your OS.</text>
+      </g>
+
+      <!-- BOTTOM AXIOM BANNER -->
+      <g transform="translate(25, 226)">
+        <rect width="770" height="32" fill="#EBE7DE" stroke="#151515" stroke-width="1" />
+        <rect x="4" y="4" width="6" height="24" fill="#5F6849" />
+        <text x="20" y="21" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700" fill="#151515" letter-spacing="0.06em">
+          CORE PRINCIPLE: A VPN does not eliminate trust. It relocates it from your local ISP to the VPN operator.
+        </text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 03: انتقال الثقة — لا يقوم الـVPN بإلغاء الرقابة الشبكية، بل ينقل جزءًا كبيرًا منها من مزود الإنترنت المحلي إلى خوادم مزود الـVPN. محتوى HTTPS المشفر يظل محميًا من الطرفين.'
+      : 'Figure 03: The shift in trust — a VPN does not eliminate network surveillance; it relocates visibility from your local ISP to the VPN provider. HTTPS independently prevents either party from reading payload content.'}
+  </figcaption>
+</figure>

@@ -1,0 +1,67 @@
+---
+interface TOCItem {
+  id: string;
+  num: string;
+  title: string;
+}
+
+interface Props {
+  items: TOCItem[];
+  lang: 'ar' | 'en';
+}
+
+const { items, lang } = Astro.props;
+---
+
+<aside class="article-toc-wrapper" aria-label={lang === 'ar' ? 'فهرس المقال' : 'Table of Contents'}>
+  <div class="article-toc">
+    <div class="toc-header">
+      {lang === 'ar' ? 'فهرس المقال' : 'ARTICLE OUTLINE'}
+    </div>
+    <ul class="toc-list" id="toc-list">
+      {items.map(item => (
+        <li class="toc-item" data-section={item.id}>
+          <a href={`#${item.id}`}>
+            <span class="toc-num" dir="ltr">{item.num}</span>
+            <span class="toc-title"><bdi>{item.title}</bdi></span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</aside>
+
+<script>
+  function setupTOCScroll() {
+    const observerOptions = {
+      root: null,
+      rootMargin: '-20% 0px -70% 0px',
+      threshold: 0
+    };
+
+    const sectionElements = document.querySelectorAll('.section-heading-wrapper');
+    const tocItems = document.querySelectorAll('.toc-item');
+
+    if (!sectionElements.length || !tocItems.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          tocItems.forEach(item => {
+            if (item.getAttribute('data-section') === id) {
+              item.classList.add('active');
+            } else {
+              item.classList.remove('active');
+            }
+          });
+        }
+      });
+    }, observerOptions);
+
+    sectionElements.forEach(section => observer.observe(section));
+  }
+
+  setupTOCScroll();
+  document.addEventListener('astro:page-load', setupTOCScroll);
+</script>

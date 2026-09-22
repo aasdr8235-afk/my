@@ -1,0 +1,413 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import SectionHeading from '../../../components/SectionHeading.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import TechnicalNote from '../../../components/TechnicalNote.astro';
+import ContinueReading from '../../../components/ContinueReading.astro';
+
+// Technical SVG Diagrams
+import LoginFlowDiagram from '../../../components/diagrams/LoginFlowDiagram.astro';
+import SessionStateDiagram from '../../../components/diagrams/SessionStateDiagram.astro';
+import HttpRequestDiagram from '../../../components/diagrams/HttpRequestDiagram.astro';
+import TrustBoundaryDiagram from '../../../components/diagrams/TrustBoundaryDiagram.astro';
+import LeakageVectorsDiagram from '../../../components/diagrams/LeakageVectorsDiagram.astro';
+import TwoFactorTimelineDiagram from '../../../components/diagrams/TwoFactorTimelineDiagram.astro';
+import CookieFlagsDiagram from '../../../components/diagrams/CookieFlagsDiagram.astro';
+import LifecycleDiagram from '../../../components/diagrams/LifecycleDiagram.astro';
+import ActiveSessionsDiagram from '../../../components/diagrams/ActiveSessionsDiagram.astro';
+import KeyPassDiagram from '../../../components/diagrams/KeyPassDiagram.astro';
+
+const tocItems = [
+  { id: 'sec-01', num: '01', title: 'تسجيل الدخول والتحقق' },
+  { id: 'sec-02', num: '02', title: 'بنية حالة الجلسة' },
+  { id: 'sec-03', num: '03', title: 'بروتوكول الطلب والكوكي' },
+  { id: 'sec-04', num: '04', title: 'معضلة الثقة في السيرفر' },
+  { id: 'sec-05', num: '05', title: 'متجهات تسرب الجلسات' },
+  { id: 'sec-06', num: '06', title: 'حدود المصادقة الثنائية (2FA)' },
+  { id: 'sec-07', num: '07', title: 'خصائص حماية الكوكي' },
+  { id: 'sec-08', num: '08', title: 'دورة حياة الجلسة الكاملة' },
+  { id: 'sec-09', num: '09', title: 'إرشادات الدفاع للمستخدم' },
+  { id: 'sec-10', num: '10', title: 'الخلاصة' }
+];
+
+const pageTitle = "كيف تُسرق جلسة تسجيل الدخول بدون سرقة كلمة السر؟";
+const pageSubtitle = "أحيانًا المهاجم لا يحتاج كلمة السر أصلًا. يكفيه الشيء الذي يثبت أنك سجّلت الدخول بالفعل.";
+const pageDescription = "شرح عملي لكيفية عمل جلسات تسجيل الدخول، ملفات تعريف الارتباط (Session Cookies)، ولماذا يؤدي تسريب معرّف الجلسة إلى الدخول للحساب مباشرة بدون الحاجة لكلمة المرور.";
+---
+
+<ArticleLayout
+  title={pageTitle}
+  subtitle={pageSubtitle}
+  description={pageDescription}
+  lang="ar"
+  arUrl="/ar/articles/session-hijacking/"
+  enUrl="/en/articles/session-hijacking/"
+  currentPath="/ar/articles/session-hijacking/"
+  tocItems={tocItems}
+  categoryText="الأمن السيبراني / أمن الويب"
+  articleMeta="مقال 01 / أمن الجلسات"
+>
+
+  <!-- 01 / THE LOGIN -->
+  <section class="article-section">
+    <SectionHeading
+      number="01"
+      tag="THE LOGIN"
+      title="ماذا يحدث بعد تسجيل الدخول؟"
+      id="sec-01"
+    />
+
+    <p>
+      عندما نستخدم الإنترنت، نفكر عادةً أن كلمة السر هي الحارس الدائم للحساب: ما دامت كلمة السر آمنة، فالحساب محمي. لكن في الواقع، كلمة السر وظيفتها فقط إثبات هويتك في البداية.
+    </p>
+
+    <p>
+      بعد تسجيل الدخول، يعتمد الموقع عادةً على <span class="term" dir="ltr">Session</span> بدل إعادة إرسال كلمة السر مع كل طلب.
+    </p>
+
+    <p>
+      السبب بسيط: بروتوكول <bdi dir="ltr">HTTP</bdi> بطبيعته عديم الحالة (<bdi dir="ltr">Stateless Protocol</bdi>). كل طلب ترسله إلى السيرفر — سواء فتحت رسالة أو دخلت على الإعدادات — يُعامل كطلب مستقل تمامًا. وحتى لا يطلب منك الموقع إدخال كلمة السر مع كل نقرة، يُنشئ السيرفر جلسة (<span class="term" dir="ltr">Session</span>) ويعطي متصفحك قيمة نصية عشوائية تُسمى معرّف الجلسة (<span class="term" dir="ltr">Session Identifier</span> أو <span class="term" dir="ltr">Session Cookie</span>).
+    </p>
+
+    <!-- Diagram 01: Login Flow -->
+    <LoginFlowDiagram lang="ar" />
+
+    <p>
+      من تلك اللحظة، لا يقوم المتصفح بإعادة إرسال كلمة المرور مع كل طلب، بل يُرسل معرّف الجلسة. وهذا يعني أن إثبات هويتك انتقل عمليًا من كلمة السر إلى هذا المعرّف.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 02 / SESSION STATE -->
+  <section class="article-section">
+    <SectionHeading
+      number="02"
+      tag="SESSION STATE"
+      id="sec-02"
+    >
+      ما هي <span class="term" dir="ltr">Session Cookie</span> فعلًا؟
+    </SectionHeading>
+
+    <p>
+      من الأخطاء الشائعة في الأوساط التقنية خلط المفاهيم بين <span class="term" dir="ltr">Session Cookie</span> وبين رموز التوثيق الموقعة مثل <span class="term" dir="ltr">JWT (JSON Web Token)</span>. من الناحية المعمارية، نحن أمام نموذجين رئيسيين لإدارة حالة المستخدم:
+    </p>
+
+    <h3>أ) الجلسات المدارة من طرف السيرفر (<bdi dir="ltr">Server-Side Sessions</bdi>)</h3>
+    <p>
+      في هذا النموذج الكلاسيكي والآمن، لا يُخزن المتصفح سوى مؤشر مبهم وعشوائي بالكامل (<bdi dir="ltr">Opaque Token</bdi>) مثل:
+      <code dir="ltr">session_id=a3f9e7c4b281f90e3d5a...</code>
+      هذه السلسلة النصية لا تحتوي بحد ذاتها على أي بيانات، ولا يمكن فك تشفيرها لمعرفة هوية المستخدم. البيانات الفعلية (رقم المستخدم <code dir="ltr">user_id</code>، صلاحياته، ووقت إنشاء الجلسة) تُحفظ حصرًا داخل قاعدة بيانات أو ذاكرة وسيطة سريعة في السيرفر مثل <span class="term" dir="ltr">Redis</span> أو <span class="term" dir="ltr">Memcached</span>.
+    </p>
+
+    <h3>ب) المصادقة القائمة على التوكن (<bdi dir="ltr">Token-Based Authentication</bdi>)</h3>
+    <p>
+      في هذا النموذج، يحمل العميل توكنًا يحوي البيانات بحد ذاته (مثل <bdi dir="ltr">Payload</bdi> في صيغة <span class="term" dir="ltr">JWT</span>)، ممهورًا بتوقيع تشفيري (<bdi dir="ltr">Digital Signature</bdi>) مولد بواسطة مفتاح سري لدى السيرفر. السيرفر هنا لا يحتاج بالضرورة للاستعلام عن قاعدة بيانات الجلسات مع كل طلب، بل يكتفي بالتحقق الرياضي من صحة التوقيع وصلاحية الختم الزمني.
+    </p>
+
+    <!-- Diagram 02: Session Architecture Comparison -->
+    <SessionStateDiagram lang="ar" />
+
+    <TechnicalNote title="ملاحظة هندسية حول الإلغاء الفوري">
+      تتميز الجلسات المدارة بالسيرفر (<bdi dir="ltr">Server-Side</bdi>) بقدرتها على الإلغاء الفوري (<bdi dir="ltr">Instant Revocation</bdi>)؛ فبمجرد أن ينقر المستخدم على "تسجيل الخروج"، يقوم السيرفر بحذف المعرّف من <span class="term" dir="ltr">Redis</span>، فتفقد الجلسة فاعليتها فورًا في جزء من الثانية. بينما تعاني توكنات <span class="term" dir="ltr">JWT</span> المجردة من صعوبة الإلغاء قبل انتهاء وقت صلاحيتها ما لم يتم بناء طبقة قائمة حظر مركزية (<bdi dir="ltr">Denylist</bdi>).
+    </TechnicalNote>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 03 / REQUEST -->
+  <section class="article-section">
+    <SectionHeading
+      number="03"
+      tag="THE REQUEST"
+      title="كيف يعرف السيرفر أنك ما زلت مسجل الدخول؟"
+      id="sec-03"
+    />
+
+    <p>
+      آلية عمل ملفات تعريف الارتباط (<span class="term" dir="ltr">Cookies</span>) محددة ومقننة بدقة وفق مواصفات <bdi dir="ltr">RFC 6265bis</bdi>. بعد أن يتلقى المتصفح أمر التثبيت عبر ترويسة <span class="term" dir="ltr">Set-Cookie</span> لأول مرة، يتولى محرك الشبكة في المتصفح فحص معايير النطاق والمسار والأمان لكل طلب لاحق صادر إلى نفس الخادم.
+    </p>
+
+    <p>
+      إذا تطابقت المعايير، يقوم المتصفح بحقن ترويسة <span class="term" dir="ltr">Cookie</span> تلقائيًا داخل حزمة طلب <bdi dir="ltr">HTTP</bdi> دون أي تدخل برمجي من صفحات الويب:
+    </p>
+
+    <CodeBlock
+      title="HTTP/1.1 Wire Request Example"
+      code={`GET /api/v1/account/dashboard HTTP/1.1
+Host: writeups.mouhibmahadbi.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Cookie: session_id=a3f9e7c4b281f90e3d5a892b1c4e7f60; theme=light
+Connection: keep-alive
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin`}
+      language="http"
+    />
+
+    <!-- Diagram 03: Request Processing -->
+    <HttpRequestDiagram lang="ar" />
+
+    <p>
+      عندما تصل هذه الحزمة إلى السيرفر:
+    </p>
+    <ul>
+      <li>يقوم السيرفر بتفكيك ترويسات <bdi dir="ltr">HTTP</bdi> واستخراج قيمة المفتاح <code dir="ltr">session_id</code>.</li>
+      <li>يقوم بإجراء استعلام سريع بزمن وصول ثابت <bdi dir="ltr">O(1)</bdi> في جدول الجلسات المخزن في الذاكرة.</li>
+      <li>إذا وجد السجل ساري المفعول، يربط السيرفر هذا الطلب بكائن المستخدم (مثلاً: <span class="term" dir="ltr">User: Mouhib</span>)، ويمرر التحكم لمنطق التطبيق لتنفيذ العملية المطلوبة.</li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 04 / TRUST -->
+  <section class="article-section">
+    <SectionHeading
+      number="04"
+      tag="TRUST BOUNDARY"
+      title="السيرفر لا يرى 'أنت' — يرى ما يثبت الجلسة"
+      id="sec-04"
+    />
+
+    <p>
+      هنا نصل إلى جوهر مفهوم اختطاف الجلسات (<bdi dir="ltr">Session Hijacking</bdi>). معرّفات الجلسات في تصميمات الويب القياسية تعمل بوصفها <strong>وثائق حامل (<bdi dir="ltr">Bearer Credentials</bdi>)</strong>. في القانون المالي والبرمجي، وثيقة الحامل هي وثيقة تعطي الحق لمن يحوزها ماديًا؛ أي أن النظام يفترض تلقائيًا أن حائز السند هو صاحبه الشرعي.
+    </p>
+
+    <!-- Diagram 04: Trust Model -->
+    <TrustBoundaryDiagram lang="ar" />
+
+    <p>
+      السيرفر يستقبل بايتات عبر مقبس شبكة (<bdi dir="ltr">TCP Socket</bdi>). السيرفر لا يملك كاميرا بصرية تتحقق من ملامح الجالس أمام لوحة المفاتيح، ولا يفحص البصمة الحيوية للإنسان. كل ما يراه السيرفر هو:
+    </p>
+    <blockquote>
+      <em>"لقد وردني طلب يحمل المعرّف <code dir="ltr">session_id=a3f9e7c4...</code>، وهو معرّف نشط في قاعدة بياناتي ومسجل باسم المستخدم مهيب. إذن هذا الطلب صادر من مهيب."</em>
+    </blockquote>
+
+    <p>
+      إذا تمكن طرف ثالث (المهاجم) من استنساخ هذه القيمة النصية وحقنها في متصفحه الخاص، وأرسل طلبًا إلى نفس السيرفر، فإن السيرفر سيعامله بنفس الدرجة المطلقة من الثقة، ويمنحه كامل صلاحيات الحساب — <strong>دون أن يطلب منه كلمة المرور إطلاقًا، ودون أن يشعر بأي خلل ظاهري</strong>.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 05 / HOW SESSIONS LEAK -->
+  <section class="article-section">
+    <SectionHeading
+      number="05"
+      tag="LEAKAGE VECTORS"
+      title="كيف يمكن أن تتسرّب الجلسة؟"
+      id="sec-05"
+    />
+
+    <p>
+      لكي تحدث سرقة الجلسة، يجب أن يخرج المعرّف السري من النطاق الآمن المخصص له داخل المتصفح. من الناحية الدفاعية، تنحصر هذه التسريبات في أربعة متجهات رئيسية:
+    </p>
+
+    <!-- Diagram 05: Leakage Vectors -->
+    <LeakageVectorsDiagram lang="ar" />
+
+    <h3>1. ثغرات حقن السكربتات عبر المواقع (<bdi dir="ltr">XSS — Cross-Site Scripting</bdi>)</h3>
+    <p>
+      إذا كان التطبيق يحتوي على ثغرة تسمح بتنفيذ كود <span class="term" dir="ltr">JavaScript</span> خبيث داخل سياق المتصفح، وكان ملف الكوكي يفتقر إلى حماية برمجية، يستطيع الكود قراءة محتويات الكوكي عبر واجهة <bdi dir="ltr">DOM</bdi> البرمجية:
+      <code dir="ltr">const stolen = document.cookie;</code>
+      ثم إرساله خلسة عبر طلب شبكي خارجي إلى سيرفر المهاجم.
+    </p>
+
+    <h3>2. برمجيات سرقة البيانات المحلية (<bdi dir="ltr">Infostealers</bdi>)</h3>
+    <p>
+      تُعد برمجيات مثل <span class="term" dir="ltr">RedLine</span> و<span class="term" dir="ltr">Lumma Stealer</span> من أكثر التهديدات الواقعية انتشارًا اليوم. عندما تصيب هذه البرمجيات جهاز الضحية، فإنها لا تهتم بتخمين كلمات المرور، بل تتوجه مباشرة إلى ملفات تخزين المتصفح على القرص الصلب (مثل ملفات <bdi dir="ltr">SQLite</bdi> لمتصفحات <span class="term" dir="ltr">Chromium</span> و<span class="term" dir="ltr">Firefox</span>). تقوم هذه البرمجيات بنسخ ملف الكوكيز بالكامل واستخلاص جلسات الحسابات النشطة، ثم رفعها للمهاجمين في حزم مضغوطة.
+    </p>
+
+    <h3>3. اختراق بيئة العميل والإضافات المشبوهة (<bdi dir="ltr">Extension Compromise</bdi>)</h3>
+    <p>
+      تمتلك إضافات المتصفح (<bdi dir="ltr">Browser Extensions</bdi>) ذات الصلاحيات العالية وصولاً مباشرًا لواجهات برمجية حساسة مثل <code dir="ltr">chrome.cookies API</code>. إذا بيعت إضافة برمجية شهيرة لمطور مجهول، أو حدث تحديث خبيث لها، تستطيع قراءة كافة جلساتك دون حتى الحاجة لتجاوز جدار الحماية للويب.
+    </p>
+
+    <h3>4. عيوب دورة حياة الجلسة في النظام (<bdi dir="ltr">Flawed Session Lifecycle</bdi>)</h3>
+    <p>
+      أخطاء هندسية في السيرفر نفسه: مثل عدم إتلاف معرّف الجلسة عند تسجيل الخروج، أو توليد معرّفات ذات عشوائية ضعيفة يسهل تخمينها، أو الفشل في تدوير المعرّف عند تسجيل الدخول مما يفتح الباب لثغرات تثبيت الجلسة (<bdi dir="ltr">Session Fixation</bdi>).
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 06 / 2FA -->
+  <section class="article-section">
+    <SectionHeading
+      number="06"
+      tag="2FA BOUNDARY"
+      id="sec-06"
+    >
+      لماذا <span class="term" dir="ltr">2FA</span> لا يحل المشكلة وحده؟
+    </SectionHeading>
+
+    <p>
+      يعتقد كثيرون أن تفعيل المصادقة الثنائية (<bdi dir="ltr">2FA / MFA</bdi>) يحمي الحساب بشكل مطلق من أي دخول غير مصرح به. هذا الاعتقاد ينشأ من سوء فهم لطبيعة تموضع المصادقة الثنائية في بنية النظام.
+    </p>
+
+    <p>
+      المصادقة الثنائية وظيفتها <strong>حماية بوابة الدخول (<bdi dir="ltr">Authentication Gate</bdi>)</strong>. إنها تشترط تقديم رمز مؤقت أو بصمة أمان للتأكد من هوية الشخص قبل إصدار الجلسة. ولكن بمجرد التحقق بنجاح من العامل الثاني، يُغلق ملف التحقق، وتُسلّم الراية لـ <strong>معرّف الجلسة المفتوحة</strong>.
+    </p>
+
+    <!-- Diagram 06: 2FA Timeline -->
+    <TwoFactorTimelineDiagram lang="ar" />
+
+    <p>
+      إذا تمكن المهاجم من سرقة ملف الكوكي بعد إنشاء الجلسة، فهو لا يمر عبر بوابة الدخول أصلًا؛ هو يدخل مباشرة إلى داخل الحصن ومعه التصريح النهائي. السيرفر لا يطلب رمز <span class="term" dir="ltr">2FA</span> مجددًا مع كل صفحة يفتحها المستخدم لأن ذلك سيجعل تجربة الاستخدام مستحيلة وعقيمة.
+    </p>
+
+    <TechnicalNote title="الحل الهندسي: المصادقة التصاعدية (Step-up Authentication)">
+      لحماية الحسابات من الجلسات المسروقة، تطبق الأنظمة الناضجة مبدأ <strong>المصادقة التصاعدية (<bdi dir="ltr">Step-up Authentication</bdi>)</strong>: عند محاولة القيام بعملية حساسة (مثل تغيير كلمة السر، أو تعديل البريد المسجل، أو نقل أموال، أو استخراج مفاتيح <bdi dir="ltr">API</bdi>)، يرفض السيرفر الاعتماد على كوكي الجلسة وحده، ويجبر المستخدم على إعادة إدخال كلمة السر أو المصادقة الثنائية مجددًا قبل التنفيذ.
+    </TechnicalNote>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 07 / COOKIE FLAGS -->
+  <section class="article-section">
+    <SectionHeading
+      number="07"
+      tag="COOKIE FLAGS"
+      title="ثلاث خصائص صغيرة تغيّر مستوى الحماية كثيرًا"
+      id="sec-07"
+    />
+
+    <p>
+      عندما يرسل السيرفر معرّف الجلسة عبر ترويسة <span class="term" dir="ltr">Set-Cookie</span>، فإن مجرد وضع الاسم والقيمة ليس كافيًا. لقد زودت معايير الويب ملفات تعريف الارتباط بمجموعة من الرايات (<bdi dir="ltr">Flags / Attributes</bdi>) الهندسية التي تفرض قيودًا صارمة على المتصفح:
+    </p>
+
+    <CodeBlock
+      title="Hardened Set-Cookie Header Directive"
+      code={`Set-Cookie: session_id=a3f9e7c4b281f90e3d5a; Path=/; Domain=mouhibmahadbi.com; Secure; HttpOnly; SameSite=Lax; Max-Age=43200`}
+      language="http"
+    />
+
+    <!-- Diagram 07: Cookie Flags -->
+    <CookieFlagsDiagram lang="ar" />
+
+    <h3>1. خاصية <span class="term" dir="ltr">HttpOnly</span></h3>
+    <p>
+      هذه الخاصية تخبر المتصفح بأمر حاسم: <em>"هذا الكوكي مخصص حصريًا لبروتوكول الشبكة، ويُحظر تمامًا كشفه لأي كود برمجي يعمل على واجهة العميل"</em>. بمجرد تفعيلها، تصبح خاصية <code dir="ltr">document.cookie</code> في جافاسكربت عمياء تمامًا عن رؤية معرّف الجلسة. إذا تعرض موقعك لثغرة <bdi dir="ltr">XSS</bdi>، فإن السكربت الخبيث سيفشل في قراءة الجلسة أو نسخها مباشرة.
+    </p>
+
+    <h3>2. خاصية <span class="term" dir="ltr">Secure</span></h3>
+    <p>
+      تمنع المتصفح من إرسال الكوكي عبر أي اتصال غير مشفر (<bdi dir="ltr">Plaintext HTTP</bdi>). يضمن هذا أن معرّف الجلسة لا يسير في أسلاك الشبكة إلا داخل نفق تشفير آمن ببروتوكول <bdi dir="ltr">TLS / HTTPS</bdi>، مما يحيّد هجمات التنصت والتقاط الحزم (<bdi dir="ltr">Sniffing / MitM</bdi>) على الشبكات العامة.
+    </p>
+
+    <h3>3. خاصية <span class="term" dir="ltr">SameSite</span></h3>
+    <p>
+      تحدد هذه الخاصية سلوك إرسال الكوكي في الطلبات المتقاطعة بين المواقع (<bdi dir="ltr">Cross-Site Contexts</bdi>). قيمتها <span class="term" dir="ltr">Strict</span> تمنع إرسال الكوكي تمامًا إذا جاء الزائر عبر رابط من موقع خارجي، بينما القيمة الموصى بها لمعظم المنصات <span class="term" dir="ltr">Lax</span> تسمح به فقط مع التنقل العلوي الآمن، مما يقلل بشكل جذري من مخاطر هجمات تزوير الطلبات عبر المواقع (<bdi dir="ltr">CSRF</bdi>).
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 08 / SESSION LIFECYCLE -->
+  <section class="article-section">
+    <SectionHeading
+      number="08"
+      tag="SESSION LIFECYCLE"
+      title="الحماية ليست Cookie واحدة — بل دورة حياة كاملة"
+      id="sec-08"
+    />
+
+    <p>
+      أمن الجلسات لا يقتصر على ضبط ترويسة واحدة، بل يتطلب معمارية متكاملة تدير دورة حياة الجلسة من لحظة ولادتها وحتى فنائها الكامل:
+    </p>
+
+    <!-- Diagram 08: Lifecycle -->
+    <LifecycleDiagram lang="ar" />
+
+    <ol>
+      <li>
+        <strong>توليد عالي العشوائية (<bdi dir="ltr">CSPRNG Entropy</bdi>):</strong> يجب ألا يقل حجم المعرّف عن 128 بت من العشوائية المشفرة لمنع هجمات التخمين الإحصائي.
+      </li>
+      <li>
+        <strong>التدوير الدوري للجلسة (<bdi dir="ltr">Session Rotation</bdi>):</strong> عند تسجيل الدخول أو حدوث أي ترقية في الصلاحيات، يجب إتلاف المعرّف القديم وتوليد معرّف جديد كليًا لقطع الطريق على ثغرات تثبيت الجلسة.
+      </li>
+      <li>
+        <strong>مؤقتات انتهاء الصلاحية المزدوجة (<bdi dir="ltr">Dual Timeouts</bdi>):</strong>
+        <ul>
+          <li><strong>مهلة الخمول (<bdi dir="ltr">Idle Timeout</bdi>):</strong> إنهاء الجلسة إذا توقف المستخدم عن إرسال أي طلب لمدة زمنية محددة (مثل 30 دقيقة).</li>
+          <li><strong>المهلة المطلقة (<bdi dir="ltr">Absolute Expiration</bdi>):</strong> إنهاء الجلسة حتميًا بعد مدة محددة (مثل 12 إلى 24 ساعة) مهما كان المستخدم نشطًا، لإجباره على إعادة إثبات هويته.</li>
+        </ul>
+      </li>
+      <li>
+        <strong>الإلغاء المركزي عند تغيير كلمة السر (<bdi dir="ltr">Global Revocation</bdi>):</strong> إذا قام المستخدم بتغيير كلمة المرور الخاصة به، يجب على السيرفر مسح كافة الجلسات النشطة على كل الأجهزة فورًا لمنع أي مهاجم يمتلك جلسة مسروقة من البقاء داخل الحساب.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 09 / USER SIDE -->
+  <section class="article-section">
+    <SectionHeading
+      number="09"
+      tag="USER PERSPECTIVE"
+      title="ماذا يعني هذا للمستخدم؟"
+      id="sec-09"
+    />
+
+    <p>
+      إذا كان المهاجم قادرًا على تخطي كلمة المرور و<span class="ar-prefix-term">الـ<span class="term" dir="ltr">2FA</span></span> عبر سرقة الجلسة، فما هي الإجراءات الواقعية التي تحميك كمستخدم؟ المسألة هنا لا تتعلق بنصائح عامة، بل بإجراءات مرتبطة تقنيًا بطبيعة تخزين الجلسات:
+    </p>
+
+    <!-- Diagram 09: Active Sessions Management -->
+    <ActiveSessionsDiagram lang="ar" />
+
+    <ul>
+      <li>
+        <strong>مراجعة قائمة الأجهزة والجلسات النشطة بانتظام:</strong> توفر المنصات المحترمة (مثل <span class="term" dir="ltr">GitHub, Google, Cloudflare</span>) صفحة تعرض كافة معرّفات الجلسات المفتوحة مع نوع النظام وموقعه الجغرافي. إذا رأيت نظامًا لا تعرفه، انقر فورًا على <em>"Revoke / تسجيل الخروج من هذا الجهاز"</em>.
+      </li>
+      <li>
+        <strong>عزل المتصفح وتطهير الإضافات:</strong> بما أن الإضافات تملك مفاتيح الوصول لملفات الكوكيز، تخلص فورًا من أي إضافة غير ضرورية، ولا تثبت إضافات من مطورين مجهولين أو أدوات مجانية مشبوهة.
+      </li>
+      <li>
+        <strong>الحذر الشديد من ملفات <span class="ar-prefix-term">الـ<span class="term" dir="ltr">Infostealers</span></span> المقرصنة:</strong> برمجيات التفعيل المشبوهة، والملفات المقرصنة للألعاب والبرامج، هي الموزع الأول لبرمجيات سرقة الجلسات. إذا تم اختراق نظام التشغيل نفسه، فإن أقوى تدابير حماية الويب تصبح عاجزة.
+      </li>
+      <li>
+        <strong>تسجيل الخروج اليدوي من الأجهزة المشتركة:</strong> زر "تسجيل الخروج" ليس مجرد إغلاق للصفحة؛ إنه يرسل أمرًا للسيرفر بحذف المعرّف من قاعدة البيانات نهائيًا، مما يجعل أي نسخة من الكوكي عديمة القيمة.
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 10 / FINAL IDEA -->
+  <section class="article-section">
+    <SectionHeading
+      number="10"
+      tag="الخلاصة"
+      id="sec-10"
+    >
+      كلمة السر تفتح الباب. <span class="ar-prefix-term">الـ<span class="term" dir="ltr">Session</span></span> هي التي تبقيك داخله.
+    </SectionHeading>
+
+    <!-- Diagram 10: Final Synthesis -->
+    <KeyPassDiagram lang="ar" />
+
+    <p style="font-size: 1.25rem; font-weight: 600; color: var(--color-ink); line-height: 1.8;">
+      كلمة السر هي المفتاح الذي يفتح لك الباب لمرة واحدة؛ أما معرّف الجلسة (<span class="term" dir="ltr">Session Token</span>) فهو التصريح الذي تحمله معك طوال فترة استخدامك للموقع.
+    </p>
+
+    <p>
+      إذا ركزت كل دفاعاتك على حماية كلمة السر، لكنك أهملت حماية هذا التصريح، فإن أي شخص يحصل عليه يستطيع الدخول لحسابك والتصرف وكأنه أنت تمامًا.
+    </p>
+
+    <div style="padding: 1.5rem; border: 1px solid var(--color-hairline); background-color: var(--color-bg-warm); margin-block: 2rem;">
+      <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--color-olive); margin-block-end: 0.5rem;">
+        الأمان لا ينتهي عند تسجيل الدخول
+      </div>
+      <p style="margin: 0; font-size: 1.05rem; line-height: 1.85; color: var(--color-ink);">
+        الأمان الحقيقي في الويب يبدأ فعليًا في اللحظة التي يُغلق فيها نموذج تسجيل الدخول وتولد فيها الجلسة.
+      </p>
+    </div>
+  </section>
+
+  <!-- Related Articles -->
+  <ContinueReading currentArticleId="session-hijacking" lang="ar" />
+
+</ArticleLayout>

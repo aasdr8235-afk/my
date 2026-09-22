@@ -1,0 +1,65 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'واجهة إدارة الجلسات والأجهزة النشطة' : 'Active sessions and device management interface mock'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">{lang === 'ar' ? 'مخطط 09 / إدارة الأجهزة' : 'FIGURE 09 / ACTIVE SESSIONS'}</span>
+    <span>{lang === 'ar' ? 'واجهة المستخدم لمراقبة وإلغاء الجلسات' : 'SESSION REVOCATION INTERFACE'}</span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 800 230" width="100%" height="auto" style="min-width: 640px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="8" y="8" width="784" height="214" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Window Frame -->
+      <g transform="translate(30, 25)">
+        <rect width="740" height="180" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="740" height="26" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <circle cx="16" cy="13" r="3.5" fill="#151515" fill-opacity="0.3"/>
+        <circle cx="28" cy="13" r="3.5" fill="#151515" fill-opacity="0.3"/>
+        <circle cx="40" cy="13" r="3.5" fill="#151515" fill-opacity="0.3"/>
+        <text x="60" y="17" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">SETTINGS / ACTIVE SESSIONS &amp; RECOGNIZED DEVICES</text>
+
+        <!-- Device Row 1 (Legitimate Active) -->
+        <g transform="translate(15, 38)">
+          <rect width="710" height="50" fill="#FAF8F2" stroke="#5F6849" stroke-width="1.2"/>
+          <circle cx="25" cy="25" r="5" fill="#5F6849"/>
+          <text x="42" y="22" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700" fill="#151515">Linux / Firefox 128 (THIS DEVICE)</text>
+          <text x="42" y="38" font-family="sans-serif" font-size="8" fill="#5F5D56">IP: 192.0.2.45 • Tunis, TN • Active right now</text>
+          
+          <rect x="580" y="14" width="115" height="22" fill="#F4F1E9" stroke="#5F6849" stroke-width="1"/>
+          <text x="592" y="29" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#5F6849">CURRENT SESSION</text>
+        </g>
+
+        <!-- Device Row 2 (Suspicious Session) -->
+        <g transform="translate(15, 96)">
+          <rect width="710" height="50" fill="#FAF8F2" stroke="#8F2D2D" stroke-width="1.2"/>
+          <circle cx="25" cy="25" r="5" fill="#8F2D2D"/>
+          <text x="42" y="22" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700" fill="#8F2D2D">Windows / Chrome (SUSPICIOUS / UNRECOGNIZED)</text>
+          <text x="42" y="38" font-family="sans-serif" font-size="8" fill="#5F5D56">IP: 198.51.100.12 • Unknown Location • Last active: 14 mins ago</text>
+
+          <rect x="580" y="14" width="115" height="22" fill="#8F2D2D"/>
+          <text x="596" y="29" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#FFFFFF">REVOKE SESSION</text>
+        </g>
+
+        <!-- Action Bottom Bar -->
+        <g transform="translate(15, 153)">
+          <text x="0" y="14" font-family="sans-serif" font-size="8" fill="#5F5D56">If you notice unrecognized activity, invalidate all active tokens immediately.</text>
+          <rect x="535" y="0" width="175" height="20" fill="#EBE7DE" stroke="#151515" stroke-width="0.8"/>
+          <text x="545" y="13" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#151515">REVOKE ALL OTHER SESSIONS</text>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 09: لوحة إدارة الجلسات — تتيح للمستخدم مراجعة الأجهزة المقترنة بالمعرّفات النشطة وإلغاء أي جلسة مشبوهة أو منسية فورًا.'
+      : 'Figure 09: Active sessions dashboard — enables users to audit issued session tokens and purge unrecognized sessions remotely.'}
+  </figcaption>
+</figure>

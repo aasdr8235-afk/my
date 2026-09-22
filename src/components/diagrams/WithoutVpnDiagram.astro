@@ -1,0 +1,119 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط مسار الاتصال المباشر بالإنترنت بدون VPN' : 'Direct internet connection architecture without VPN'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">
+      {lang === 'ar' ? 'مخطط 01 / البنية القياسية' : 'DIAGRAM 01 / STANDARD TOPOLOGY'}
+    </span>
+    <span>
+      {lang === 'ar' ? 'الاتصال المباشر: ما يراه موفر خدمة الإنترنت (ISP)' : 'Direct Routing: Network Visibility at the Internet Service Provider'}
+    </span>
+  </div>
+
+  <div class="diagram-svg-container">
+    <svg viewBox="0 0 820 260" width="100%" height="auto" style="min-width: 640px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="novpn-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12" />
+        </pattern>
+        <marker id="novpn-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515" />
+        </marker>
+        <marker id="novpn-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849" />
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="244" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25" />
+      <line x1="8" y1="24" x2="8" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="8" y1="8" x2="24" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="236" x2="812" y2="252" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="252" x2="796" y2="252" stroke="#151515" stroke-width="2" />
+
+      <!-- Step 1: User Device -->
+      <g transform="translate(25, 35)">
+        <rect width="135" height="175" fill="#F4F1E9" stroke="#151515" stroke-width="1.4" />
+        <rect width="135" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="0.8" />
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">01 / USER DEVICE</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">WORKSTATION / PHONE</text>
+        <line x1="10" y1="51" x2="125" y2="51" stroke="#151515" stroke-width="0.5" stroke-opacity="0.25" />
+        <text x="10" y="70" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F5D56">Public IP:</text>
+        <text x="10" y="82" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">198.51.100.12</text>
+        <rect x="8" y="98" width="119" height="42" fill="#FAF8F2" stroke="#151515" stroke-width="0.8" />
+        <text x="12" y="112" font-family="sans-serif" font-size="7.2" fill="#151515">Direct socket to target</text>
+        <text x="12" y="125" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">DNS → ISP Resolver</text>
+      </g>
+
+      <!-- Arrow 1 -> 2 -->
+      <path d="M 160 110 L 205 110" stroke="#151515" stroke-width="1.4" marker-end="url(#novpn-arrow)" />
+
+      <!-- Step 2: Local Router -->
+      <g transform="translate(210, 35)">
+        <rect width="130" height="175" fill="#F4F1E9" stroke="#151515" stroke-width="1.4" />
+        <rect width="130" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="0.8" />
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">02 / LOCAL ROUTER</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">HOME / WI-FI AP</text>
+        <line x1="10" y1="51" x2="120" y2="51" stroke="#151515" stroke-width="0.5" stroke-opacity="0.25" />
+        <text x="10" y="72" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Untrusted Public Wi-Fi:</text>
+        <text x="10" y="86" font-family="sans-serif" font-size="7.5" fill="#8F2D2D">Vulnerable to eavesdrop</text>
+        <rect x="8" y="100" width="114" height="40" fill="url(#novpn-hatch)" stroke="#151515" stroke-width="0.8" />
+        <text x="12" y="115" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">L2 Frames exposed</text>
+        <text x="12" y="128" font-family="'JetBrains Mono', monospace" font-size="6.8" fill="#5F5D56">if unencrypted Wi-Fi</text>
+      </g>
+
+      <!-- Arrow 2 -> 3 -->
+      <path d="M 340 110 L 385 110" stroke="#151515" stroke-width="1.4" marker-end="url(#novpn-arrow)" />
+
+      <!-- Step 3: ISP (Centerpiece Visibility Box) -->
+      <g transform="translate(390, 35)">
+        <rect width="215" height="175" fill="#F4F1E9" stroke="#8F2D2D" stroke-width="1.6" />
+        <rect width="215" height="22" fill="#EBE7DE" stroke="#8F2D2D" stroke-width="0.8" />
+        <text x="12" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#8F2D2D">03 / INTERNET SERVICE PROVIDER (ISP)</text>
+        
+        <rect x="10" y="30" width="195" height="72" fill="#FAF8F2" stroke="#8F2D2D" stroke-width="1" />
+        <text x="16" y="45" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#8F2D2D">WHAT THE ISP CAN SEE:</text>
+        <text x="16" y="60" font-family="sans-serif" font-size="7.5" fill="#151515">• Every destination IP visited</text>
+        <text x="16" y="73" font-family="sans-serif" font-size="7.5" fill="#151515">• DNS queries (domains requested)</text>
+        <text x="16" y="86" font-family="sans-serif" font-size="7.5" fill="#151515">• Connection timing &amp; bandwidth volume</text>
+        <text x="16" y="96" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">• SNI domain in TLS ClientHello</text>
+
+        <!-- What ISP cannot see -->
+        <rect x="10" y="110" width="195" height="48" fill="#FAF8F2" stroke="#5F6849" stroke-width="1" />
+        <text x="16" y="124" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">PROTECTED BY HTTPS:</text>
+        <text x="16" y="138" font-family="sans-serif" font-size="7.5" fill="#151515">Passwords, page URLs, form data, &amp;</text>
+        <text x="16" y="150" font-family="sans-serif" font-size="7.5" fill="#5F6849">payload bodies are already encrypted.</text>
+      </g>
+
+      <!-- Arrow 3 -> 4 -->
+      <path d="M 605 110 L 645 110" stroke="#151515" stroke-width="1.4" marker-end="url(#novpn-arrow)" />
+
+      <!-- Step 4: Destination Website -->
+      <g transform="translate(650, 35)">
+        <rect width="145" height="175" fill="#FAF8F2" stroke="#151515" stroke-width="1.4" />
+        <rect width="145" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="0.8" />
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">04 / DESTINATION</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">TARGET WEBSITE</text>
+        <line x1="10" y1="51" x2="135" y2="51" stroke="#151515" stroke-width="0.5" stroke-opacity="0.25" />
+        <text x="10" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Sees client IP:</text>
+        <text x="10" y="84" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#8F2D2D">198.51.100.12</text>
+        <text x="10" y="98" font-family="sans-serif" font-size="7.2" fill="#5F5D56">(Direct user home IP)</text>
+        <rect x="8" y="112" width="129" height="38" fill="url(#novpn-hatch)" stroke="#151515" stroke-width="0.8" />
+        <text x="12" y="126" font-family="sans-serif" font-size="7.2" fill="#151515">Maps IP to ISP &amp;</text>
+        <text x="12" y="138" font-family="sans-serif" font-size="7.2" fill="#5F5D56">approximate geographic city</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 01: الاتصال التقليدي بدون VPN — يرى مزود خدمة الإنترنت (ISP) كل عنوان وجهة تتصل به ويستقبل استعلامات الـDNS، في حين يحمي بروتوكول HTTPS محتوى الصفحات والبيانات الحساسة.'
+      : 'Figure 01: Standard direct internet connection — the ISP observes all destination IP addresses and receives DNS queries, while HTTPS independently encrypts application payload content.'}
+  </figcaption>
+</figure>

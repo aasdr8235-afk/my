@@ -1,0 +1,276 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import { SITE_CONFIG } from '../config/site';
+
+// Schematic Previews for Editorial Rows & Featured Story
+import VpnTunnelDiagram from '../components/diagrams/VpnTunnelDiagram.astro';
+import VpnTrustShiftDiagram from '../components/diagrams/VpnTrustShiftDiagram.astro';
+import DnsResolutionDiagram from '../components/diagrams/DnsResolutionDiagram.astro';
+import LoginFlowDiagram from '../components/diagrams/LoginFlowDiagram.astro';
+
+const pageTitle = "Mouhib Writeups — ملاحظات تقنية حول الأمن، الشبكات والأنظمة";
+const pageDescription = "ملاحظات وكتابات تقنية حول الأمن السيبراني، الشبكات، Linux والأنظمة. بقلم محب م.ح.";
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  lang="ar"
+  arUrl="/ar/"
+  enUrl="/en/"
+  currentPath="/"
+>
+  <!-- Masthead with Homepage Navigation -->
+  <Header
+    currentLang="ar"
+    arUrl="/ar/"
+    enUrl="/en/"
+    isHome={true}
+  />
+
+  <main class="container" style="max-width: 1120px; padding-block-end: 6rem;">
+    <!-- Publication Intro -->
+    <header class="cover-masthead-intro">
+      <div class="cover-intro-line">
+        <span class="cover-brand-tag">MOUHIB WRITEUPS</span>
+        <span class="cover-sep">—</span>
+        <span class="cover-tagline">ملاحظات تقنية حول الأمن، الشبكات والأنظمة. أشرح ما أتعلمه وأجرّبه، مع التركيز على فهم كيفية عمل الأشياء فعليًا.</span>
+      </div>
+    </header>
+
+    <!-- Featured Story: Article 03 (What a VPN Actually Does) -->
+    <section class="featured-monograph-section" aria-label="المقال المميز">
+      <div class="featured-grid">
+        <div class="featured-content">
+          <div class="featured-tag-badge">
+            <span class="dot" style="width: 6px; height: 6px; border-radius: 50%; background-color: var(--color-olive);"></span>
+            <span>03 / الشبكات / الخصوصية</span>
+          </div>
+
+          <h2 class="featured-title">
+            <a href="/ar/articles/what-a-vpn-actually-does/">
+              <span class="ar-prefix-term">الـ<span class="term" dir="ltr">VPN</span></span> لا يجعلك مختفيًا… هو فقط يغيّر من يرى ماذا
+            </a>
+          </h2>
+
+          <p class="featured-excerpt">
+            شرح مباشر وهادئ لما يفعله نفق الـ<span class="term" dir="ltr">VPN</span> فعليًا: ما يراه مزود الإنترنت، ما يراه مزود الـ<span class="term" dir="ltr">VPN</span>، متى تحدث تسريبات <span class="term" dir="ltr">DNS</span>، ولماذا لا يعتبر الـ<span class="term" dir="ltr">VPN</span> بديلاً عن <span class="term" dir="ltr">HTTPS</span> أو مانعًا للتتبع.
+          </p>
+
+          <div class="featured-action-bar">
+            <a href="/ar/articles/what-a-vpn-actually-does/" class="featured-read-link">
+              اقرأ المقال ←
+            </a>
+            <span class="featured-reading-time">14 دقيقة قراءة</span>
+          </div>
+        </div>
+
+        <div class="pub-row-visual" style="border: 1px solid var(--color-hairline);">
+          <VpnTunnelDiagram lang="ar" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Topic Filters Bar -->
+    <nav id="topics" class="topic-filters-wrapper" aria-label="تصنيف المواضيع">
+      <span class="topic-filters-label">تصفية حسب التخصص:</span>
+      <div class="topic-filter-buttons" role="tablist">
+        <button type="button" class="topic-btn is-active" data-filter="all">الكل (3)</button>
+        <button type="button" class="topic-btn" data-filter="cybersecurity">الأمن السيبراني (1)</button>
+        <button type="button" class="topic-btn" data-filter="networking">الشبكات (1)</button>
+        <button type="button" class="topic-btn" data-filter="privacy">الخصوصية والأنفاق (1)</button>
+      </div>
+    </nav>
+
+    <!-- Editorial Publication Rows -->
+    <section id="articles" class="editorial-pub-rows" aria-label="المقالات">
+      <div class="index-section-header">
+        <span class="index-section-title">جميع المقالات المنشورة</span>
+        <span class="index-section-count">3 مقالات تقنية</span>
+      </div>
+
+      <!-- Row 03: What a VPN Actually Does -->
+      <article class="editorial-pub-row" data-category="privacy">
+        <div class="pub-row-content">
+          <div class="pub-row-meta">
+            <span class="pub-row-number">03</span>
+            <span>/</span>
+            <span class="pub-row-category">الشبكات / الخصوصية</span>
+            <span>•</span>
+            <span class="pub-row-time">14 دقيقة قراءة</span>
+          </div>
+
+          <h3 class="pub-row-title">
+            <a href="/ar/articles/what-a-vpn-actually-does/">
+              <span class="ar-prefix-term">الـ<span class="term" dir="ltr">VPN</span></span> لا يجعلك مختفيًا… هو فقط يغيّر من يرى ماذا
+            </a>
+          </h3>
+
+          <p class="pub-row-excerpt">
+            شرح مباشر وهادئ لما يفعله نفق الـ<span class="term" dir="ltr">VPN</span> فعليًا: ما يراه مزود الإنترنت، ما يراه مزود الـ<span class="term" dir="ltr">VPN</span>، متى تحدث تسريبات <span class="term" dir="ltr">DNS</span>، ولماذا لا يعتبر الـ<span class="term" dir="ltr">VPN</span> بديلاً عن <span class="term" dir="ltr">HTTPS</span> أو مانعًا للتتبع.
+          </p>
+
+          <div class="pub-row-action">
+            <a href="/ar/articles/what-a-vpn-actually-does/" class="pub-row-link">
+              اقرأ المقال ←
+            </a>
+          </div>
+        </div>
+
+        <div class="pub-row-visual">
+          <VpnTrustShiftDiagram lang="ar" />
+        </div>
+      </article>
+
+      <!-- Row 02: Network Request Journey (Asymmetric Inversion: Visual Start, Text End) -->
+      <article class="editorial-pub-row is-reversed" data-category="networking">
+        <div class="pub-row-content">
+          <div class="pub-row-meta">
+            <span class="pub-row-number">02</span>
+            <span>/</span>
+            <span class="pub-row-category">الشبكات / بروتوكولات الويب</span>
+            <span>•</span>
+            <span class="pub-row-time">16 دقيقة قراءة</span>
+          </div>
+
+          <h3 class="pub-row-title">
+            <a href="/ar/articles/what-happens-when-you-type-a-domain/">
+              كتبت اسم موقع وضغطت Enter… ماذا حدث فعلًا؟
+            </a>
+          </h3>
+
+          <p class="pub-row-excerpt">
+            شرح خطوة بخطوة لما يحدث خلف الكواليس: من الذاكرة المحلية وDNS وبوابة الراوتر إلى مصافحات TCP/TLS والـHTTP وعرض الصفحة في المتصفح.
+          </p>
+
+          <div class="pub-row-action">
+            <a href="/ar/articles/what-happens-when-you-type-a-domain/" class="pub-row-link">
+              اقرأ المقال ←
+            </a>
+          </div>
+        </div>
+
+        <div class="pub-row-visual">
+          <DnsResolutionDiagram lang="ar" />
+        </div>
+      </article>
+
+      <!-- Row 01: Session Hijacking -->
+      <article class="editorial-pub-row" data-category="cybersecurity">
+        <div class="pub-row-content">
+          <div class="pub-row-meta">
+            <span class="pub-row-number">01</span>
+            <span>/</span>
+            <span class="pub-row-category">الأمن السيبراني / أمن الويب</span>
+            <span>•</span>
+            <span class="pub-row-time">12 دقيقة قراءة</span>
+          </div>
+
+          <h3 class="pub-row-title">
+            <a href="/ar/articles/session-hijacking/">
+              كيف تُسرق جلسة تسجيل الدخول بدون سرقة كلمة السر؟
+            </a>
+          </h3>
+
+          <p class="pub-row-excerpt">
+            شرح عملي لكيفية عمل Session Cookies، ولماذا يؤدي تسريب معرّف الجلسة إلى الدخول للحساب مباشرة بدون الحاجة لكلمة المرور.
+          </p>
+
+          <div class="pub-row-action">
+            <a href="/ar/articles/session-hijacking/" class="pub-row-link">
+              اقرأ المقال ←
+            </a>
+          </div>
+        </div>
+
+        <div class="pub-row-visual">
+          <LoginFlowDiagram lang="ar" />
+        </div>
+      </article>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="editorial-colophon" aria-label="عن Mouhib Writeups">
+      <div class="colophon-grid">
+        <div>
+          <div class="colophon-header">عن Mouhib Writeups</div>
+          <p class="colophon-text">
+            هذه مساحة أستخدمها لتوثيق ما أتعلمه وأجرّبه في الأمن السيبراني، الشبكات، Linux والأنظمة.
+          </p>
+        </div>
+
+        <div>
+          <div class="colophon-header">الهدف</div>
+          <p class="colophon-text">
+            الهدف بسيط: أفهم الأشياء بشكل أعمق، ثم أشرحها بطريقة واضحة.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Editorial Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <img src="/assets/brand/logo.png" alt="" class="brand-logo-img" width="36" height="36" loading="lazy" />
+          <div>
+            <div class="footer-brand-title">MOUHIB WRITEUPS</div>
+            <div class="footer-brand-tagline">{SITE_CONFIG.tagline.ar}</div>
+          </div>
+        </div>
+
+        <div class="footer-topics">
+          <span>الأمن السيبراني</span>
+          <span>•</span>
+          <span>الشبكات</span>
+          <span>•</span>
+          <span>الخصوصية</span>
+        </div>
+
+        <div class="footer-cover-meta">
+          <span class="footer-author">Mouhib MH</span>
+          <div class="footer-links">
+            <a href="/ar/" class="is-active">العربية</a>
+            <span>/</span>
+            <a href="/en/">EN</a>
+            <a href="#top">أعلى الصفحة ↑</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Vanilla JS Interactive Topic Filter -->
+  <script>
+    function setupTopicFilters() {
+      const buttons = document.querySelectorAll<HTMLButtonElement>('.topic-btn');
+      const rows = document.querySelectorAll<HTMLElement>('.editorial-pub-row');
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+
+          const filter = btn.getAttribute('data-filter');
+          rows.forEach(row => {
+            const category = row.getAttribute('data-category');
+            if (filter === 'all' || category === filter) {
+              row.classList.remove('is-hidden');
+            } else {
+              row.classList.add('is-hidden');
+            }
+          });
+        });
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupTopicFilters);
+    } else {
+      setupTopicFilters();
+    }
+  </script>
+</BaseLayout>

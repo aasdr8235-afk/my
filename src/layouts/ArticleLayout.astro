@@ -1,0 +1,130 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Header from '../components/Header.astro';
+import ArticleHero from '../components/ArticleHero.astro';
+import ArticleTOC from '../components/ArticleTOC.astro';
+import AuthorBlock from '../components/AuthorBlock.astro';
+import ArticleReferences from '../components/ArticleReferences.astro';
+import { SITE_CONFIG } from '../config/site';
+
+interface TOCItem {
+  id: string;
+  num: string;
+  title: string;
+}
+
+interface Props {
+  title: string;
+  subtitle: string;
+  description: string;
+  lang: 'ar' | 'en';
+  arUrl: string;
+  enUrl: string;
+  currentPath: string;
+  tocItems: TOCItem[];
+  categoryText?: string;
+  articleMeta?: string;
+}
+
+const {
+  title,
+  subtitle,
+  description,
+  lang,
+  arUrl,
+  enUrl,
+  currentPath,
+  tocItems,
+  categoryText,
+  articleMeta
+} = Astro.props;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  lang={lang}
+  arUrl={arUrl}
+  enUrl={enUrl}
+  currentPath={currentPath}
+>
+  <!-- Mobile Reading Progress Bar -->
+  <div class="reading-progress-bar" aria-hidden="true">
+    <div class="reading-progress-fill" id="reading-progress"></div>
+  </div>
+
+  <!-- Editorial Masthead Header -->
+  <Header
+    currentLang={lang}
+    arUrl={arUrl}
+    enUrl={enUrl}
+    categoryText={categoryText}
+    articleMeta={articleMeta}
+  />
+
+  <main class="container" id="main-content">
+    <!-- Article Hero Section -->
+    <ArticleHero
+      lang={lang}
+      title={title}
+      subtitle={subtitle}
+      category={categoryText || (lang === 'ar' ? SITE_CONFIG.category.ar : SITE_CONFIG.category.en)}
+      articleMeta={articleMeta || (lang === 'ar' ? 'مقال 01 / أمن الجلسات' : 'ARTICLE 01 / SESSION SECURITY')}
+      currentPath={currentPath}
+    />
+
+    <!-- Main Editorial Article Grid -->
+    <div class="article-grid">
+      <!-- Article Content Column -->
+      <article class="article-main article-content">
+        <slot />
+
+        <!-- Author Block -->
+        <AuthorBlock lang={lang} />
+
+        <!-- Technical References Section -->
+        <ArticleReferences lang={lang} />
+      </article>
+
+      <!-- Sticky Table of Contents Sidebar -->
+      <ArticleTOC items={tocItems} lang={lang} />
+    </div>
+  </main>
+
+  <!-- Editorial Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span>{SITE_CONFIG.name}</span>
+          <span style="opacity: 0.5; margin-inline: 0.5rem;">—</span>
+          <span style="font-weight: 400; color: var(--color-ink-muted);">
+            {lang === 'ar' ? SITE_CONFIG.tagline.ar : SITE_CONFIG.tagline.en}
+          </span>
+        </div>
+
+        <div class="footer-links">
+          <a href="/ar/articles/session-hijacking/">العربية</a>
+          <a href="/en/articles/session-hijacking/">English</a>
+          <a href="/robots.txt">robots.txt</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Script for Reading Progress Bar -->
+  <script>
+    function updateProgress() {
+      const progressBar = document.getElementById('reading-progress');
+      if (!progressBar) return;
+      const totalHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      if (totalHeight <= 0) return;
+      const progress = (window.scrollY / totalHeight) * 100;
+      progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+    }
+
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    window.addEventListener('resize', updateProgress);
+    updateProgress();
+  </script>
+</BaseLayout>

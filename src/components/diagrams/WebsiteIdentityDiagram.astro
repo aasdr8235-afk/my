@@ -1,0 +1,93 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط تتبع الهوية الرقمية عبر ملفات تعريف الارتباط وبصمة المتصفح رغم تغيير عنوان IP' : 'User identity tracking vectors beyond IP address: Cookies, accounts, and fingerprinting'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">
+      {lang === 'ar' ? 'مخطط 05 / الهوية الرقمية' : 'DIAGRAM 05 / DIGITAL IDENTITY'}
+    </span>
+    <span>
+      {lang === 'ar' ? 'إخفاء عنوان الـIP لا يعني التخفي: متجهات كشف الهوية في المتصفح' : 'IP Privacy ≠ Anonymity: How Websites Recognize Identity Beyond IP Addresses'}
+    </span>
+  </div>
+
+  <div class="diagram-svg-container">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 640px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="id-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12" />
+        </pattern>
+        <pattern id="id-olive-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#5F6849" stroke-width="0.75" stroke-opacity="0.25" />
+        </pattern>
+        <marker id="id-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515" />
+        </marker>
+        <marker id="id-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849" />
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25" />
+      <line x1="8" y1="24" x2="8" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="256" x2="812" y2="272" stroke="#151515" stroke-width="2" />
+
+      <!-- LEFT: WHAT THE VPN SUCCESSFULLY MASKS -->
+      <g transform="translate(25, 30)">
+        <rect width="260" height="205" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.6" />
+        <rect width="260" height="24" fill="#EBE7DE" stroke="#5F6849" stroke-width="1" />
+        <text x="12" y="16" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">01 / WHAT VPN MASKS (L3 NETWORK)</text>
+
+        <rect x="12" y="38" width="236" height="42" fill="url(#id-olive-hatch)" stroke="#5F6849" stroke-width="0.8" />
+        <text x="18" y="54" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">✓ ORIGINAL PUBLIC IP HIDDEN</text>
+        <text x="18" y="68" font-family="sans-serif" font-size="7.5" fill="#151515">Target sees shared VPN exit server IP</text>
+
+        <rect x="12" y="90" width="236" height="42" fill="#FAF8F2" stroke="#151515" stroke-width="0.8" />
+        <text x="18" y="106" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">✓ GEOLOCATION SHIFTED</text>
+        <text x="18" y="120" font-family="sans-serif" font-size="7.5" fill="#5F5D56">City/Country maps to datacenter location</text>
+
+        <rect x="12" y="142" width="236" height="42" fill="#FAF8F2" stroke="#151515" stroke-width="0.8" />
+        <text x="18" y="158" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">✓ ISP DESTINATION SHIELD</text>
+        <text x="18" y="172" font-family="sans-serif" font-size="7.5" fill="#5F5D56">ISP cannot log website server IP directly</text>
+      </g>
+
+      <!-- Center Flow Indicator -->
+      <path d="M 295 130 L 335 130" stroke="#151515" stroke-width="1.5" marker-end="url(#id-arrow)" />
+
+      <!-- RIGHT: WHAT STILL RECOGNIZES USER (APPLICATION LAYER IDENTITY) -->
+      <g transform="translate(345, 30)">
+        <rect width="450" height="205" fill="#F4F1E9" stroke="#8F2D2D" stroke-width="1.6" />
+        <rect width="450" height="24" fill="#EBE7DE" stroke="#8F2D2D" stroke-width="1" />
+        <text x="14" y="16" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#8F2D2D">02 / PERSISTENT IDENTITY VECTORS (APPLICATION &amp; CLIENT CONTEXT)</text>
+
+        <!-- Factor 1: Active Accounts -->
+        <rect x="14" y="38" width="422" height="42" fill="#FAF8F2" stroke="#8F2D2D" stroke-width="1" />
+        <text x="22" y="54" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#8F2D2D">1. LOGGED-IN ACCOUNTS &amp; SESSIONS</text>
+        <text x="22" y="68" font-family="sans-serif" font-size="7.5" fill="#151515">If you log in (Google, GitHub, banking), your exact user ID and profile are established immediately regardless of IP.</text>
+
+        <!-- Factor 2: Cookies & Storage -->
+        <rect x="14" y="88" width="422" height="42" fill="#FAF8F2" stroke="#151515" stroke-width="0.8" />
+        <text x="22" y="104" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">2. PERSISTENT COOKIES &amp; LOCALSTORAGE</text>
+        <text x="22" y="118" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Persistent tracking cookies, third-party analytics tokens, and IndexedDB continue identifying your browser across sessions.</text>
+
+        <!-- Factor 3: Browser Fingerprinting -->
+        <rect x="14" y="138" width="422" height="52" fill="#FAF8F2" stroke="#151515" stroke-width="0.8" />
+        <text x="22" y="154" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">3. BROWSER FINGERPRINTING SIGNALS</text>
+        <text x="22" y="168" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Canvas rendering output, WebGL GPU parameters, system font lists, audio latency, and screen resolution can produce</text>
+        <text x="22" y="180" font-family="sans-serif" font-size="7.5" font-weight="600" fill="#5F6849">statistical correlations across different IP addresses.</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 05: تمييز الخصوصية عن التخفي — ينجح الـVPN في حجب عنوان IP الحقيقي على طبقة الشبكة (L3)، لكنه عاجز عن منع التعرف عليك عبر تسجيل الدخول، ملفات الكوكيز، أو بصمات المتصفح البرمجية.'
+      : 'Figure 05: Distinguishing IP privacy from anonymity — a VPN conceals your origin IP address at the network layer, but websites can still identify your session via account logins, persistent cookies, and browser fingerprinting signals.'}
+  </figcaption>
+</figure>

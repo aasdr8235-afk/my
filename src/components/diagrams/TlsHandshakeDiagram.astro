@@ -1,0 +1,84 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط مصافحة الأمان والتشفير لبروتوكول TLS 1.3' : 'TLS 1.3 cryptographic handshake and session key agreement'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">
+      {lang === 'ar' ? 'مخطط 05 / التشفير ونفق الأمان' : 'DIAGRAM 05 / CRYPTOGRAPHIC HANDSHAKE'}
+    </span>
+    <span>
+      {lang === 'ar' ? 'مصافحة TLS 1.3: تبادل المفاتيح والتحقق من الشهادة الرقمية' : 'TLS 1.3 Key Agreement, Certificate Validation & Channel Encryption'}
+    </span>
+  </div>
+
+  <div class="diagram-svg-container">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 640px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="tls-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12" />
+        </pattern>
+        <marker id="tls-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515" />
+        </marker>
+        <marker id="tls-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849" />
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25" />
+      <line x1="8" y1="24" x2="8" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="8" y1="8" x2="24" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="256" x2="812" y2="272" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="272" x2="796" y2="272" stroke="#151515" stroke-width="2" />
+
+      <!-- Left Lifeline: Client -->
+      <g transform="translate(40, 25)">
+        <rect width="130" height="34" fill="#F4F1E9" stroke="#151515" stroke-width="1.2" />
+        <text x="14" y="21" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">BROWSER (CLIENT)</text>
+        <line x1="65" y1="34" x2="65" y2="235" stroke="#151515" stroke-width="1.2" stroke-dasharray="3 3" />
+      </g>
+
+      <!-- Right Lifeline: Server -->
+      <g transform="translate(650, 25)">
+        <rect width="130" height="34" fill="#F4F1E9" stroke="#151515" stroke-width="1.2" />
+        <text x="16" y="21" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">SERVER (TARGET)</text>
+        <line x1="65" y1="34" x2="65" y2="235" stroke="#151515" stroke-width="1.2" stroke-dasharray="3 3" />
+      </g>
+
+      <!-- Message 1: ClientHello -->
+      <path d="M 105 75 L 715 105" stroke="#151515" stroke-width="1.4" marker-end="url(#tls-arrow)" />
+      <rect x="220" y="70" width="370" height="24" fill="#FAF8F2" stroke="#151515" stroke-width="0.8" />
+      <text x="230" y="86" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">1. ClientHello:</text>
+      <text x="320" y="86" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F5D56">TLS 1.3, Supported Ciphers, Client Key Share (ECDH)</text>
+
+      <!-- Message 2: ServerHello + Encrypted Extensions + Cert -->
+      <path d="M 715 125 L 105 155" stroke="#5F6849" stroke-width="1.6" marker-end="url(#tls-arrow-olive)" />
+      <rect x="190" y="120" width="440" height="32" fill="#FAF8F2" stroke="#5F6849" stroke-width="1.2" />
+      <text x="200" y="135" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">2. ServerHello:</text>
+      <text x="295" y="135" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">Selected Cipher (AES-GCM/ChaCha20), Server Key Share</text>
+      <text x="200" y="147" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">&#123; Encrypted: Server Certificate + Signature + Finished &#125;</text>
+
+      <!-- Client Verification Step Box -->
+      <rect x="70" y="172" width="220" height="36" fill="#F4F1E9" stroke="#151515" stroke-width="0.8" />
+      <text x="80" y="186" font-family="'JetBrains Mono', monospace" font-size="7.2" font-weight="700" fill="#151515">CLIENT VERIFIES CERTIFICATE:</text>
+      <text x="80" y="198" font-family="sans-serif" font-size="7.2" fill="#5F5D56">Checks CA root store &amp; hostname match (SAN)</text>
+
+      <!-- Message 3: Symmetric Key Ready & Encrypted HTTP -->
+      <path d="M 105 220 L 715 220" stroke="#5F6849" stroke-width="2" marker-end="url(#tls-arrow-olive)" />
+      <rect x="230" y="208" width="360" height="24" fill="url(#tls-hatch)" stroke="#5F6849" stroke-width="1.2" />
+      <text x="240" y="224" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">3. ApplicationData (Encrypted HTTP Wire Traffic)</text>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 05: مصافحة TLS 1.3 — يتفق الطرفان على خوارزميات التشفير ويتبادلان حصص المفاتيح في دورة ذهاب وإياب واحدة (1-RTT). يتم التحقق من الشهادة الرقمية ثم تشفير حركة المرور.'
+      : 'Figure 05: TLS 1.3 handshake — the client and server negotiate cipher suites and derive shared symmetric encryption keys in a single round-trip (1-RTT). The certificate is verified, and application traffic is encrypted.'}
+  </figcaption>
+</figure>

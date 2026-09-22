@@ -1,0 +1,96 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'تشريح ترويسة الطلب وقراءة الكوكي' : 'HTTP Cookie request header anatomy and server lookup'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">{lang === 'ar' ? 'مخطط 03 / بروتوكول النقل' : 'FIGURE 03 / WIRE PROTOCOL'}</span>
+    <span>{lang === 'ar' ? 'تشريح ترويسة الطلب والتحقق في السيرفر' : 'HTTP REQUEST COOKIE INJECTION'}</span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 800 240" width="100%" height="auto" style="min-width: 640px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="http-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#5F6849" stroke-width="0.8" stroke-opacity="0.25"/>
+        </pattern>
+        <marker id="http-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="http-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <rect x="8" y="8" width="784" height="224" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- LEFT: The Raw Wire HTTP Request -->
+      <g transform="translate(25, 25)">
+        <rect width="420" height="190" fill="#EBE7DE" stroke="#151515" stroke-width="1.4"/>
+        <rect width="420" height="24" fill="#E2DDD2" stroke="#151515" stroke-width="1"/>
+        <text x="12" y="16" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">OUTGOING HTTP/1.1 WIREFRAME</text>
+        
+        <!-- Lines of Request -->
+        <g transform="translate(15, 45)">
+          <text x="0" y="0" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="600" fill="#8F2D2D">GET</text>
+          <text x="32" y="0" font-family="'JetBrains Mono', monospace" font-size="10" fill="#151515">/api/v1/profile/settings</text>
+          <text x="235" y="0" font-family="'JetBrains Mono', monospace" font-size="10" fill="#5F5D56">HTTP/1.1</text>
+          
+          <text x="0" y="22" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#2B5777">Host:</text>
+          <text x="45" y="22" font-family="'JetBrains Mono', monospace" font-size="9" fill="#151515">app.mouhibmahadbi.com</text>
+
+          <text x="0" y="42" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#2B5777">User-Agent:</text>
+          <text x="85" y="42" font-family="'JetBrains Mono', monospace" font-size="9" fill="#5F5D56">Mozilla/5.0 (X11; Linux x86_64)</text>
+
+          <!-- Highlighted Cookie Line -->
+          <rect x="-6" y="54" width="395" height="28" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.2"/>
+          <text x="2" y="72" font-family="'JetBrains Mono', monospace" font-size="9.5" font-weight="700" fill="#5F6849">Cookie:</text>
+          <text x="60" y="72" font-family="'JetBrains Mono', monospace" font-size="9.5" font-weight="600" fill="#151515">session_id=a3f9e7c4b281f90e3d5a</text>
+
+          <text x="0" y="102" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#2B5777">Accept:</text>
+          <text x="55" y="102" font-family="'JetBrains Mono', monospace" font-size="9" fill="#5F5D56">application/json, text/plain</text>
+
+          <text x="0" y="122" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#2B5777">Sec-Fetch-Site:</text>
+          <text x="115" y="122" font-family="'JetBrains Mono', monospace" font-size="9" fill="#5F5D56">same-origin</text>
+        </g>
+      </g>
+
+      <!-- Connecting arrow to server evaluation -->
+      <path d="M 445 125 L 485 125" stroke="#5F6849" stroke-width="1.8" marker-end="url(#http-arrow-olive)"/>
+
+      <!-- RIGHT: Server Extraction & Matching Steps -->
+      <g transform="translate(495, 25)">
+        <rect width="280" height="190" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="280" height="24" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="12" y="16" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">SERVER RESOLUTION PIPELINE</text>
+
+        <g transform="translate(14, 42)">
+          <!-- Step 1 -->
+          <text x="0" y="0" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">1. HEADER PARSING</text>
+          <text x="0" y="14" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Extract cookie key 'session_id'</text>
+          
+          <!-- Step 2 -->
+          <text x="0" y="38" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">2. STORE QUERY (O(1))</text>
+          <rect x="0" y="44" width="250" height="32" fill="url(#http-hatch)" stroke="#5F6849" stroke-width="0.8"/>
+          <text x="8" y="58" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">REDIS GET session:a3f9e7c4...</text>
+          <text x="8" y="70" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F6849">→ Returns &#123; uid: 108, valid: true &#125;</text>
+
+          <!-- Step 3 -->
+          <text x="0" y="98" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">3. REQUEST CONTEXT INJECT</text>
+          <text x="0" y="112" font-family="sans-serif" font-size="7.5" fill="#151515">req.user = User.findById(108)</text>
+          <text x="0" y="126" font-family="sans-serif" font-size="7.5" font-weight="600" fill="#5F6849">Proceed without credentials check</text>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 03: ترويسة الطلب تُرسل الكوكي تلقائيًا مع كل زيارة لنفس النطاق — فيقوم السيرفر بمطابقة المعرّف في الذاكرة لتحديد هوية المستخدم.'
+      : 'Figure 03: The browser auto-attaches the session cookie; the server performs an O(1) lookup to re-hydrate user identity without credentials.'}
+  </figcaption>
+</figure>

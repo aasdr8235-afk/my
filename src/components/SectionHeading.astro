@@ -1,0 +1,19 @@
+---
+interface Props {
+  number: string;
+  tag: string;
+  title: string;
+  id: string;
+}
+
+const { number, tag, title, id } = Astro.props;
+---
+
+<header class="section-heading-wrapper" id={id}>
+  <div class="section-marker" dir="ltr">
+    <span class="toc-number">{number}</span> / <span>{tag}</span>
+  </div>
+  <h2 class="section-title">
+    <slot>{title}</slot>
+  </h2>
+</header>

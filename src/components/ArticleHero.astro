@@ -1,0 +1,143 @@
+---
+import HeroDiagram from './diagrams/HeroDiagram.astro';
+import VpnTrustModelDiagram from './diagrams/VpnTrustModelDiagram.astro';
+import BrowserRenderPipelineDiagram from './diagrams/BrowserRenderPipelineDiagram.astro';
+
+interface Props {
+  lang: 'ar' | 'en';
+  title: string;
+  subtitle: string;
+  category: string;
+  articleMeta: string;
+  currentPath?: string;
+}
+
+const { lang, title, subtitle, category, articleMeta, currentPath = '' } = Astro.props;
+
+const isVpn = currentPath.includes('what-a-vpn-actually-does');
+const isDomain = currentPath.includes('what-happens-when-you-type-a-domain');
+const issueNumber = isVpn ? '03' : isDomain ? '02' : '01';
+---
+
+<header class="article-hero-section">
+  <!-- Top Editorial Metadata Strip -->
+  <div class="hero-meta-strip">
+    <div class="meta-tag-group">
+      <span class="meta-icon" aria-hidden="true">
+        <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="8" cy="8" r="6"/>
+          <ellipse cx="8" cy="8" rx="3" ry="6"/>
+          <line x1="2" y1="8" x2="14" y2="8"/>
+        </svg>
+      </span>
+      <span class="meta-label">{category}</span>
+    </div>
+    <div class="meta-issue-group">
+      <span class="meta-issue">{articleMeta}</span>
+    </div>
+  </div>
+
+  <div class="divider-hairline" style="margin-block: 1rem 2rem;"></div>
+
+  <!-- Hero Headline & Subtitle -->
+  <div class="hero-header-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      <span class="badge-text">
+        {lang === 'ar' ? (
+          <span>مقال <bdi dir="ltr">{issueNumber}</bdi></span>
+        ) : (
+          <span>ARTICLE {issueNumber}</span>
+        )}
+      </span>
+    </div>
+    
+    <h1 class="hero-title" style="white-space: pre-line;">
+      {title}
+    </h1>
+
+    <p class="hero-subtitle">
+      {subtitle}
+    </p>
+  </div>
+
+  <!-- Hero Technical Architectural Diagram -->
+  <div class="hero-diagram-slot" style="margin-block-start: 2.5rem;">
+    {isVpn ? (
+      <VpnTrustModelDiagram lang={lang} />
+    ) : isDomain ? (
+      <BrowserRenderPipelineDiagram lang={lang} />
+    ) : (
+      <HeroDiagram lang={lang} />
+    )}
+  </div>
+</header>
+
+<style>
+  .article-hero-section {
+    padding-block-start: 1.5rem;
+    margin-block-end: 3.5rem;
+  }
+
+  .hero-meta-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .meta-tag-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+
+  .meta-icon {
+    display: flex;
+    align-items: center;
+    color: var(--color-olive);
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid var(--color-hairline);
+    background-color: var(--color-bg-warm);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: var(--color-olive);
+    margin-block-end: 1.25rem;
+  }
+
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-olive);
+  }
+
+  .hero-header-content {
+    max-width: 860px;
+  }
+
+  :global(html[lang="ar"]) .hero-meta-strip {
+    font-family: var(--font-arabic);
+    letter-spacing: normal !important;
+    font-size: 0.82rem;
+  }
+
+  :global(html[lang="ar"]) .hero-badge {
+    font-family: var(--font-arabic);
+    letter-spacing: normal !important;
+    font-size: 0.8rem;
+  }
+</style>

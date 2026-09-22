@@ -1,0 +1,126 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط نفق الـVPN المشفر وحدود امتداده' : 'Encrypted VPN tunnel boundary and egress topology'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">
+      {lang === 'ar' ? 'مخطط 02 / حدود النفق' : 'DIAGRAM 02 / TUNNEL SCOPE'}
+    </span>
+    <span>
+      {lang === 'ar' ? 'نفق الـVPN ينتهي عند خادم الـVPN — ولا يمتد للموقع النهائي' : 'The VPN Tunnel Terminates at the VPN Server — Not at the Destination Website'}
+    </span>
+  </div>
+
+  <div class="diagram-svg-container">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 640px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="tunnel-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#5F6849" stroke-width="0.8" stroke-opacity="0.3" />
+        </pattern>
+        <pattern id="untunneled-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12" />
+        </pattern>
+        <marker id="tunnel-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515" />
+        </marker>
+        <marker id="tunnel-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849" />
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25" />
+      <line x1="8" y1="24" x2="8" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="8" y1="8" x2="24" y2="8" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="256" x2="812" y2="272" stroke="#151515" stroke-width="2" />
+      <line x1="812" y1="272" x2="796" y2="272" stroke="#151515" stroke-width="2" />
+
+      <!-- SEGMENT 1: THE ENCRYPTED VPN TUNNEL (LEFT SECTION) -->
+      <rect x="25" y="28" width="460" height="215" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.8" />
+      <rect x="25" y="28" width="460" height="24" fill="#EBE7DE" stroke="#5F6849" stroke-width="1" />
+      <text x="35" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#5F6849">SEGMENT A: ENCRYPTED VPN TUNNEL (WIREGUARD / OPENVPN)</text>
+
+      <!-- Client Node -->
+      <g transform="translate(40, 65)">
+        <rect width="130" height="155" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" />
+        <rect width="130" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="0.8" />
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">DEVICE (CLIENT)</text>
+        <text x="8" y="40" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F5D56">Virtual TUN: 10.0.0.2</text>
+        <text x="8" y="54" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F5D56">Physical IP: 198.51.100.12</text>
+        
+        <rect x="6" y="66" width="118" height="42" fill="url(#tunnel-hatch)" stroke="#5F6849" stroke-width="0.8" />
+        <text x="12" y="80" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">OUTER ENVELOPE:</text>
+        <text x="12" y="92" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">UDP packets to</text>
+        <text x="12" y="102" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="600" fill="#5F6849">VPN Server IP:51820</text>
+
+        <text x="8" y="128" font-family="sans-serif" font-size="7.5" fill="#5F5D56">ISP sees encrypted blobs</text>
+        <text x="8" y="140" font-family="sans-serif" font-size="7.5" fill="#5F5D56">flowing to one single IP.</text>
+      </g>
+
+      <!-- Tunnel Flow Banner in the middle of Segment A -->
+      <g transform="translate(185, 110)">
+        <path d="M 0 15 L 130 15" stroke="#5F6849" stroke-width="2.5" stroke-dasharray="4 3" marker-end="url(#tunnel-arrow-olive)" />
+        <rect x="15" y="-5" width="100" height="18" fill="#FAF8F2" stroke="#5F6849" stroke-width="1" />
+        <text x="20" y="8" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">ENCRYPTED TUNNEL</text>
+        <text x="10" y="32" font-family="sans-serif" font-size="7.2" fill="#5F5D56">(Traverses Local Wi-Fi &amp; ISP)</text>
+      </g>
+
+      <!-- VPN Server Node -->
+      <g transform="translate(330, 65)">
+        <rect width="140" height="155" fill="#FAF8F2" stroke="#5F6849" stroke-width="1.6" />
+        <rect width="140" height="22" fill="#EBE7DE" stroke="#5F6849" stroke-width="1" />
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">VPN SERVER (GATEWAY)</text>
+        <text x="8" y="40" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F5D56">Decapsulates packet</text>
+        <text x="8" y="54" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">Exit IP: 203.0.113.88</text>
+
+        <rect x="6" y="66" width="128" height="42" fill="#F4F1E9" stroke="#151515" stroke-width="0.8" />
+        <text x="12" y="80" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">NAT TRANSLATION:</text>
+        <text x="12" y="92" font-family="sans-serif" font-size="7.2" fill="#151515">Replaces user IP with</text>
+        <text x="12" y="102" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="600" fill="#5F6849">VPN Exit IP address.</text>
+
+        <rect x="6" y="118" width="128" height="28" fill="url(#untunneled-hatch)" stroke="#8F2D2D" stroke-width="1" />
+        <text x="10" y="130" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#8F2D2D">TUNNEL ENDS HERE!</text>
+        <text x="10" y="140" font-family="sans-serif" font-size="6.8" fill="#151515">Leaves via public WAN</text>
+      </g>
+
+      <!-- SEGMENT 2: THE UNTUNNELED PUBLIC INTERNET (RIGHT SECTION) -->
+      <g transform="translate(505, 28)">
+        <rect width="290" height="215" fill="#F4F1E9" stroke="#151515" stroke-width="1.4" />
+        <rect width="290" height="24" fill="#EBE7DE" stroke="#151515" stroke-width="1" />
+        <text x="14" y="16" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">SEGMENT B: PUBLIC ROUTED TRAFFIC</text>
+
+        <!-- Arrow from VPN Server to Destination -->
+        <path d="M 0 110 L 105 110" stroke="#151515" stroke-width="1.6" marker-end="url(#tunnel-arrow)" />
+        <text x="15" y="100" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">Normal Internet</text>
+        <text x="15" y="125" font-family="sans-serif" font-size="7" fill="#5F6849">(Relies on HTTPS)</text>
+
+        <!-- Destination Website Node -->
+        <g transform="translate(115, 37)">
+          <rect width="160" height="155" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" />
+          <rect width="160" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="0.8" />
+          <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">TARGET WEBSITE</text>
+          
+          <text x="10" y="42" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Incoming Source IP:</text>
+          <text x="10" y="56" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">203.0.113.88 (VPN IP)</text>
+
+          <rect x="8" y="70" width="144" height="60" fill="#FAF8F2" stroke="#8F2D2D" stroke-width="1" />
+          <text x="14" y="86" font-family="'JetBrains Mono', monospace" font-size="7.2" font-weight="700" fill="#8F2D2D">CRITICAL DISTINCTION:</text>
+          <text x="14" y="100" font-family="sans-serif" font-size="7.2" fill="#151515">Website does NOT see user IP,</text>
+          <text x="14" y="112" font-family="sans-serif" font-size="7.2" fill="#151515">BUT traffic here is only as safe</text>
+          <text x="14" y="124" font-family="sans-serif" font-size="7.2" font-weight="600" fill="#5F6849">as HTTPS makes it.</text>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 02: حدود نفق الـVPN — ينتهي التشفير الخاص بالنفق عند خادم الـVPN. تخرج البيانات بعدها كحزم إنترنت عادية إلى الموقع المطلوب، مما يجعل أمان المحتوى معتمدًا حصرًا على HTTPS.'
+      : 'Figure 02: Scope of the VPN tunnel — the encrypted tunnel exists strictly between the device and the VPN server. Traffic then exits onto the public internet to the destination website, protected only by HTTPS.'}
+  </figcaption>
+</figure>

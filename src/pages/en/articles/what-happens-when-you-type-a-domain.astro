@@ -1,0 +1,424 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import SectionHeading from '../../../components/SectionHeading.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import TechnicalNote from '../../../components/TechnicalNote.astro';
+import ContinueReading from '../../../components/ContinueReading.astro';
+
+// Technical SVG Diagrams
+import DnsResolutionDiagram from '../../../components/diagrams/DnsResolutionDiagram.astro';
+import ArpGatewayDiagram from '../../../components/diagrams/ArpGatewayDiagram.astro';
+import RoutingPathDiagram from '../../../components/diagrams/RoutingPathDiagram.astro';
+import TransportHandshakeDiagram from '../../../components/diagrams/TransportHandshakeDiagram.astro';
+import TlsHandshakeDiagram from '../../../components/diagrams/TlsHandshakeDiagram.astro';
+import CdnOriginDiagram from '../../../components/diagrams/CdnOriginDiagram.astro';
+import BrowserRenderPipelineDiagram from '../../../components/diagrams/BrowserRenderPipelineDiagram.astro';
+
+const tocItems = [
+  { id: 'sec-01', num: '01', title: 'Before the Wire (Local Caching)' },
+  { id: 'sec-02', num: '02', title: 'DNS Lookup & Resolution' },
+  { id: 'sec-03', num: '03', title: 'Next-Hop MAC Discovery (ARP / NDP)' },
+  { id: 'sec-04', num: '04', title: 'Gateway & Dynamic Internet Routing' },
+  { id: 'sec-05', num: '05', title: 'Transport Layer (TCP vs. QUIC)' },
+  { id: 'sec-06', num: '06', title: 'Cryptographic Tunnel (TLS 1.3)' },
+  { id: 'sec-07', num: '07', title: 'Wire HTTP Request Transmission' },
+  { id: 'sec-08', num: '08', title: 'Edge Distribution (CDN vs. Origin)' },
+  { id: 'sec-09', num: '09', title: 'HTTP Response & Subresource Discovery' },
+  { id: 'sec-10', num: '10', title: 'Browser Critical Rendering Pipeline' }
+];
+
+const pageTitle = "You Typed a Domain and Pressed Enter. What Actually Happened?";
+const pageSubtitle = "Between typing the domain and seeing the first pixel, your request crossed several layers across your machine and the network.";
+const pageDescription = "A step-by-step technical walkthrough of a web request: from local caches, DNS, and the gateway MAC to TCP handshakes, TLS 1.3, wire HTTP, and browser rendering.";
+---
+
+<ArticleLayout
+  title={pageTitle}
+  subtitle={pageSubtitle}
+  description={pageDescription}
+  lang="en"
+  arUrl="/ar/articles/what-happens-when-you-type-a-domain/"
+  enUrl="/en/articles/what-happens-when-you-type-a-domain/"
+  currentPath="/en/articles/what-happens-when-you-type-a-domain/"
+  tocItems={tocItems}
+  categoryText="NETWORKING / WEB"
+  articleMeta="ARTICLE 02 / NETWORK REQUEST JOURNEY"
+>
+
+  <!-- 01 / BEFORE DNS -->
+  <section class="article-section">
+    <SectionHeading
+      number="01"
+      tag="BEFORE DNS"
+      title="Before Any Wire Transmission: Local Resolution Caches"
+      id="sec-01"
+    />
+
+    <p>
+      The instant you press <code dir="ltr">Enter</code> in your browser's address bar, a few hundred milliseconds elapse before the first pixel appears. During that fraction of a second, your data crosses an entire technical path. Let's trace this request from your machine to the server step by step.
+    </p>
+
+    <p>
+      Before any packet hits the wire, your operating system and browser check local memory first:
+    </p>
+
+    <ol>
+      <li>
+        <strong>Browser DNS Cache:</strong> Browsers maintain an internal dictionary of recently resolved domain names for brief durations (frequently 60–300 seconds) to satisfy repeat requests instantaneously.
+      </li>
+      <li>
+        <strong>Operating System Resolver Cache:</strong> If the browser cache misses, the browser invokes the standard OS resolution interface (such as <code dir="ltr">getaddrinfo</code> on POSIX systems), which checks the local operating system DNS cache.
+      </li>
+      <li>
+        <strong>Static Hosts Configuration (<code dir="ltr">/etc/hosts</code>):</strong> The OS inspects its local static hosts configuration table. Any hard-coded IP mapping defined here takes precedence immediately without querying external nameservers.
+      </li>
+    </ol>
+
+    <p>
+      Only when all three local cache layers result in a cache miss does the operating system construct a formal DNS query packet destined for external network infrastructure.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 02 / DNS LOOKUP -->
+  <section class="article-section">
+    <SectionHeading
+      number="02"
+      tag="DNS RESOLUTION"
+      title="DNS Lookup: Transforming Domain Names into IP Addresses"
+      id="sec-02"
+    />
+
+    <p>
+      When browser and operating system caches yield a miss, the host's <strong>Stub Resolver</strong> (the lightweight OS library routine, such as <code>getaddrinfo()</code> or <code>systemd-resolved</code>) dispatches the DNS query outward to a configured <strong>Recursive Resolver</strong> (operated by your ISP or public resolvers such as <code>1.1.1.1</code> or <code>8.8.8.8</code>).
+    </p>
+
+    <p>
+      Note that <strong>DNS over HTTPS (DoH)</strong> and <strong>DNS over TLS (DoT)</strong> are optional <em>encrypted transport mechanisms</em> between the stub resolver and the recursive resolver to prevent local eavesdropping—they are transport options, not mandatory sequential resolution stages.
+    </p>
+
+    <!-- Diagram 01: DNS Resolution -->
+    <DnsResolutionDiagram lang="en" />
+
+    <p>
+      The recursive resolver checks its shared cache first. If an unexpired record exists, it responds immediately without touching outside networks. Only on a recursive cache miss does the resolver undertake an iterative traversal across authoritative infrastructure:
+    </p>
+
+    <ul>
+      <li>It contacts the <strong>Root Nameservers</strong>, which delegate the query to the Top-Level Domain (TLD) servers responsible for the specific extension (e.g. <code dir="ltr">.com</code>).</li>
+      <li>The <strong>TLD Nameservers</strong> identify and refer the resolver to the domain's designated <strong>Authoritative Nameservers</strong>.</li>
+      <li>The <strong>Authoritative Nameserver</strong> (hosted on services like Cloudflare, AWS Route53, or private BIND instances) provides the definitive <code dir="ltr">A</code> (IPv4) or <code dir="ltr">AAAA</code> (IPv6) record alongside its authoritative Time-to-Live (TTL).</li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 03 / ARP / NDP -->
+  <section class="article-section">
+    <SectionHeading
+      number="03"
+      tag="LINK LAYER"
+      title="Data Link Resolution: Discovering the Default Gateway MAC"
+      id="sec-03"
+    />
+
+    <p>
+      Your operating system now possesses the destination IP address (e.g. <code dir="ltr">93.184.216.34</code>). However, your physical network adapter operates at Layer 2 (Data Link) and cannot encapsulate an Ethernet frame without a physical Hardware/MAC address.
+    </p>
+
+    <TechnicalNote title="Key Concept: You Never Need the Remote Web Server's MAC">
+      A common misconception is that your device must discover the MAC address of the remote web server. In IP networking, MAC addresses never leave the local broadcast domain. When your host evaluates its subnet mask and realizes the destination IP lies outside the local subnet, the only hardware address it requires is that of its <strong>Default Gateway</strong> (the local router).
+    </TechnicalNote>
+
+    <!-- Diagram 02: ARP & Gateway -->
+    <ArpGatewayDiagram lang="en" />
+
+    <p>
+      To resolve the gateway's physical identity:
+    </p>
+    <ul>
+      <li>In IPv4 networks, the device broadcasts an <strong>Address Resolution Protocol (ARP)</strong> request: <em>"Who has 192.168.1.1? Tell 192.168.1.50."</em></li>
+      <li>In IPv6 networks, the <strong>Neighbor Discovery Protocol (NDP)</strong> performs this mapping via ICMPv6 Neighbor Solicitation messages directed to solicited-node multicast addresses.</li>
+    </ul>
+
+    <p>
+      Once the router responds with its physical address, the client encapsulates the IP packet into an Ethernet frame bearing the destination MAC of the router and transmits it over the local medium.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 04 / ROUTING -->
+  <section class="article-section">
+    <SectionHeading
+      number="04"
+      tag="ROUTING PATH"
+      title="Dynamic Internet Routing: Traversing Autonomous Systems"
+      id="sec-04"
+    />
+
+    <p>
+      When the local gateway router receives the Ethernet frame, it strips off the Layer 2 header and inspects the Layer 3 destination IP.
+    </p>
+
+    <p>
+      In a typical residential or office environment, the router first applies <strong>Network Address and Port Translation (NAPT)</strong>: it replaces the private source IP (e.g. <code dir="ltr">192.168.1.50</code>) with the single public WAN IP provisioned by the ISP, recording the ephemeral source port in its state table so subsequent return traffic maps back to the originating workstation.
+    </p>
+
+    <!-- Diagram 03: Routing Path -->
+    <RoutingPathDiagram lang="en" />
+
+    <p>
+      From the access router, the packet enters the broader internet transit mesh:
+    </p>
+    <ul>
+      <li>The packet traverses the ISP's core aggregation network to edge border routers.</li>
+      <li>Border routers consult <strong>Border Gateway Protocol (BGP)</strong> routing tables to select the optimal egress path through peering links, Internet Exchange Points (IXPs), or upstream Tier-1 transit providers (such as Lumen, Telia, or Cogent).</li>
+      <li>At each intermediate router (hop), the device decrements the packet's Time-to-Live (TTL) field by one and rewrites the Layer 2 frame header for the subsequent link. There is no single immutable physical wire; routing paths are dynamic and resilient.</li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 05 / TRANSPORT -->
+  <section class="article-section">
+    <SectionHeading
+      number="05"
+      tag="TRANSPORT LAYER"
+      title="Transport Connection: TCP 3-Way Handshake vs. QUIC"
+      id="sec-05"
+    />
+
+    <p>
+      IP packets are inherently best-effort datagrams: they may arrive disordered, duplicated, or be dropped entirely under network congestion. To exchange web documents reliably, the browser requires a structured transport abstraction.
+    </p>
+
+    <!-- Diagram 04: Transport Handshake -->
+    <TransportHandshakeDiagram lang="en" />
+
+    <h3>A) Classic Path: TCP 3-Way Handshake (HTTP/1.1 & HTTP/2)</h3>
+    <p>
+      For endpoints negotiating HTTP/1.1 or HTTP/2, the client initiates a reliable Transmission Control Protocol (TCP) stream via the classic three-step sequence:
+    </p>
+    <ul>
+      <li><strong>SYN:</strong> The client selects an Initial Sequence Number (ISN) and sends a synchronize packet with options such as Maximum Segment Size (MSS) and window scaling.</li>
+      <li><strong>SYN-ACK:</strong> The server acknowledges the client's ISN and provides its own sequence number.</li>
+      <li><strong>ACK:</strong> The client acknowledges the server's sequence number, finalizing the circuit and opening the channel for upper-layer protocol negotiation.</li>
+    </ul>
+
+    <h3>B) Modern Path: HTTP/3 → QUIC over UDP</h3>
+    <p>
+      Modern web clients connecting over <code dir="ltr">HTTP/3</code> bypass TCP entirely, leveraging <strong>QUIC</strong> over UDP. An initial connection normally requires a <strong>1-RTT handshake</strong> combining transport negotiation and TLS 1.3 cryptographic key agreement into a unified exchange. When valid previous session state (pre-shared key / session ticket) exists from an earlier connection, QUIC supports <strong>0-RTT resumption</strong>, enabling early data transmission while eliminating Layer 4 Head-of-Line blocking.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 06 / TLS -->
+  <section class="article-section">
+    <SectionHeading
+      number="06"
+      tag="SECURITY HANDSHAKE"
+      title="Cryptographic Tunnel: The TLS 1.3 Handshake"
+      id="sec-06"
+    />
+
+    <p>
+      A bare TCP or UDP socket is an open broadcast channel readable by any intermediate network observer. To establish confidentiality, authenticity, and integrity under HTTPS, the client immediately initiates a <strong>Transport Layer Security (TLS)</strong> negotiation.
+    </p>
+
+    <!-- Diagram 05: TLS Handshake -->
+    <TlsHandshakeDiagram lang="en" />
+
+    <p>
+      Under the modernized <code dir="ltr">TLS 1.3</code> specification, the cryptographic handshake completes in a single round-trip (1-RTT):
+    </p>
+    <ol>
+      <li>
+        <strong>ClientHello:</strong> The browser transmits supported cipher suites, the Server Name Indication (SNI) identifying the requested virtual host, and an ephemeral elliptic-curve Diffie-Hellman (ECDH) public key share.
+      </li>
+      <li>
+        <strong>ServerHello:</strong> The server selects an agreed cipher suite (e.g. AES-256-GCM or ChaCha20-Poly1305), provides its matching ECDH key share, and transmits its encrypted digital certificate chain.
+      </li>
+      <li>
+        <strong>Certificate Validation:</strong> The client verifies the server's certificate against its local trusted Certificate Authority (CA) root store, confirms that the certificate has not expired, checks revocation status, and verifies that the Subject Alternative Name (SAN) matches the domain in the address bar.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 07 / HTTP REQUEST -->
+  <section class="article-section">
+    <SectionHeading
+      number="07"
+      tag="APPLICATION LAYER"
+      title="Transmitting the Wire HTTP Request"
+      id="sec-07"
+    />
+
+    <p>
+      With symmetric encryption keys derived and verified, the browser formats its initial application-layer request: fetching the primary HTML document.
+    </p>
+
+    <p>
+      Inside the TLS record stream, the plaintext HTTP message exhibits standard wire framing:
+    </p>
+
+    <CodeBlock
+      title="HTTP/1.1 Wire Request Example"
+      code={`GET / HTTP/1.1
+Host: writeups.mouhibmahadbi.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.9,ar;q=0.8
+Accept-Encoding: gzip, deflate, br, zstd
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1`}
+      language="http"
+    />
+
+    <p>
+      These headers communicate vital runtime constraints: supported content types (<code dir="ltr">Accept</code>), compression algorithms (<code dir="ltr">Accept-Encoding: br</code>), client language preferences, and security isolation directives (<code dir="ltr">Sec-Fetch-Dest</code>).
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 08 / CDN & ORIGIN -->
+  <section class="article-section">
+    <SectionHeading
+      number="08"
+      tag="EDGE INFRASTRUCTURE"
+      title="Edge Distribution: CDN Caching vs. Origin Processing"
+      id="sec-08"
+    />
+
+    <p>
+      Modern web architectures rarely route all user traffic to a single monolithic server. Instead, requests terminate at distributed Content Delivery Network (CDN) edge points of presence (PoPs) deployed globally near user population centers.
+    </p>
+
+    <!-- Diagram 06: CDN vs Origin -->
+    <CdnOriginDiagram lang="en" />
+
+    <p>
+      At the edge node, the incoming request encounters one of two fundamental pathways:
+    </p>
+    <ul>
+      <li>
+        <strong>Edge Cache Hit:</strong> If the requested document or static asset resides in the edge node's in-memory or SSD cache and conforms to its cache validity policy, the CDN returns it immediately (typically within 5–15 milliseconds) without contacting the origin.
+      </li>
+      <li>
+        <strong>Edge Cache Miss / Dynamic Processing:</strong> If the resource is dynamic, uncached, or personalized, the edge proxy routes the request over private backbone links to the <strong>Origin Server</strong>, which executes application business logic, queries backend datastores, and generates the response.
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 09 / RESPONSE -->
+  <section class="article-section">
+    <SectionHeading
+      number="09"
+      tag="RESOURCE DISCOVERY"
+      title="Receiving the Response & Discovering Subresources"
+      id="sec-09"
+    />
+
+    <p>
+      The server transmits an HTTP response consisting of a status line, response headers detailing caching and security parameters, and the payload body:
+    </p>
+
+    <CodeBlock
+      title="HTTP/1.1 Wire Response Header"
+      code={`HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Content-Encoding: br
+Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'
+X-Content-Type-Options: nosniff
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+Date: Tue, 22 Sep 2026 18:20:00 GMT`}
+      language="http"
+    />
+
+    <p>
+      As the initial bytes of compressed HTML arrive, the browser does not wait for the entire file download to conclude. Its streaming parser begins tokenizing and parsing HTML nodes immediately as chunks clear the transport buffer.
+    </p>
+
+    <p>
+      During this initial pass, the parser discovers linked subresources necessary for complete rendering:
+    </p>
+    <ul>
+      <li>External stylesheets (<code dir="ltr">&lt;link rel="stylesheet"&gt;</code>)</li>
+      <li>Typography assets and web fonts (<code dir="ltr">fonts.googleapis.com</code>)</li>
+      <li>Script bundles (<code dir="ltr">&lt;script src="..."&gt;</code>)</li>
+      <li>Inline and external media assets (<code dir="ltr">&lt;img src="..."&gt;</code>)</li>
+    </ul>
+
+    <p>
+      The browser's background <strong>Preload Scanner</strong> inspects the raw stream ahead of the main parser, eagerly dispatching secondary network requests in parallel to saturate available bandwidth.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 10 / RENDERING -->
+  <section class="article-section">
+    <SectionHeading
+      number="10"
+      tag="THE RENDER"
+      title="The Critical Rendering Pipeline: From Tokens to Pixels"
+      id="sec-10"
+    />
+
+    <p>
+      Finally, responsibility transitions from the network stack to your device's CPU and GPU rendering engines to transform raw byte buffers into interactive visual surfaces.
+    </p>
+
+    <!-- Diagram 07: Browser Render Pipeline -->
+    <BrowserRenderPipelineDiagram lang="en" />
+
+    <p>
+      This sequence does not operate as a rigid, purely linear pipeline, but as an overlapping, concurrent engine:
+    </p>
+
+    <ol>
+      <li>
+        <strong>DOM Construction:</strong> Raw HTML bytes are decoded into characters, parsed into tokens, converted to nodes, and assembled into the <strong>Document Object Model (DOM)</strong> tree.
+      </li>
+      <li>
+        <strong>CSSOM Construction:</strong> External and embedded CSS rules are parsed into the <strong>CSS Object Model (CSSOM)</strong>. Stylesheets are inherently render-blocking: browsers refrain from displaying unstyled content to prevent visual flash (FOUC).
+      </li>
+      <li>
+        <strong>Render Tree Synthesis:</strong> The engine merges the DOM and CSSOM into a unified Render Tree containing only nodes that are visually present (nodes with <code dir="ltr">display: none</code> or non-visual elements like <code dir="ltr">&lt;head&gt;</code> are omitted).
+      </li>
+      <li>
+        <strong>Layout (Reflow):</strong> The engine computes exact geometric coordinates (<code dir="ltr">x, y</code>) and bounding box dimensions for every rendered element relative to the device viewport.
+      </li>
+      <li>
+        <strong>Painting (Rasterization):</strong> Visual properties (backgrounds, border radii, shadows, typography glyphs) are converted into discrete pixel tiles across memory buffers.
+      </li>
+      <li>
+        <strong>Compositing:</strong> Independent render layers are uploaded to the GPU, transformed according to viewport scroll offsets, and composited onto the physical screen buffer at 60 or 120 frames per second.
+      </li>
+    </ol>
+
+    <div style="padding: 1.5rem; border: 1px solid var(--color-hairline); background-color: var(--color-bg-warm); margin-block: 2.5rem;">
+      <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--color-olive); margin-block-end: 0.5rem;">
+        KEY TAKEAWAY
+      </div>
+      <p style="margin: 0; font-size: 1.15rem; font-weight: 600; line-height: 1.75; color: var(--color-ink);">
+        Between typing a domain name and seeing the first pixel on your screen, your request moves through multiple protocol layers, travels through long network paths, and runs through hundreds of checks in fractions of a second.
+      </p>
+    </div>
+  </section>
+
+  <!-- Related Articles -->
+  <ContinueReading currentArticleId="what-happens-when-you-type-a-domain" lang="en" />
+
+</ArticleLayout>
