@@ -1,7 +1,7 @@
 export const SITE_CONFIG = {
   name: 'Mouhib Writeups',
   shortName: 'MW',
-  url: (process.env.SITE_URL || 'https://writeups.mouhibmahadbi.com').replace(/\/$/, ''),
+  url: (process.env.SITE_URL || 'https://writeups.mouhibmahadbi.online').replace(/\/$/, ''),
   author: {
     name: 'Mouhib MH',
     bio: {

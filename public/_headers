@@ -6,7 +6,9 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   X-Frame-Options: SAMEORIGIN
+  X-Robots-Tag: index, follow
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self';
+  Link: </rss.xml>; rel="alternate"; type="application/rss+xml"; title="Mouhib Writeups"
   Cache-Control: public, max-age=0, must-revalidate
 
 # Hashed static assets (CSS, JS, bundled media)
