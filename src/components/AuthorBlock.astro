@@ -11,11 +11,10 @@ const author = SITE_CONFIG.author;
 
 <section class="author-card" aria-label={lang === 'ar' ? 'عن الكاتب' : 'About the Author'}>
   <div class="author-mark">
-    <img src="/assets/brand/logo.png" alt="Mouhib MH" class="author-avatar-img" width="46" height="46" />
+    <img src="/assets/brand/logo-transparent.png" alt="Mouhib MH" class="author-avatar-img" width="46" height="46" />
   </div>
   <div class="author-info">
     <div class="author-name">{author.name}</div>
-    <div class="author-role">{lang === 'ar' ? 'محرر تقني / كاتب' : 'Technical Writer'}</div>
     <p class="author-bio">
       {lang === 'ar' ? author.bio.ar : author.bio.en}
     </p>

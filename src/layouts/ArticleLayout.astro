@@ -4,7 +4,7 @@ import Header from '../components/Header.astro';
 import ArticleHero from '../components/ArticleHero.astro';
 import ArticleTOC from '../components/ArticleTOC.astro';
 import AuthorBlock from '../components/AuthorBlock.astro';
-import ArticleReferences from '../components/ArticleReferences.astro';
+import ArticleReferences, { type ReferenceItem } from '../components/ArticleReferences.astro';
 import { SITE_CONFIG } from '../config/site';
 
 interface TOCItem {
@@ -24,6 +24,15 @@ interface Props {
   tocItems: TOCItem[];
   categoryText?: string;
   articleMeta?: string;
+  references?: ReferenceItem[];
+  displayTitle?: string;
+  socialTitle?: string;
+  ogImage?: string;
+  publishedDate?: string;
+  modifiedDate?: string;
+  articleSection?: string;
+  breadcrumbCategory?: string;
+  breadcrumbCurrent?: string;
 }
 
 const {
@@ -36,7 +45,16 @@ const {
   currentPath,
   tocItems,
   categoryText,
-  articleMeta
+  articleMeta,
+  references,
+  displayTitle,
+  socialTitle,
+  ogImage,
+  publishedDate,
+  modifiedDate,
+  articleSection,
+  breadcrumbCategory,
+  breadcrumbCurrent
 } = Astro.props;
 ---
 
@@ -47,6 +65,11 @@ const {
   arUrl={arUrl}
   enUrl={enUrl}
   currentPath={currentPath}
+  socialTitle={socialTitle}
+  ogImage={ogImage}
+  publishedDate={publishedDate}
+  modifiedDate={modifiedDate}
+  articleSection={articleSection || categoryText}
 >
   <!-- Mobile Reading Progress Bar -->
   <div class="reading-progress-bar" aria-hidden="true">
@@ -67,10 +90,13 @@ const {
     <ArticleHero
       lang={lang}
       title={title}
+      displayTitle={displayTitle}
       subtitle={subtitle}
       category={categoryText || (lang === 'ar' ? SITE_CONFIG.category.ar : SITE_CONFIG.category.en)}
       articleMeta={articleMeta || (lang === 'ar' ? 'مقال 01 / أمن الجلسات' : 'ARTICLE 01 / SESSION SECURITY')}
       currentPath={currentPath}
+      breadcrumbCategory={breadcrumbCategory}
+      breadcrumbCurrent={breadcrumbCurrent}
     />
 
     <!-- Main Editorial Article Grid -->
@@ -83,7 +109,7 @@ const {
         <AuthorBlock lang={lang} />
 
         <!-- Technical References Section -->
-        <ArticleReferences lang={lang} />
+        <ArticleReferences lang={lang} references={references} />
       </article>
 
       <!-- Sticky Table of Contents Sidebar -->
@@ -104,8 +130,8 @@ const {
         </div>
 
         <div class="footer-links">
-          <a href="/ar/articles/session-hijacking/">العربية</a>
-          <a href="/en/articles/session-hijacking/">English</a>
+          <a href={arUrl}>العربية</a>
+          <a href={enUrl}>English</a>
           <a href="/robots.txt">robots.txt</a>
         </div>
       </div>

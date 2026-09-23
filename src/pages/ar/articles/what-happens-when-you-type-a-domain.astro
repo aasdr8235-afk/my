@@ -27,9 +27,11 @@ const tocItems = [
   { id: 'sec-10', num: '10', title: 'معالجة المتصفح للشاشات (Rendering)' }
 ];
 
-const pageTitle = "كتبت اسم موقع وضغطت Enter… ماذا حدث فعلًا؟";
+const pageTitle = "كتبت اسم موقع وضغطت Enter… ماذا يحدث فعلًا؟";
 const pageSubtitle = "بين كتابة اسم الموقع وظهور أول pixel، مرّت البيانات عبر عدة مراحل تقنية في جهازك والشبكة.";
-const pageDescription = "شرح خطوة بخطوة لما يحدث خلف الكواليس: من الذاكرة المحلية وDNS وبوابة الراوتر إلى مصافحات TCP/TLS والـHTTP وعرض الصفحة في المتصفح.";
+const pageDescription = "ماذا يحدث في الشبكة والأنظمة عند كتابة اسم نطاق والضغط على Enter؟ رحلة تفصيلية من استعلام DNS والـTLS Handshake حتى جلب بيانات HTTP ورسم المتصفح للصفحة.";
+const socialTitle = "بين ضغطة Enter وظهور أول بكسل… ماذا حدث في الشبكة؟";
+const ogImage = "/assets/og/what-happens-when-you-type-a-domain.jpg";
 ---
 
 <ArticleLayout
@@ -43,6 +45,12 @@ const pageDescription = "شرح خطوة بخطوة لما يحدث خلف ال�
   tocItems={tocItems}
   categoryText="الشبكات / بروتوكولات الويب"
   articleMeta="مقال 02 / رحلة الطلب الشبكي"
+  socialTitle={socialTitle}
+  ogImage={ogImage}
+  publishedDate="2026-09-22"
+  modifiedDate="2026-09-22"
+  breadcrumbCategory="الشبكات / بروتوكولات الويب"
+  breadcrumbCurrent="رحلة النطاق"
 >
 
   <!-- 01 / BEFORE DNS -->
@@ -288,7 +296,7 @@ Upgrade-Insecure-Requests: 1`}
     />
 
     <p>
-      تحمل هذه الترويسات إرشادات هامة للسيرفر: أنواع المحتوى المقبولة (<span class="term" dir="ltr">Accept</span>)، خوارزميات الضغط المدعومة لتوفير الباندويث (<span class="term" dir="ltr">br / gzip</span>)، ومعلومات المتصفح وسياق التنقل.
+      تحمل هذه الترويسات إرشادات هامة للسيرفر: أنواع المحتوى المقبولة (<span class="term" dir="ltr">Accept</span>)، خوارزميات الضغط المدعومة لتوفير الباندويث (<span class="term" dir="ltr">br / gzip</span>)، ومعلومات المتصفح وسياق التنقل. كما تشمل ترويسات الطلب في التصفح الفعلي ترويسة <span class="term" dir="ltr">Cookie</span> التي ترسل معرّفات الجلسة الموثقة لتحديد هوية المستخدم (انظر <a href="/ar/articles/session-hijacking/" style="color: var(--color-olive); text-decoration: underline;">كيف تعمل Session Cookies وكيف تُسرق الجلسات</a>).
     </p>
   </section>
 

@@ -1,0 +1,104 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'تشريح محتويات حزمة APK' : 'Anatomy and internal components of an APK package'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">{lang === 'ar' ? 'مخطط 01 / تشريح الحزمة' : 'FIGURE 01 / PACKAGE ANATOMY'}</span>
+    <span>{lang === 'ar' ? 'المكونات الداخلية لملف APK' : 'INTERNAL COMPOSITION OF AN APK ARCHIVE'}</span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 680px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="apk-box-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+      </defs>
+
+      <!-- Outer Frame (ZIP Container) -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Header Label of ZIP Archive -->
+      <rect x="25" y="22" width="220" height="26" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+      <text x="35" y="39" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700" fill="#151515">ARCHIVE.APK (ZIP CONTAINER)</text>
+
+      <text x="260" y="39" font-family="sans-serif" font-size="8" fill="#5F5D56">Standard ZIP format with Deflate compression / uncompressed assets</text>
+
+      <!-- Row of Core Components -->
+      <!-- Comp 1: AndroidManifest.xml -->
+      <g transform="translate(25, 65)">
+        <rect width="175" height="185" fill="#F4F1E9" stroke="#151515" stroke-width="1.3"/>
+        <rect width="175" height="24" fill="#EBE7DE" stroke="#151515" stroke-width="0.8"/>
+        <text x="10" y="16" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">AndroidManifest.xml</text>
+        <text x="10" y="42" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#5F6849">Compiled Binary XML (AXML)</text>
+        <line x1="10" y1="50" x2="165" y2="50" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="10" y="68" font-family="sans-serif" font-size="8" fill="#5F5D56">• Not plain readable text</text>
+        <text x="10" y="84" font-family="sans-serif" font-size="8" fill="#5F5D56">• Declares package name</text>
+        <text x="10" y="100" font-family="sans-serif" font-size="8" fill="#5F5D56">• Lists 4 Core Components</text>
+        <text x="10" y="116" font-family="sans-serif" font-size="8" fill="#5F5D56">• Declares requested perms</text>
+        <text x="10" y="132" font-family="sans-serif" font-size="8" fill="#5F5D56">• Min / Target SDK versions</text>
+        <rect x="10" y="148" width="155" height="24" fill="url(#apk-box-hatch)" stroke="#151515" stroke-width="0.6"/>
+        <text x="18" y="163" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">Essential System Schema</text>
+      </g>
+
+      <!-- Comp 2: classes.dex -->
+      <g transform="translate(215, 65)">
+        <rect width="180" height="185" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.6"/>
+        <rect width="180" height="24" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="10" y="16" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#5F6849">classes[N].dex</text>
+        <text x="10" y="42" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">Dalvik Executable Bytecode</text>
+        <line x1="10" y1="50" x2="170" y2="50" stroke="#5F6849" stroke-width="0.5" stroke-opacity="0.3"/>
+        <text x="10" y="68" font-family="sans-serif" font-size="8" fill="#5F5D56">• Compiled Java/Kotlin code</text>
+        <text x="10" y="84" font-family="sans-serif" font-size="8" fill="#5F5D56">• Optimized register bytecode</text>
+        <text x="10" y="100" font-family="sans-serif" font-size="8" fill="#5F5D56">• Multiple DEX (classes2.dex)</text>
+        <text x="10" y="116" font-family="sans-serif" font-size="8" fill="#5F5D56">• Read by ART engine</text>
+        <text x="10" y="132" font-family="sans-serif" font-size="8" fill="#5F5D56">• Subject to AOT/JIT compilation</text>
+        <rect x="10" y="148" width="160" height="24" fill="#EBE7DE" stroke="#5F6849" stroke-width="0.7"/>
+        <text x="16" y="163" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#5F6849">Executed by ART Runtime</text>
+      </g>
+
+      <!-- Comp 3: Resources & Assets -->
+      <g transform="translate(410, 65)">
+        <rect width="190" height="185" fill="#F4F1E9" stroke="#151515" stroke-width="1.3"/>
+        <rect width="190" height="24" fill="#EBE7DE" stroke="#151515" stroke-width="0.8"/>
+        <text x="10" y="16" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">resources.arsc &amp; res/</text>
+        <text x="10" y="42" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">Compiled Resources Index</text>
+        <line x1="10" y1="50" x2="180" y2="50" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="10" y="68" font-family="sans-serif" font-size="8" fill="#5F5D56">• Binary lookup table (IDs)</text>
+        <text x="10" y="84" font-family="sans-serif" font-size="8" fill="#5F5D56">• res/: compiled XMLs &amp; icons</text>
+        <text x="10" y="100" font-family="sans-serif" font-size="8" fill="#5F5D56">• assets/: raw uncompiled files</text>
+        <text x="10" y="116" font-family="sans-serif" font-size="8" fill="#5F5D56">• lib/&lt;abi&gt;/: native .so libs</text>
+        <text x="10" y="132" font-family="sans-serif" font-size="8" fill="#5F5D56">• (arm64-v8a, armeabi-v7a, x86)</text>
+        <rect x="10" y="148" width="170" height="24" fill="url(#apk-box-hatch)" stroke="#151515" stroke-width="0.6"/>
+        <text x="18" y="163" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">UI Assets &amp; C/C++ Binaries</text>
+      </g>
+
+      <!-- Comp 4: META-INF / Signing Block -->
+      <g transform="translate(615, 65)">
+        <rect width="180" height="185" fill="#F4F1E9" stroke="#151515" stroke-width="1.3"/>
+        <rect width="180" height="24" fill="#EBE7DE" stroke="#151515" stroke-width="0.8"/>
+        <text x="10" y="16" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">META-INF / Signing</text>
+        <text x="10" y="42" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">Signature Metadata</text>
+        <line x1="10" y1="50" x2="170" y2="50" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="10" y="68" font-family="sans-serif" font-size="8" fill="#5F5D56">• MANIFEST.MF / CERT.SF (v1)</text>
+        <text x="10" y="84" font-family="sans-serif" font-size="8" fill="#5F5D56">• CERT.RSA (Developer Cert)</text>
+        <text x="10" y="100" font-family="sans-serif" font-size="8" fill="#5F5D56">• APK Signing Block (v2/v3/v4)</text>
+        <text x="10" y="116" font-family="sans-serif" font-size="8" fill="#5F5D56">• Cryptographic hashes</text>
+        <text x="10" y="132" font-family="sans-serif" font-size="8" fill="#5F5D56">• Guarantees file integrity</text>
+        <rect x="10" y="148" width="160" height="24" fill="#EBE7DE" stroke="#151515" stroke-width="0.6"/>
+        <text x="16" y="163" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">Integrity &amp; Origin Lock</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 01: محتويات حزمة APK — ملف الـAPK هو حاوية مضغوطة بتنسيق ZIP تضم ملف البيان الثنائي (Compiled Manifest)، شفرة classes.dex المترجمة، الموارد، المكتبات البرمجية الأصلية، وتوقيع الحزمة الرقمي.'
+      : 'Figure 01: The internal structure of an APK package — an APK is a specialized ZIP container carrying compiled binary XML manifests, Dalvik bytecode (classes.dex), resource indexes, native shared libraries, and cryptographic signature blocks.'}
+  </figcaption>
+</figure>

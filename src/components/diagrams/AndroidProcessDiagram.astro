@@ -1,0 +1,109 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط تفريع العمليات من Zygote وبدء تشغيل التطبيق في Android' : 'Process creation from Zygote and application launch sequence in Android'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">{lang === 'ar' ? 'مخطط 09 / ولادة العملية' : 'FIGURE 09 / PROCESS SPAWN'}</span>
+    <span>{lang === 'ar' ? 'من تفريع Zygote إلى التخلي عن صلاحيات الجذر' : 'FROM ZYGOTE FORK TO DROPPING PRIVILEGES'}</span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 680px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="proc-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+        <marker id="pr-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="pr-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Node 1: Launcher / AMS Trigger -->
+      <g transform="translate(25, 45)">
+        <rect width="180" height="195" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="180" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">01 / LAUNCH INTENT</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">User Taps Icon</text>
+        <line x1="10" y1="52" x2="170" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="10" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Launcher sends Intent</text>
+        <text x="10" y="86" font-family="sans-serif" font-size="7.5" fill="#5F5D56">ActivityTaskManagerService</text>
+        <text x="10" y="102" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Checks if process exists</text>
+        <rect x="10" y="122" width="160" height="42" fill="url(#proc-hatch)" stroke="#151515" stroke-width="0.6"/>
+        <text x="16" y="138" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">CORE TRUTH:</text>
+        <text x="16" y="154" font-family="sans-serif" font-size="7" fill="#151515">Installed ≠ Running</text>
+      </g>
+
+      <!-- Arrow 1 -> 2 (Socket) -->
+      <path d="M 205 142 L 235 142" stroke="#151515" stroke-width="1.4" marker-end="url(#pr-arrow)"/>
+      <text x="207" y="132" font-family="'JetBrains Mono', monospace" font-size="6.5" fill="#5F5D56">/dev/socket</text>
+
+      <!-- Node 2: Zygote Fork Daemon -->
+      <g transform="translate(240, 45)">
+        <rect width="280" height="195" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.8"/>
+        <rect width="280" height="22" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">02 / ZYGOTE DAEMON FORK</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">Copy-On-Write Process Cloning</text>
+        <line x1="10" y1="52" x2="270" y2="52" stroke="#5F6849" stroke-width="0.5" stroke-opacity="0.3"/>
+
+        <!-- Phase A: Fork -->
+        <g transform="translate(10, 60)">
+          <rect width="260" height="34" fill="#FAF8F2" stroke="#151515" stroke-width="0.8"/>
+          <text x="8" y="14" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">1. fork() FROM ROOT ZYGOTE</text>
+          <text x="8" y="26" font-family="sans-serif" font-size="7" fill="#5F5D56">Inherits warm ART runtime &amp; preloaded framework RAM</text>
+        </g>
+
+        <!-- Phase B: Drop Privileges -->
+        <g transform="translate(10, 100)">
+          <rect width="260" height="38" fill="#FAF8F2" stroke="#5F6849" stroke-width="1.2"/>
+          <text x="8" y="14" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">2. PRIVILEGE DE-ESCALATION</text>
+          <text x="8" y="25" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">setresuid(10142, 10142, 10142)  # DROP ROOT</text>
+          <text x="8" y="34" font-family="sans-serif" font-size="6.5" fill="#5F5D56">SELinux context applied: u:r:untrusted_app:s0</text>
+        </g>
+
+        <text x="12" y="162" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Instant launch speeds without security compromise</text>
+        <text x="12" y="176" font-family="sans-serif" font-size="7.5" fill="#5F5D56">App is permanently demoted to unprivileged UID</text>
+      </g>
+
+      <!-- Arrow 2 -> 3 (Olive) -->
+      <path d="M 520 142 L 550 142" stroke="#5F6849" stroke-width="1.4" marker-end="url(#pr-arrow-olive)"/>
+
+      <!-- Node 3: Execution Launch Sequence -->
+      <g transform="translate(555, 45)">
+        <rect width="240" height="195" fill="#FAF8F2" stroke="#151515" stroke-width="1.4"/>
+        <rect width="240" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">03 / APP THREAD START</text>
+        <text x="8" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">Component Lifecycle</text>
+        <line x1="8" y1="52" x2="232" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+
+        <g transform="translate(8, 60)">
+          <text x="6" y="14" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">1. ActivityThread.main()</text>
+          <text x="6" y="28" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">   ↳ Looper.prepareMainLooper()</text>
+          <text x="6" y="44" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">2. Application.onCreate()</text>
+          <text x="6" y="58" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">   ↳ App singletons &amp; init</text>
+          <text x="6" y="74" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">3. Activity.onCreate()</text>
+          <text x="6" y="88" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F6849">   ↳ setContentView() → FIRST PIXEL</text>
+        </g>
+
+        <rect x="8" y="154" width="224" height="24" fill="#EBE7DE" stroke="#151515" stroke-width="0.6"/>
+        <text x="14" y="169" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#151515">Status: Application Is Live</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 09: تفريع العمليات وانطلاق التطبيق — لا يطلق النظام التطبيق مباشرة من الصفر، بل يتلقى Zygote أمرًا عبر مقبس محلي لتفريع نسخة من نفسه جاهزة بالذاكرة، ثم يتخلى فورًا عن صلاحيات الجذر (Root) ليتحول لمعرّف التطبيق العادي u0_a142 قبل عرض الشاشة.'
+      : 'Figure 09: The Android process spawn pipeline — Zygote forks a pre-warmed instance of ART via a local UNIX socket. The child process immediately drops root privileges and adopts the restricted application UID before executing ActivityThread and rendering the UI.'}
+  </figcaption>
+</figure>

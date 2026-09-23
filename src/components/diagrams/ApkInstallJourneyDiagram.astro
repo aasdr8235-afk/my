@@ -1,0 +1,175 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط رحلة تثبيت ملف APK داخل نظام Android' : 'APK installation lifecycle journey inside Android system'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">{lang === 'ar' ? 'مخطط عام / رحلة التثبيت' : 'OVERVIEW / INSTALLATION JOURNEY'}</span>
+    <span>{lang === 'ar' ? 'من ملف الحزمة إلى التشغيل المعزول' : 'FROM PACKAGE FILE TO ISOLATED RUNTIME'}</span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 960 260" width="100%" height="auto" style="min-width: 820px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="apk-hero-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.15"/>
+        </pattern>
+        <marker id="apk-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="apk-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <!-- Outer Frame -->
+      <rect x="8" y="8" width="944" height="244" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Step 1: APK File -->
+      <g transform="translate(20, 35)">
+        <rect width="90" height="185" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="90" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">01 / PACKAGE</text>
+        <text x="8" y="42" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#151515">.apk File</text>
+        <line x1="8" y1="50" x2="82" y2="50" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="8" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">ZIP Container</text>
+        <text x="8" y="86" font-family="sans-serif" font-size="7.5" fill="#5F5D56">classes.dex</text>
+        <text x="8" y="102" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Manifest.xml</text>
+        <text x="8" y="118" font-family="sans-serif" font-size="7.5" fill="#5F5D56">resources.arsc</text>
+        <rect x="8" y="138" width="74" height="22" fill="url(#apk-hero-hatch)" stroke="#151515" stroke-width="0.6"/>
+        <text x="14" y="152" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">Inert Archive</text>
+      </g>
+
+      <!-- Arrow 1 -> 2 -->
+      <path d="M 110 127 L 128 127" stroke="#151515" stroke-width="1.4" marker-end="url(#apk-arrow)"/>
+
+      <!-- Step 2: Installer Framework -->
+      <g transform="translate(130, 35)">
+        <rect width="105" height="185" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="105" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">02 / FRAMEWORK</text>
+        <text x="8" y="42" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">PackageInstaller</text>
+        <line x1="8" y1="50" x2="97" y2="50" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="8" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Install Session</text>
+        <text x="8" y="86" font-family="sans-serif" font-size="7.5" fill="#5F5D56">User Confirmation</text>
+        <text x="8" y="102" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Staging Directory</text>
+        <text x="8" y="128" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F6849">PMS Dispatch</text>
+        <text x="8" y="146" font-family="sans-serif" font-size="7" fill="#5F5D56">IPC → system_server</text>
+      </g>
+
+      <!-- Arrow 2 -> 3 -->
+      <path d="M 235 127 L 253 127" stroke="#151515" stroke-width="1.4" marker-end="url(#apk-arrow)"/>
+
+      <!-- Step 3: Manifest Parsing -->
+      <g transform="translate(255, 35)">
+        <rect width="105" height="185" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="105" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">03 / PARSING</text>
+        <text x="8" y="42" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">Manifest Binary</text>
+        <line x1="8" y1="50" x2="97" y2="50" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="8" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Package Name</text>
+        <text x="8" y="86" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Components List</text>
+        <text x="8" y="102" font-family="sans-serif" font-size="7.5" fill="#5F5D56">SDK Boundaries</text>
+        <text x="8" y="118" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Requested Perms</text>
+        <text x="8" y="146" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">PackageParser</text>
+      </g>
+
+      <!-- Arrow 3 -> 4 (Olive) -->
+      <path d="M 360 127 L 378 127" stroke="#5F6849" stroke-width="1.4" marker-end="url(#apk-arrow-olive)"/>
+
+      <!-- Step 4: Signature Verification -->
+      <g transform="translate(380, 35)">
+        <rect width="115" height="185" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.8"/>
+        <rect width="115" height="22" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">04 / SIGNATURE</text>
+        <text x="8" y="42" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">Verification</text>
+        <line x1="8" y1="50" x2="107" y2="50" stroke="#5F6849" stroke-width="0.5" stroke-opacity="0.4"/>
+        <text x="8" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">v1 / v2 / v3 / v4</text>
+        <text x="8" y="86" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Hash Integrity Check</text>
+        <text x="8" y="104" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#5F6849">Cert Continuity</text>
+        <text x="8" y="122" font-family="sans-serif" font-size="7" fill="#5F5D56">Match Existing Key</text>
+        <rect x="8" y="136" width="99" height="24" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="12" y="152" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="600" fill="#5F6849">Identity Locked</text>
+      </g>
+
+      <!-- Arrow 4 -> 5 -->
+      <path d="M 495 127 L 513 127" stroke="#151515" stroke-width="1.4" marker-end="url(#apk-arrow)"/>
+
+      <!-- Step 5: Application Registration & UID -->
+      <g transform="translate(515, 35)">
+        <rect width="110" height="185" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="110" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">05 / LINUX UID</text>
+        <text x="8" y="42" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">System Register</text>
+        <line x1="8" y1="50" x2="102" y2="50" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="8" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">packages.xml written</text>
+        <text x="8" y="88" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#151515">uid = 10xxx</text>
+        <text x="8" y="106" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Linux Kernel Isolation</text>
+        <text x="8" y="124" font-family="sans-serif" font-size="7" fill="#5F5D56">Per-user allocation</text>
+        <text x="8" y="146" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F6849">PMS Core State</text>
+      </g>
+
+      <!-- Arrow 5 -> 6 -->
+      <path d="M 625 127 L 643 127" stroke="#151515" stroke-width="1.4" marker-end="url(#apk-arrow)"/>
+
+      <!-- Step 6: Sandbox & Data Directory -->
+      <g transform="translate(645, 35)">
+        <rect width="105" height="185" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="105" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">06 / SANDBOX</text>
+        <text x="8" y="42" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">Data Isolation</text>
+        <line x1="8" y1="50" x2="97" y2="50" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="8" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">installd creates dir</text>
+        <text x="8" y="86" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">/data/user/0/pkg</text>
+        <text x="8" y="104" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">chmod 700</text>
+        <text x="8" y="122" font-family="sans-serif" font-size="7.5" fill="#5F5D56">SELinux labeling</text>
+        <text x="8" y="146" font-family="sans-serif" font-size="7" fill="#5F6849">Private Storage</text>
+      </g>
+
+      <!-- Arrow 6 -> 7 -->
+      <path d="M 750 127 L 768 127" stroke="#151515" stroke-width="1.4" marker-end="url(#apk-arrow)"/>
+
+      <!-- Step 7: Permissions & ART Ready -->
+      <g transform="translate(770, 35)">
+        <rect width="90" height="185" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="90" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="6" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">07 / ART &amp; PERM</text>
+        <text x="6" y="42" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">Preparation</text>
+        <line x1="6" y1="50" x2="84" y2="50" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="6" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">dex2oat / JIT</text>
+        <text x="6" y="86" font-family="sans-serif" font-size="7.5" fill="#5F5D56">vdex / odex prep</text>
+        <text x="6" y="104" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Normal Perms OK</text>
+        <text x="6" y="122" font-family="sans-serif" font-size="7" fill="#5F5D56">Runtime Perms Pend</text>
+        <rect x="6" y="138" width="78" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="0.6"/>
+        <text x="10" y="152" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">State: Installed</text>
+      </g>
+
+      <!-- Arrow 7 -> 8 (Olive) -->
+      <path d="M 860 127 L 873 127" stroke="#5F6849" stroke-width="1.4" marker-end="url(#apk-arrow-olive)"/>
+
+      <!-- Step 8: Execution Boundary (Separated by dotted line) -->
+      <g transform="translate(875, 35)">
+        <rect width="65" height="185" fill="#FAF8F2" stroke="#5F6849" stroke-width="1.4" stroke-dasharray="3 3"/>
+        <rect width="65" height="22" fill="#F4F1E9" stroke="#5F6849" stroke-width="1"/>
+        <text x="6" y="15" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#5F6849">EXECUTION</text>
+        <text x="6" y="42" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">Zygote Fork</text>
+        <line x1="6" y1="50" x2="59" y2="50" stroke="#5F6849" stroke-width="0.5" stroke-opacity="0.4"/>
+        <text x="6" y="70" font-family="sans-serif" font-size="7" fill="#5F5D56">App Launch</text>
+        <text x="6" y="90" font-family="sans-serif" font-size="7" fill="#5F5D56">drop root</text>
+        <text x="6" y="110" font-family="sans-serif" font-size="7" fill="#5F5D56">setresuid</text>
+        <text x="6" y="130" font-family="sans-serif" font-size="7" font-weight="600" fill="#5F6849">RUNNING</text>
+        <text x="6" y="150" font-family="sans-serif" font-size="6.5" fill="#5F5D56">Only on tap</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 00: مسار تثبيت APK داخل Android — التثبيت عملية هيكلية تشمل فحص الحزمة، التحقق من التوقيع، تسجيل الهوية وتجهيز العزل، وهو منفصل تمامًا عن لحظة تشغيل التطبيق.'
+      : 'Figure 00: The APK installation pipeline inside Android — a structured lifecycle covering package parsing, cryptographic verification, identity registration, and sandbox isolation before any execution occurs.'}
+  </figcaption>
+</figure>

@@ -1,0 +1,569 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import SectionHeading from '../../../components/SectionHeading.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import TechnicalNote from '../../../components/TechnicalNote.astro';
+import ContinueReading from '../../../components/ContinueReading.astro';
+
+// Technical SVG Diagrams
+import ApkContentsDiagram from '../../../components/diagrams/ApkContentsDiagram.astro';
+import PackageInstallFlowDiagram from '../../../components/diagrams/PackageInstallFlowDiagram.astro';
+import AndroidManifestDiagram from '../../../components/diagrams/AndroidManifestDiagram.astro';
+import ApkSignatureDiagram from '../../../components/diagrams/ApkSignatureDiagram.astro';
+import AndroidUidDiagram from '../../../components/diagrams/AndroidUidDiagram.astro';
+import AppSandboxDiagram from '../../../components/diagrams/AppSandboxDiagram.astro';
+import AndroidPermissionsDiagram from '../../../components/diagrams/AndroidPermissionsDiagram.astro';
+import ArtExecutionDiagram from '../../../components/diagrams/ArtExecutionDiagram.astro';
+import AndroidProcessDiagram from '../../../components/diagrams/AndroidProcessDiagram.astro';
+
+const tocItems = [
+  { id: 'sec-01', num: '01', title: 'APK' },
+  { id: 'sec-02', num: '02', title: 'Package Installation' },
+  { id: 'sec-03', num: '03', title: 'Manifest' },
+  { id: 'sec-04', num: '04', title: 'Signature' },
+  { id: 'sec-05', num: '05', title: 'UID' },
+  { id: 'sec-06', num: '06', title: 'Sandbox' },
+  { id: 'sec-07', num: '07', title: 'Permissions' },
+  { id: 'sec-08', num: '08', title: 'ART' },
+  { id: 'sec-09', num: '09', title: 'Process' },
+  { id: 'sec-10', num: '10', title: 'Access' }
+];
+
+const pageTitle = "ضغطت Install على APK… ماذا يحدث داخل Android؟";
+const pageSubtitle = "عندما تضغط Install، Android لا يأخذ ملف الـAPK ويشغّله مباشرة. قبل أول تشغيل، النظام يحتاج أن يفهم الحزمة، يتحقق من توقيعها، يسجل التطبيق، يجهز مساحة بياناته، يطبق نموذج العزل، ثم يبدأ تشغيله ضمن بيئة Android.";
+const pageDescription = "ماذا يفعل Android بملف APK عند التثبيت؟ شرح خطوة بخطوة لـManifest، التوقيع، UID، Sandbox، الصلاحيات وAndroid Runtime قبل تشغيل التطبيق.";
+const socialTitle = "ضغطت Install على APK… Android لم يشغّله مباشرة.";
+const ogImage = "/assets/og/what-happens-when-you-install-an-apk.jpg";
+
+const references = [
+  {
+    num: '[01]',
+    title: 'AOSP: Android Security Architecture & Application Sandbox',
+    org: 'Google / Android Open Source Project',
+    link: 'https://source.android.com/docs/security/overview/app-security'
+  },
+  {
+    num: '[02]',
+    title: 'Android Developers: APK Signature Scheme v2, v3 and v4 Specifications',
+    org: 'Google Android Developer Documentation',
+    link: 'https://source.android.com/docs/security/features/apksigning'
+  },
+  {
+    num: '[03]',
+    title: 'Android Runtime (ART) Architecture and Profile-Guided Optimization (PGO)',
+    org: 'AOSP Architecture & Platform Documentation',
+    link: 'https://source.android.com/docs/core/runtime'
+  },
+  {
+    num: '[04]',
+    title: 'Linux Kernel Security: User Credentials, UID Sandboxing & SELinux in Android',
+    org: 'Android Open Source Project / SELinux Project',
+    link: 'https://source.android.com/docs/security/features/selinux'
+  }
+];
+
+const displayTitle = 'ضغطت <span class="term" dir="ltr">Install</span> على <span class="term" dir="ltr">APK</span>… ماذا حدث داخل <span class="term" dir="ltr">Android</span>؟';
+---
+
+<ArticleLayout
+  title={pageTitle}
+  displayTitle={displayTitle}
+  subtitle={pageSubtitle}
+  description={pageDescription}
+  lang="ar"
+  arUrl="/ar/articles/what-happens-when-you-install-an-apk/"
+  enUrl="/en/articles/what-happens-when-you-install-an-apk/"
+  currentPath="/ar/articles/what-happens-when-you-install-an-apk/"
+  tocItems={tocItems}
+  categoryText="الهواتف / أندرويد"
+  articleMeta="مقال 04 / أندرويد وتثبيت الحزم"
+  references={references}
+  socialTitle={socialTitle}
+  ogImage={ogImage}
+  publishedDate="2026-09-23"
+  modifiedDate="2026-09-23"
+  breadcrumbCategory="الهواتف / أندرويد"
+  breadcrumbCurrent="تثبيت APK"
+>
+
+  <!-- 01 / WHAT IS AN APK -->
+  <section class="article-section">
+    <SectionHeading
+      number="01"
+      tag="APK"
+      title="الـAPK ليس مجرد &quot;برنامج&quot;"
+      id="sec-01"
+    />
+
+    <p>
+      تضغط <span class="term" dir="ltr">Install</span>، وبعد ثوانٍ يظهر التطبيق في هاتفك. لكن بين هاتين اللحظتين، قام <span class="term" dir="ltr">Android</span> بأكثر من مجرد نسخ ملف <span class="term" dir="ltr">APK</span>. قرأ معلومات الحزمة، تحقق من مُوقّعها، سجّل التطبيق داخل النظام، جهز مساحة بياناته، وطبق نموذج العزل قبل أن يبدأ أول <bdi dir="ltr">process</bdi>.
+    </p>
+
+    <p>
+      ملف الـ<span class="term" dir="ltr">APK</span> (<bdi dir="ltr">Android Package Kit</bdi>) نفسه يختلف تمامًا عن ملفات البرامج التقليدية: هو عبارة عن <strong>حاوية مضغوطة بتنسيق <span class="term" dir="ltr">ZIP</span></strong> تضم كل ما يحتاجه التطبيق ليعرفه النظام ويشغله ضمن بيئة أندرويد المعزولة.
+    </p>
+
+    <p>
+      إذا قمت بتغيير لاحقة أي ملف <span class="term" dir="ltr">.apk</span> إلى <span class="term" dir="ltr">.zip</span> واستخرجت محتوياته، ستجد مجموعة منظمة من الملفات والمجلدات:
+    </p>
+
+    <!-- Diagram 01: APK Anatomy -->
+    <ApkContentsDiagram lang="ar" />
+
+    <ul>
+      <li>
+        <strong><span class="term" dir="ltr">AndroidManifest.xml</span>:</strong> وثيقة الهوية وخريطة التطبيق. النقطة الجوهرية هنا أن هذا الملف داخل الـ<span class="term" dir="ltr">APK</span> ليس نصًا صريحًا عاديًا كما يكتبه المطور، بل هو <strong>ملف ثنائي مترجم (<bdi dir="ltr">Compiled Binary XML / AXML</bdi>)</strong> تم ضغطه وفهرسة سلاسله النصية لتتمكن نواة النظام من قراءته فورًا وبأعلى سرعة.
+      </li>
+      <li>
+        <strong><span class="term" dir="ltr">classes.dex</span>:</strong> شفرة التطبيق البرمجية (سواء كُتبت بـ <span class="term" dir="ltr">Kotlin</span> أو <span class="term" dir="ltr">Java</span>) بعد ترجمتها إلى شفرة بايت ثنائية خاصة بمحرك <span class="term" dir="ltr">Dalvik / ART</span>. التطبيقات الكبيرة قد تحتوي على عدة ملفات مثل <span class="term" dir="ltr">classes2.dex</span> و<span class="term" dir="ltr">classes3.dex</span>.
+      </li>
+      <li>
+        <strong><span class="term" dir="ltr">resources.arsc</span> ومجلد <span class="term" dir="ltr">res/</span>:</strong> جدول الموارد المفهرس الذي يربط معرّفات الأزرار والنصوص والصور بملفاتها، بجانب واجهات الـ<span class="term" dir="ltr">XML</span> المترجمة بصيغة ثنائية.
+      </li>
+      <li>
+        <strong><span class="term" dir="ltr">lib/&lt;abi&gt;/</span>:</strong> المكتبات المترجمة بلغة <span class="term" dir="ltr">C/C++</span> الأصلية المخصصة لمعمارية معالج الهاتف (<bdi dir="ltr">arm64-v8a</bdi> أو <bdi dir="ltr">armeabi-v7a</bdi> أو <bdi dir="ltr">x86_64</bdi>).
+      </li>
+      <li>
+        <strong><span class="term" dir="ltr">assets/</span>:</strong> ملفات خام إضافية يحتاجها التطبيق دون تعديل أو معالجة، مثل الخطوط وقواعد البيانات الأولية ونماذج الذكاء الاصطناعي.
+      </li>
+      <li>
+        <strong>بيانات التوقيع الرقمي (<bdi dir="ltr">META-INF / Signing Block</bdi>):</strong> الشهادات والبصمات الرياضية المشفرة التي تضمن أصالة الحزمة وتمنع التلاعب بأي بايت منها.
+      </li>
+    </ul>
+
+    <TechnicalNote
+      lang="ar"
+      label="ملاحظة حول حزم AAB الحديثة"
+      text="في متجر Google Play الحديث، يرفع المطورون ملفات Android App Bundles (AAB). خوادم المتجر لا ترسل ملف الـAAB للمستخدم، بل تقوم بتفكيكه وإنشاء ملفات APK مخصصة دقيقة لجهازك فقط (Split APKs تضم لغة جهازك ودقة شاشته ومعماريته حصريًا)، لكن الآلية الأساسية للتثبيت داخل نظام الهاتف تظل معتمدة على معالجة الـAPK."
+    />
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 02 / WHO HANDLES INSTALLATION -->
+  <section class="article-section">
+    <SectionHeading
+      number="02"
+      tag="PACKAGE INSTALLATION"
+      title="من يستقبل ملف الـAPK؟"
+      id="sec-02"
+    />
+
+    <p>
+      عندما تنقر على ملف <span class="term" dir="ltr">APK</span> تم تنزيله من المتصفح أو تطبيق إدارة الملفات، تظهر لك نافذة بيضاء تسألك: "هل تريد تثبيت هذا التطبيق؟".
+    </p>
+
+    <p>
+      من السهل الاعتقاد أن هذه النافذة هي التي تقوم بكل شيء، لكن في معمارية <span class="term" dir="ltr">Android</span>، هذه النافذة ليست سوى <strong>واجهة مستخدم أمامية (<bdi dir="ltr">PackageInstaller Activity</bdi>)</strong>. نظام التثبيت الحقيقي يتكون من عدة طبقات منفصلة تحمي النظام:
+    </p>
+
+    <!-- Diagram 02: Install Subsystem -->
+    <PackageInstallFlowDiagram lang="ar" />
+
+    <p>
+      خلينا نتبع ما يحدث خطوة بخطوة عند بدء التثبيت:
+    </p>
+
+    <ol>
+      <li>
+        <strong>إنشاء جلسة التثبيت (<bdi dir="ltr">PackageInstaller.Session</bdi>):</strong> يفتح تطبيق التثبيت جلسة عمل مؤطرة مع النظام ويقوم بنسخ بايتات الـ<span class="term" dir="ltr">APK</span> إلى مجلد تجهيز معزول مؤقت في المسار <span class="term" dir="ltr">/data/app/vmdl*.tmp</span>. هذا يضمن أن فشل التنزيل أو التثبيت لن يترك مخلفات مشوهة داخل النظام.
+      </li>
+      <li>
+        <strong>تسليم الطلب لخدمة النظام (<bdi dir="ltr">PackageManagerService / PMS</bdi>):</strong> هذه الخدمة تعمل بصلاحيات نظام عليا داخل العملية المركزية <span class="term" dir="ltr">system_server</span>. هي الحاكم والمسؤول المطلق عن إدارة التطبيقات، وهي التي تقرر ما إذا كانت الحزمة صالحة ومقبولة أم سيتم رفضها.
+      </li>
+      <li>
+        <strong>الاستعانة بالبرنامج الخفي الأصلي (<bdi dir="ltr">installd</bdi>):</strong> بما أن <span class="term" dir="ltr">system_server</span> لا يفضل تنفيذ عمليات نظام الملفات ذات الامتيازات المنخفضة مباشرة لحماية نفسه، يرسل أوامر عبر مقبس (<span class="term" dir="ltr">UNIX Socket</span>) إلى برنامج خفي مكتوب بلغة <span class="term" dir="ltr">C++</span> يدعى <span class="term" dir="ltr">installd</span>، وهو المسؤول عن إنشاء المجلدات وضبط الصلاحيات وسياسات <span class="term" dir="ltr">SELinux</span>.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 03 / MANIFEST PARSING -->
+  <section class="article-section">
+    <SectionHeading
+      number="03"
+      tag="MANIFEST"
+      title="قبل التشغيل، Android يحتاج يعرف من هو التطبيق"
+      id="sec-03"
+    />
+
+    <p>
+      في هذه المرحلة، النظام يحتاج أن يعرف مع من يتعامل بالتحديد. يستدعي <span class="term" dir="ltr">PackageManagerService</span> أداة التحليل <span class="term" dir="ltr">PackageParser</span> لقراءة ملف <span class="term" dir="ltr">AndroidManifest.xml</span> الثنائي واستخراج تعريفاته الهيكلية:
+    </p>
+
+    <!-- Diagram 03: Manifest Schema -->
+    <AndroidManifestDiagram lang="ar" />
+
+    <p>
+      الملف يخبر النظام بخمسة عناصر حاسمة:
+    </p>
+
+    <ul>
+      <li>
+        <strong>اسم الحزمة الفريد (<bdi dir="ltr">Package Name</bdi>):</strong> مثل <span class="term" dir="ltr">com.example.notes</span>. هذا الاسم يمثل الهوية الرسمية الفريدة للتطبيق في سجلات النظام.
+      </li>
+      <li>
+        <strong>المكونات الأربعة الأساسية (<bdi dir="ltr">Core Components</bdi>):</strong>
+        شاشات العرض (<span class="term" dir="ltr">&lt;activity&gt;</span>)، والخدمات الخلفية (<span class="term" dir="ltr">&lt;service&gt;</span>)، ومستقبلات أحداث النظام (<span class="term" dir="ltr">&lt;receiver&gt;</span>)، ومزودات مشاركة البيانات (<span class="term" dir="ltr">&lt;provider&gt;</span>).
+      </li>
+      <li>
+        <strong>بوابات التصدير (<bdi dir="ltr">android:exported</bdi>):</strong> يحدد النظام أي من هذه المكونات متاح للتطبيقات الأخرى للتواصل معه، وأيها مغلق وخاص بالتطبيق فقط.
+      </li>
+      <li>
+        <strong>حدود التوافق البرمجي (<bdi dir="ltr">&lt;uses-sdk&gt;</bdi>):</strong> هل جهازك يعمل بإصدار نظام متوافق مع الحد الأدنى (<span class="term" dir="ltr">minSdkVersion</span>) والهدف (<span class="term" dir="ltr">targetSdkVersion</span>) الذي صُمم التطبيق له؟
+      </li>
+      <li>
+        <strong>قائمة الصلاحيات المطلوبة (<bdi dir="ltr">&lt;uses-permission&gt;</bdi>):</strong> الإعلان المسبق عن كل ميزة حساسة في العتاد أو النظام ينوي التطبيق استخدامها.
+      </li>
+    </ul>
+
+    <CodeBlock
+      code={`<!-- مثال لتصريح الصلاحيات وهوية التطبيق داخل البيان -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.cameraapp">
+
+    <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="34" />
+
+    <!-- إعلان طلب صلاحية الكاميرا -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:label="Camera App"
+        android:icon="@mipmap/ic_launcher">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>`}
+      lang="xml"
+      filename="AndroidManifest.xml (نموذج تصريحات الحزمة)"
+    />
+
+    <p>
+      <strong>قاعدة أمنية أساسية:</strong> مجرد وجود تصريح الصلاحية داخل البيان لا يعني أبدًا حصول التطبيق على صلاحية الوصول المفتوح. هو فقط يسجل رغبته المسبقة لدى النظام.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 04 / APK SIGNATURE -->
+  <section class="article-section">
+    <SectionHeading
+      number="04"
+      tag="SIGNATURE"
+      title="Android يتحقق من مُوقّع الحزمة"
+      id="sec-04"
+    />
+
+    <p>
+      كل ملف <span class="term" dir="ltr">APK</span> يجب أن يكون موقعًا رقميًا قبل تثبيته على الجهاز. في هذه الخطوة، يطبق نظام <span class="term" dir="ltr">Android</span> خوارزميات تحقق تشفيرية صارمة تعتمد على أجيال التوقيع المتعاقبة (<bdi dir="ltr">v1, v2, v3, v4 Signing Schemes</bdi>).
+    </p>
+
+    <!-- Diagram 04: Signature Verification -->
+    <ApkSignatureDiagram lang="ar" />
+
+    <p>
+      لكن هناك <strong>مفهوم خاطئ شديد الشيوع</strong> يحتاج للتصحيح بدقة:
+    </p>
+
+    <TechnicalNote
+      lang="ar"
+      label="تصحيح تقني حاسم حول التوقيع الرقمي"
+      text="التوقيع الرقمي في Android لا يثبت أبدًا أن المطور شخص موثوق به، ولا يثبت أن التطبيق آمن أو خالٍ من الفيروسات والبرمجيات الخبيثة. أي شخص — بما في ذلك مبرمجو البرمجيات الخبيثة — يمكنهم توليد شهادة تشفير ذاتية التوقيع (Self-Signed Certificate) وتوقيع الحزمة بها."
+    />
+
+    <p>
+      إذن ما هي الوظيفة الحقيقية لتوقيع الـ<span class="term" dir="ltr">APK</span>؟ التوقيع يحقق هدفين تقنيين محددين:
+    </p>
+
+    <ol>
+      <li>
+        <strong>تكامل الحزمة (<bdi dir="ltr">Package Integrity</bdi>):</strong> إثبات رياضي أن محتويات الحزمة لم تتغير ولم تُعدل بواسطة طرف ثالث أثناء تنزيلها عبر الشبكة. إذا تغير بايت واحد فقط في ملفات الـ<span class="term" dir="ltr">DEX</span> أو الموارد، تسقط عملية مطابقة الهاش ويرفض النظام التثبيت.
+      </li>
+      <li>
+        <strong>استمرارية التحديث وهيكل الثقة (<bdi dir="ltr">Update Continuity</bdi>):</strong> إذا كان لديك تطبيق مثبت موقّع بالشهادة <span class="term" dir="ltr">A</span>، وقمت بتنزيل تحديث يحمل نفس اسم الحزمة لكنه موقّع بالشهادة <span class="term" dir="ltr">B</span>، سيرفض <span class="term" dir="ltr">Android</span> التحديث فورًا بخطأ <span class="term" dir="ltr">INSTALL_FAILED_UPDATE_INCOMPATIBLE</span>. هذا يمنع أي مهاجم من سرقة بيانات تطبيقك عبر نشر تحديث مزيف باسمه.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 05 / REGISTRATION & UID -->
+  <section class="article-section">
+    <SectionHeading
+      number="05"
+      tag="UID"
+      title="بعد القبول، التطبيق يصبح جزءًا مسجلًا في النظام"
+      id="sec-05"
+    />
+
+    <p>
+      بمجرد اجتياز الفحص الأولي والتوقيع، يقوم <span class="term" dir="ltr">PackageManagerService</span> بنسخ الحزمة إلى مسارها الدائم داخل مجلد التطبيقات (مثل <span class="term" dir="ltr">/data/app/~~.../com.example.app-...</span>)، ثم يسجل بياناتها رسميًا في قاعدة بيانات النظام المركزية المخزنة في:
+    </p>
+
+    <CodeBlock
+      code={`/data/system/packages.xml`}
+      lang="bash"
+      filename="مسار سجل الحزم المركزي في Android"
+    />
+
+    <p>
+      وهنا تأتي العبقرية المعمارية لنظام <span class="term" dir="ltr">Android</span>: الاستفادة من نموذج عزل المستخدمين في نواة <span class="term" dir="ltr">Linux</span> (<bdi dir="ltr">Linux UID Isolation</bdi>).
+    </p>
+
+    <!-- Diagram 05: Linux UID -->
+    <AndroidUidDiagram lang="ar" />
+
+    <p>
+      في أنظمة الحاسوب التقليدية مثل <span class="term" dir="ltr">Linux</span> المكتبية، كل البرامج التي يشغلها المستخدم "علي" تعمل تحت نفس معرّف المستخدم (<span class="term" dir="ltr">UID 1000</span>)، وبالتالي يستطيع أي برنامج تفتيش ملفات وذاكرة البرامج الأخرى لنفس المستخدم.
+    </p>
+
+    <p>
+      في <span class="term" dir="ltr">Android</span>، تم قلب هذه المعادلة: <strong>كل تطبيق يتم تثبيته يُعامل كمستخدم نظام مستقل تمامًا!</strong>
+    </p>
+
+    <ul>
+      <li>التطبيق الأول يحصل على المعرّف: <span class="term" dir="ltr">u0_a142</span> (المعادل الرقمي: <span class="term" dir="ltr">UID 10142</span>).</li>
+      <li>التطبيق الثاني يحصل على المعرّف: <span class="term" dir="ltr">u0_a143</span> (المعادل الرقمي: <span class="term" dir="ltr">UID 10143</span>).</li>
+      <li>التطبيق الثالث يحصل على المعرّف: <span class="term" dir="ltr">u0_a144</span> (المعادل الرقمي: <span class="term" dir="ltr">UID 10144</span>).</li>
+    </ul>
+
+    <TechnicalNote
+      lang="ar"
+      label="دقة تقنية حول تعدد المستخدمين"
+      text="معرّف UID ليس رقمًا عشوائيًا ثابتًا إلى الأبد لكل الأجهزة؛ بل هو تخصيص محلي يحدده النظام عند التثبيت ويدعم الملفات الشخصية المتعددة (Multi-User Profiles). فإذا كان التطبيق مثبتًا للمستخدم الرئيسي (User 0) برقم 10142، فإن نفس التطبيق في ملف العمل (User 10) سيحصل على معرّف UID منفصل هو 1010142."
+    />
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 06 / APP SANDBOX & DATA -->
+  <section class="article-section">
+    <SectionHeading
+      number="06"
+      tag="SANDBOX"
+      title="ثم يحصل التطبيق على مساحة معزولة"
+      id="sec-06"
+    />
+
+    <p>
+      الآن بعد تحديد هوية الـ<span class="term" dir="ltr">UID</span>، يطلب <span class="term" dir="ltr">PMS</span> من البرنامج الخفي <span class="term" dir="ltr">installd</span> إنشاء صندوق حماية البيانات الخاص بالتطبيق (<bdi dir="ltr">App Private Sandbox</bdi>).
+    </p>
+
+    <p>
+      يتم إنشاء مجلد البيانات الداخلي في المسار الحقيقي:
+    </p>
+
+    <CodeBlock
+      code={`/data/user/0/com.example.app/`}
+      lang="bash"
+      filename="المسار الحقيقي المعزول لبيانات التطبيق"
+    />
+
+    <p>
+      (ملاحظة: المسار الكلاسيكي الشهير <span class="term" dir="ltr">/data/data/com.example.app</span> ما زال موجودًا في الغالب، ولكنه يعمل كرابط رمزي <span class="term" dir="ltr">Symlink</span> يشير داخليًا إلى مسار المستخدم الفعلي).
+    </p>
+
+    <!-- Diagram 06: App Sandbox -->
+    <AppSandboxDiagram lang="ar" />
+
+    <p>
+      ما الذي يجعل هذا المجلد "صندوق حماية" (<span class="term" dir="ltr">Sandbox</span>) منيعًا؟
+    </p>
+
+    <ol>
+      <li>
+        <strong>ملكية الملفات في نظام <span class="term" dir="ltr">POSIX</span>:</strong> يضبط <span class="term" dir="ltr">installd</span> ملكية المجلد بالكامل لتكون حكرًا على المستخدم ومجموعة المستخدم الخاصة بالتطبيق (<span class="term" dir="ltr">u0_a142:u0_a142</span>).
+      </li>
+      <li>
+        <strong>أذونات الوصول المانعة (<span class="term" dir="ltr">0700 / drwx------</span>):</strong> هذه الصلاحية الصارمة تعني أن مالك المجلد فقط يستطيع الدخول إليه أو قراءة محتوياته. إذا حاول تطبيق آخر (يعمل بالمعرّف <span class="term" dir="ltr">u0_a143</span>) استدعاء الدالة <span class="term" dir="ltr">open()</span> لقراءة قاعدة بياناتك أو ملفات التفضيلات، ترفض نواة لينكس طلبه فورًا وتعيد الخطأ القياسي <span class="term" dir="ltr">EACCES (Permission Denied)</span>.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 07 / PERMISSIONS -->
+  <section class="article-section">
+    <SectionHeading
+      number="07"
+      tag="PERMISSIONS"
+      title="Install لا يعني أن التطبيق حصل على كل الصلاحيات"
+      id="sec-07"
+    />
+
+    <p>
+      انتهاء التثبيت بنجاح لا يمنح التطبيق شيكًا على بياض للوصول إلى مكونات هاتفك. نظام <span class="term" dir="ltr">Android</span> يقسم الصلاحيات إلى مستويات حماية متباينة (<bdi dir="ltr">protectionLevel</bdi>):
+    </p>
+
+    <!-- Diagram 07: Permissions Pipeline -->
+    <AndroidPermissionsDiagram lang="ar" />
+
+    <ul>
+      <li>
+        <strong>الصلاحيات العادية (<bdi dir="ltr">Normal Permissions</bdi>):</strong>
+        مثل الوصول للإنترنت (<span class="term" dir="ltr">INTERNET</span>) أو معرفة حالة الشبكة (<span class="term" dir="ltr">ACCESS_NETWORK_STATE</span>). هذه الصلاحيات لا تشكل خطرًا مباشرًا على خصوصية ملفاتك الشخصية، ويمنحها النظام تلقائيًا عند التثبيت دون إزعاج المستخدم بنوافذ تأكيد.
+      </li>
+      <li>
+        <strong>الصلاحيات الخطيرة أثناء التشغيل (<bdi dir="ltr">Dangerous / Runtime Permissions</bdi>):</strong>
+        مثل الكاميرا والميكروفون والموقع الجغرافي وقائمة جهات الاتصال. هذه الصلاحيات تظل <strong>معطلة ومعلقة</strong> حتى بعد التثبيت، ولا يمكن للتطبيق لمسها إلا عندما يطلبها كوديًا أثناء تشغيل الميزة عبر نافذة يسألك فيها النظام: "هل تسمح للتطبيق باستخدام الكاميرا؟".
+      </li>
+      <li>
+        <strong>الوصول الخاص (<bdi dir="ltr">Special App Access</bdi>):</strong>
+        مثل إدارة جميع الملفات (<span class="term" dir="ltr">MANAGE_EXTERNAL_STORAGE</span>) أو تعديل إعدادات النظام. هذه الامتيازات لا يمكن منحها عبر نوافذ عادية، بل تتطلب أن يتوجه المستخدم يدويًا إلى صفحة إعدادات النظام المتقدمة لتفعيلها.
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 08 / WHAT HAPPENS TO THE CODE -->
+  <section class="article-section">
+    <SectionHeading
+      number="08"
+      tag="ART"
+      title="أين يذهب classes.dex؟"
+      id="sec-08"
+    />
+
+    <p>
+      ملف <span class="term" dir="ltr">classes.dex</span> الموجود في الحزمة يحتوي على تعليمات بايت كود مصممة لبيئة <span class="term" dir="ltr">Android Runtime (ART)</span>.
+    </p>
+
+    <p>
+      في بدايات أندرويد، كان المحرك يكتفي بتفسير هذه التعليمات تدريجيًا (<span class="term" dir="ltr">Interpreter</span>). لاحقًا في أندرويد 5، أصبح يترجم كل التطبيق مسبقًا (<span class="term" dir="ltr">AOT</span>) مما جعل التثبيت بطيئًا جدًا ويستهلك مساحة التخزين.
+    </p>
+
+    <!-- Diagram 08: ART Execution -->
+    <ArtExecutionDiagram lang="ar" />
+
+    <p>
+      في أنظمة <span class="term" dir="ltr">Android</span> الحديثة، تعتمد بيئة <span class="term" dir="ltr">ART</span> على <strong>نموذج تشغيل هجين ذكي (<bdi dir="ltr">Hybrid Execution Model</bdi>)</strong>:
+    </p>
+
+    <ol>
+      <li>
+        <strong>عند التثبيت والإقلاع الأول:</strong> ينطلق التطبيق مباشرة وسريعًا باستخدام المترجم الفوري (<span class="term" dir="ltr">JIT - Just-In-Time</span>).
+      </li>
+      <li>
+        <strong>أثناء الاستخدام:</strong> يقوم متتبع الأداء المدمج بمراقبة الشفرة وتسجيل مسارات الدوال الأكثر استخدامًا في ملف بيانات التعريف (<span class="term" dir="ltr">app.prof</span>).
+      </li>
+      <li>
+        <strong>عند شحن الهاتف وخموله:</strong> يعمل البرنامج الخفي <span class="term" dir="ltr">dex2oat</span> في الخلفية لقراءة هذا الملف وترجمة الدوال الساخنة فقط إلى شفرة معالج أصلية فائقة السرعة (<span class="term" dir="ltr">AOT</span>)، وتخزينها في ملفات <span class="term" dir="ltr">.odex</span> و<span class="term" dir="ltr">.vdex</span> لتفتح فورًا في المرات القادمة بدون أي استهلاك زائد للبطارية.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 09 / FIRST LAUNCH -->
+  <section class="article-section">
+    <SectionHeading
+      number="09"
+      tag="PROCESS"
+      title="التثبيت انتهى… لكن التطبيق لم يبدأ بعد"
+      id="sec-09"
+    />
+
+    <p>
+      هناك فارق جوهري في هندسة الأنظمة يجب إدراكه:
+    </p>
+
+    <div style="padding: 1.25rem 1.5rem; border: 1px solid var(--color-hairline); background-color: var(--color-bg-warm); margin-block: 1.5rem; font-family: var(--font-mono); font-size: 0.95rem;">
+      <strong style="color: var(--color-olive);">قاعدة معمارية:</strong> وجود الحزمة مثبتة على القرص الصلب ≠ وجود عملية تعمل في الذاكرة (<bdi dir="ltr">Installed Package ≠ Running Process</bdi>).
+    </div>
+
+    <p>
+      حتى هذه اللحظة، التطبيق عبارة عن ملفات ساكنة مسجلة في النظام. لا يوجد له معالج (<span class="term" dir="ltr">PID</span>) في الذاكرة العشوائية ولا يستهلك دورة معالجة واحدة من المعالج.
+    </p>
+
+    <p>
+      متى يولد التطبيق كعملية حية؟ فقط عندما تنقر على أيقونته في الواجهة أو يصله نداء من أحد مكوناته المصرح بها:
+    </p>
+
+    <!-- Diagram 09: Process Spawn -->
+    <AndroidProcessDiagram lang="ar" />
+
+    <ol>
+      <li>ترسل واجهة النظام نداء <span class="term" dir="ltr">Intent</span> إلى خدمة <span class="term" dir="ltr">ActivityTaskManagerService</span>.</li>
+      <li>تكتشف الخدمة أن التطبيق لا يملك عملية تعمل حاليًا، فترسل طلبًا عبر مقبس محلي إلى العملية الأم المركزية: <strong><span class="term" dir="ltr">Zygote</span></strong>.</li>
+      <li>عملية <span class="term" dir="ltr">Zygote</span> (المولودة مع إقلاع الهاتف والمحملة مسبقًا بكامل مكتبات إطار عمل أندرويد في الذاكرة) تقوم بعمل تفريع سريع (<span class="term" dir="ltr">fork()</span>) لنفسها. هذا يمنح التطبيق الجديد إقلاعًا فوريًا في أجزاء من الثانية بفضل تقنية <span class="term" dir="ltr">Copy-On-Write</span>.</li>
+      <li><strong>التنازل عن الامتيازات (<bdi dir="ltr">Dropping Root Privileges</bdi>):</strong> تبدأ العملية المتفرعة بصلاحيات جذر، وقبل أن تلمس كود التطبيق، تستدعي فورًا دالة النواة <span class="term" dir="ltr">setresuid()</span> لتسقط صلاحيات الجذر وتتحول إلى معرّف التطبيق المحدود (<span class="term" dir="ltr">UID 10142</span>)، وتُطبق عليها قيود عزل <span class="term" dir="ltr">SELinux</span>.</li>
+      <li>تبدأ بعد ذلك الشفرة الفعلية للتطبيق بالعمل من خلال استدعاء الدالة المركزية <span class="term" dir="ltr">ActivityThread.main()</span>، ثم دورة حياة التطبيق: <span class="term" dir="ltr">Application.onCreate()</span> وأخيرًا <span class="term" dir="ltr">Activity.onCreate()</span> ليظهر أول بكسل على شاشتك.</li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 10 / ACCESS REALITY -->
+  <section class="article-section">
+    <SectionHeading
+      number="10"
+      tag="ACCESS"
+      title="إذن ماذا يستطيع التطبيق الوصول إليه فعلًا؟"
+      id="sec-10"
+    />
+
+    <p>
+      إذا نظرنا للصورة الكاملة بعد كل هذه المراحل، نكتشف أن ما يستطيع التطبيق الوصول إليه ليس خيارًا مفتوحًا، بل هو ناتج تقاطع <strong>سبع طبقات دفاعية متتالية</strong> داخل <span class="term" dir="ltr">Android</span>:
+    </p>
+
+    <ul>
+      <li><strong>صندوق الحماية وهوية <span class="term" dir="ltr">UID</span>:</strong> يحصر التطبيق في مجلد بياناته الخاص ويمنعه من لمس ذاكرة أو ملفات التطبيقات الأخرى.</li>
+      <li><strong>الصلاحيات الممنوحة فعليًا:</strong> حتى لو طلب التطبيق الكاميرا والموقع في البيان، فلن يصلهما إذا رفض المستخدم منحهما وقت التشغيل.</li>
+      <li><strong>واجهات برمجة تطبيقات النظام (<bdi dir="ltr">Framework APIs</bdi>):</strong> التطبيق لا يتصل بعتاد الهاتف مباشرة، بل يطلب كل شيء عبر وسيط هو إطار عمل النظام الخاضع للمراقبة.</li>
+      <li><strong>نموذج التخزين المحصور (<bdi dir="ltr">Scoped Storage</bdi>):</strong> لا يملك أي تطبيق عادي وصولاً عشوائيًا مطلقًا لكامل الذاكرة المشتركة؛ بل يتم عزل الصور والوسائط وتمريرها عبر منتقي ملفات النظام (<span class="term" dir="ltr">Photo Picker</span>).</li>
+      <li><strong>بوابات المكونات (<bdi dir="ltr">Component Visibility &amp; Export</bdi>):</strong> المكونات غير المصدرة (<span class="term" dir="ltr">exported="false"</span>) لا يمكن لأي تطبيق خارجي تشغيلها أو إرسال بيانات إليها.</li>
+      <li><strong>سياسات النظام الصارمة (<bdi dir="ltr">Platform Security Policies</bdi>):</strong> قيود على العمليات في الخلفية، واستهلاك الطاقة، ومنع استدعاء الواجهات البرمجية الخاصة غير الموثقة.</li>
+      <li><strong>حراسة <span class="term" dir="ltr">SELinux</span> الإلزامية (<bdi dir="ltr">Mandatory Access Control</bdi>):</strong> حتى في أسوأ السيناريوهات النظرية لو تمكن التطبيق من تجاوز صلاحيات المستخدم العادي، فإن نواة لينكس المجهزة بسياسات <span class="term" dir="ltr">SELinux</span> الصارمة تحصر نطاق العملية (<span class="term" dir="ltr">domain</span>) في سياق مقيد للغاية (<span class="term" dir="ltr">u:r:untrusted_app:s0</span>)، مما يمنعها من لمس ملفات النظام الحساسة أو تشغيل برامج تنفيذية خبيثة في مساحات الذاكرة المحمية.</li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 11 / FINAL SUMMARY -->
+  <section class="article-section">
+    <SectionHeading
+      number="11"
+      tag="الخلاصة"
+      title="Install لا يعني Full Access"
+      id="sec-11"
+    />
+
+    <p style="font-size: 1.25rem; font-weight: 600; color: var(--color-ink); line-height: 1.85;">
+      ضغط Install لا يعطي التطبيق وصولًا مفتوحًا للنظام.
+    </p>
+
+    <p>
+      Android يمر بعدة مراحل لفهم الحزمة وتسجيلها، ثم يشغّل التطبيق داخل نموذج عزل تحدده هوية التطبيق، الصلاحيات وسياسات النظام.
+    </p>
+
+    <p style="font-size: 1.15rem; color: var(--color-ink-muted); line-height: 1.8;">
+      التثبيت مجرد البداية. ما يستطيع التطبيق فعله بعد ذلك تحدده طبقات أخرى من Android.
+    </p>
+
+    <!-- Standard Site CTA Box -->
+    <div style="padding: 1.5rem; border: 1px solid var(--color-hairline); background-color: var(--color-bg-warm); margin-block: 2.5rem;">
+      <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--color-olive); margin-block-end: 0.5rem;">
+        لشرح أعمق وتفاصيل أكثر
+      </div>
+      <p style="margin: 0; font-size: 1.15rem; font-weight: 600; line-height: 1.85; color: var(--color-ink);">
+        تابع المزيد من الملاحظات التقنية وتفكيك الأنظمة عبر:
+        <a href="https://writeups.mouhibmahadbi.online" target="_blank" rel="noopener noreferrer" style="color: var(--color-olive); text-decoration: underline; margin-inline-start: 0.35rem;">
+          writeups.mouhibmahadbi.online
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Related Articles -->
+  <ContinueReading currentArticleId="what-happens-when-you-install-an-apk" lang="ar" />
+
+</ArticleLayout>

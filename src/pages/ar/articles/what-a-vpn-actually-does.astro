@@ -27,9 +27,11 @@ const tocItems = [
   { id: 'sec-10', num: '10', title: 'الخلاصة: نقل الثقة' }
 ];
 
-const pageTitle = "الـVPN لا يجعلك مختفيًا… هو فقط يغيّر من يرى ماذا";
+const pageTitle = "ماذا يفعل VPN فعلًا؟ ومن يستطيع رؤية اتصالك؟";
 const pageSubtitle = "الـVPN لا يحذف الثقة. هو فقط ينقلها.";
-const pageDescription = "شرح مباشر وهادئ لما يفعله الـVPN فعليًا: ما يراه مزود الإنترنت، ما يراه مزود الـVPN، متى تحدث تسريبات DNS، ولماذا لا يعتبر الـVPN بديلاً عن HTTPS أو مانعًا للتتبع.";
+const pageDescription = "ماذا يفعل VPN فعليًا لحركة بياناتك؟ توضيح تقني لما يراه مزود الإنترنت (ISP)، الفرق بين تشفير VPN وتشفير HTTPS، وفهم حدود الخصوصية دون مبالغات تسويقية.";
+const socialTitle = "الـVPN لا يجعلك شبحًا على الإنترنت… هو فقط يبدّل نقطة المراقبة.";
+const ogImage = "/assets/og/what-a-vpn-actually-does.jpg";
 ---
 
 <ArticleLayout
@@ -43,6 +45,12 @@ const pageDescription = "شرح مباشر وهادئ لما يفعله الـVP
   tocItems={tocItems}
   categoryText="الشبكات / الخصوصية"
   articleMeta="مقال 03 / الخصوصية والأنفاق"
+  socialTitle={socialTitle}
+  ogImage={ogImage}
+  publishedDate="2026-09-22"
+  modifiedDate="2026-09-22"
+  breadcrumbCategory="الشبكات / الخصوصية"
+  breadcrumbCurrent="عمل الـVPN"
 >
 
   <!-- 01 / WITHOUT VPN -->
@@ -321,7 +329,7 @@ const pageDescription = "شرح مباشر وهادئ لما يفعله الـVP
     </p>
 
     <p>
-      <strong>حدود حماية <span class="term" dir="ltr">HTTPS / TLS</span>:</strong> تمتد مباشرة من تطبيق العميل (المتصفح) إلى نقطة نهاية الـ<span class="term" dir="ltr">TLS</span> التي تخدم الموقع (<bdi dir="ltr">Application ↔ TLS endpoint</bdi>). وفي معمارية الويب الحديثة، تكون هذه النقطة غالبًا خادم شبكة توزيع محتوى (<bdi dir="ltr">CDN Edge</bdi>) أو وكيلاً عكسيًا (<bdi dir="ltr">Reverse Proxy / WAF</bdi>) ينهي جلسة التشفير قبل تمرير البيانات للسيرفر الأصلي الداخلي (<bdi dir="ltr">Backend Origin</bdi>). لا يستطيع أي طرف على مسار النقل — بما في ذلك مزود الـ<span class="term" dir="ltr">VPN</span> نفسه — قراءة محتوى الطلبات المشفرة بـ<span class="term" dir="ltr">HTTPS</span> أو التلاعب بها دون إطلاق تحذيرات أمنية فورية لفشل الشهادة.
+      <strong>حدود حماية <span class="term" dir="ltr">HTTPS / TLS</span>:</strong> تمتد مباشرة من تطبيق العميل (المتصفح) إلى نقطة نهاية الـ<span class="term" dir="ltr">TLS</span> التي تخدم الموقع (<bdi dir="ltr">Application ↔ TLS endpoint</bdi>) — لمعرفة كيف تبنى هذه القناة خطوة بخطوة، راجع <a href="/ar/articles/what-happens-when-you-type-a-domain/#sec-05" style="color: var(--color-olive); text-decoration: underline;">تفاصيل مصافحة TLS وتشفير المفاتيح المتماثلة</a>. وفي معمارية الويب الحديثة، تكون هذه النقطة غالبًا خادم شبكة توزيع محتوى (<bdi dir="ltr">CDN Edge</bdi>) أو وكيلاً عكسيًا (<bdi dir="ltr">Reverse Proxy / WAF</bdi>) ينهي جلسة التشفير قبل تمرير البيانات للسيرفر الأصلي الداخلي (<bdi dir="ltr">Backend Origin</bdi>). لا يستطيع أي طرف على مسار النقل — بما في ذلك مزود الـ<span class="term" dir="ltr">VPN</span> نفسه — قراءة محتوى الطلبات المشفرة بـ<span class="term" dir="ltr">HTTPS</span> أو التلاعب بها دون إطلاق تحذيرات أمنية فورية لفشل الشهادة.
     </p>
   </section>
 

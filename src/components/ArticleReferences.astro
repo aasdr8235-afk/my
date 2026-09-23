@@ -1,11 +1,19 @@
 ---
-interface Props {
-  lang: 'ar' | 'en';
+export interface ReferenceItem {
+  num: string;
+  title: string;
+  org: string;
+  link: string;
 }
 
-const { lang } = Astro.props;
+interface Props {
+  lang: 'ar' | 'en';
+  references?: ReferenceItem[];
+}
 
-const references = [
+const { lang, references: customReferences } = Astro.props;
+
+const defaultReferences: ReferenceItem[] = [
   {
     num: '[01]',
     title: 'RFC 6265bis: Cookies: HTTP State Management Mechanism',
@@ -31,6 +39,8 @@ const references = [
     link: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies'
   }
 ];
+
+const references = customReferences && customReferences.length > 0 ? customReferences : defaultReferences;
 ---
 
 <section class="references-card" aria-label={lang === 'ar' ? 'المراجع والمصادر التقنية' : 'Technical References'}>

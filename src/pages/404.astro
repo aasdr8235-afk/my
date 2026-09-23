@@ -1,0 +1,181 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import { SITE_CONFIG } from '../config/site';
+
+const pageTitle = "404 — الصفحة غير موجودة | Page Not Found";
+const pageDescription = "الصفحة التي تبحث عنها غير موجودة أو تم نقلها. / The page you are looking for does not exist or has been moved.";
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  lang="ar"
+  arUrl="/ar/"
+  enUrl="/en/"
+  currentPath="/404"
+  ogType="website"
+>
+  <Header
+    currentLang="ar"
+    arUrl="/ar/"
+    enUrl="/en/"
+    categoryText="خطأ 404 / ERROR"
+    articleMeta="PAGE NOT FOUND"
+  />
+
+  <main class="container" style="max-width: 760px; min-height: 60vh; display: flex; align-items: center; justify-content: center; padding-block: 5rem;">
+    <div class="error-card">
+      <div class="error-badge">
+        <img src="/assets/brand/logo-transparent.png" alt="Mouhib Writeups" width="48" height="48" class="error-logo" />
+        <span class="error-code">404</span>
+      </div>
+
+      <h1 class="error-title">الصفحة غير موجودة</h1>
+      <p class="error-subtitle">Page Not Found</p>
+
+      <div class="error-divider"></div>
+
+      <p class="error-text-ar">
+        الرابط الذي اتبعته غير موجود، أو ربما تم تغيير مساره أثناء تنظيم المحتوى.
+      </p>
+      <p class="error-text-en">
+        The link you followed does not exist, or its URL was updated during content reorganization.
+      </p>
+
+      <div class="error-actions">
+        <a href="/ar/#articles" class="error-btn primary">العودة إلى المقالات</a>
+        <a href="/en/#articles" class="error-btn secondary">Back to writeups</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <img src="/assets/brand/logo-transparent.png" alt="" class="brand-logo-img" width="36" height="36" loading="lazy" />
+          <span>{SITE_CONFIG.name}</span>
+        </div>
+        <div class="footer-links">
+          <a href="/ar/">العربية</a>
+          <span>/</span>
+          <a href="/en/">English</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</BaseLayout>
+
+<style>
+  .error-card {
+    width: 100%;
+    padding: 3rem 2.5rem;
+    background-color: var(--color-bg-warm, #FAF8F2);
+    border: 1px solid var(--color-hairline, #E5E0D5);
+    text-align: center;
+  }
+
+  .error-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    margin-block-end: 1.5rem;
+  }
+
+  .error-logo {
+    display: block;
+    width: 48px;
+    height: 48px;
+  }
+
+  .error-code {
+    font-family: var(--font-mono, monospace);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-olive, #5F6849);
+    letter-spacing: 0.08em;
+  }
+
+  .error-title {
+    font-family: var(--font-arabic, sans-serif);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-ink, #151515);
+    margin: 0 0 0.25rem 0;
+  }
+
+  .error-subtitle {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.95rem;
+    color: var(--color-ink-muted, #706E66);
+    margin: 0 0 1.5rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .error-divider {
+    width: 48px;
+    height: 1px;
+    background-color: var(--color-olive, #5F6849);
+    margin: 0 auto 1.5rem auto;
+  }
+
+  .error-text-ar {
+    font-family: var(--font-arabic, sans-serif);
+    font-size: 1.05rem;
+    color: var(--color-ink, #151515);
+    line-height: 1.7;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .error-text-en {
+    font-family: var(--font-sans, sans-serif);
+    font-size: 0.9rem;
+    color: var(--color-ink-muted, #706E66);
+    line-height: 1.5;
+    margin: 0 0 2rem 0;
+  }
+
+  .error-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .error-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.4rem;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid var(--color-hairline, #E5E0D5);
+  }
+
+  .error-btn.primary {
+    background-color: var(--color-ink, #151515);
+    color: #FAF8F2;
+    border-color: var(--color-ink, #151515);
+    font-family: var(--font-arabic, sans-serif);
+    font-weight: 500;
+  }
+
+  .error-btn.primary:hover {
+    background-color: var(--color-olive, #5F6849);
+    border-color: var(--color-olive, #5F6849);
+  }
+
+  .error-btn.secondary {
+    background-color: transparent;
+    color: var(--color-ink, #151515);
+    font-family: var(--font-mono, monospace);
+  }
+
+  .error-btn.secondary:hover {
+    border-color: var(--color-ink, #151515);
+  }
+</style>

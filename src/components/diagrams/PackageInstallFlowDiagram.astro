@@ -1,0 +1,113 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط بنية وتدفق نظام تثبيت الحزم في Android' : 'Android package installation subsystem architecture and flow'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">{lang === 'ar' ? 'مخطط 02 / معمارية التثبيت' : 'FIGURE 02 / INSTALL SUBSYSTEM'}</span>
+    <span>{lang === 'ar' ? 'من واجهة المستخدم إلى خدمات النظام الجوهرية' : 'FROM INSTALLER UI TO PRIVILEGED SYSTEM DAEMONS'}</span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 270" width="100%" height="auto" style="min-width: 680px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="install-flow-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+        <marker id="inst-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="inst-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="254" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Layer 1: Client / UI Layer -->
+      <g transform="translate(25, 45)">
+        <rect width="165" height="185" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="165" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">01 / INSTALLER UI</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#151515">PackageInstaller</text>
+        <line x1="10" y1="52" x2="155" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="10" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">User taps "Install"</text>
+        <text x="10" y="86" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Play Store / Browser / Files</text>
+        <text x="10" y="102" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Displays permissions prompt</text>
+        <text x="10" y="118" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Manages install session</text>
+        <rect x="10" y="136" width="145" height="24" fill="url(#install-flow-hatch)" stroke="#151515" stroke-width="0.6"/>
+        <text x="16" y="152" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">Front-Facing UI Only</text>
+      </g>
+
+      <!-- Arrow 1 -> 2 (Binder IPC) -->
+      <path d="M 190 125 L 225 125" stroke="#151515" stroke-width="1.4" marker-end="url(#inst-arrow)"/>
+      <text x="195" y="115" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F6849">Binder IPC</text>
+
+      <!-- Layer 2: PackageInstallerSession & Staging -->
+      <g transform="translate(230, 45)">
+        <rect width="170" height="185" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="170" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">02 / SESSION &amp; STAGING</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">Install Session</text>
+        <line x1="10" y1="52" x2="160" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="10" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Copies APK to staging area</text>
+        <text x="10" y="86" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F5D56">/data/app/vmdl*.tmp</text>
+        <text x="10" y="102" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Stream APK bytes safely</text>
+        <text x="10" y="118" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Commit session transaction</text>
+        <rect x="10" y="136" width="150" height="24" fill="#EBE7DE" stroke="#151515" stroke-width="0.6"/>
+        <text x="14" y="152" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F6849">Atomic Transaction</text>
+      </g>
+
+      <!-- Arrow 2 -> 3 (Olive) -->
+      <path d="M 400 125 L 435 125" stroke="#5F6849" stroke-width="1.4" marker-end="url(#inst-arrow-olive)"/>
+      <text x="403" y="115" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F6849">Commit</text>
+
+      <!-- Layer 3: PackageManagerService (Core Authority) -->
+      <g transform="translate(440, 45)">
+        <rect width="195" height="185" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.8"/>
+        <rect width="195" height="22" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">03 / SYSTEM SERVICE</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700" fill="#151515">PackageManagerService</text>
+        <line x1="10" y1="52" x2="185" y2="52" stroke="#5F6849" stroke-width="0.5" stroke-opacity="0.4"/>
+        <text x="10" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Lives in system_server</text>
+        <text x="10" y="86" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Verifies signature &amp; cert</text>
+        <text x="10" y="102" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Parses Manifest binary</text>
+        <text x="10" y="118" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Assigns per-app Linux UID</text>
+        <text x="10" y="134" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F6849">Writes /data/system/packages.xml</text>
+        <rect x="10" y="146" width="175" height="22" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="15" y="161" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="600" fill="#5F6849">Single Source of Truth</text>
+      </g>
+
+      <!-- Arrow 3 -> 4 (Local IPC) -->
+      <path d="M 635 125 L 665 125" stroke="#151515" stroke-width="1.4" marker-end="url(#inst-arrow)"/>
+      <text x="638" y="115" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">Socket</text>
+
+      <!-- Layer 4: Native installd Daemon -->
+      <g transform="translate(670, 45)">
+        <rect width="130" height="185" fill="#FAF8F2" stroke="#151515" stroke-width="1.4"/>
+        <rect width="130" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">04 / NATIVE DAEMON</text>
+        <text x="8" y="44" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#151515">installd</text>
+        <line x1="8" y1="52" x2="122" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="8" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Native daemon</text>
+        <text x="8" y="86" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Runs with high privs</text>
+        <text x="8" y="102" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Creates sandbox dirs</text>
+        <text x="8" y="118" font-family="sans-serif" font-size="7.5" fill="#5F5D56">chown / chmod to UID</text>
+        <text x="8" y="134" font-family="sans-serif" font-size="7.5" fill="#5F5D56">SELinux context setup</text>
+        <rect x="8" y="146" width="114" height="22" fill="url(#install-flow-hatch)" stroke="#151515" stroke-width="0.6"/>
+        <text x="12" y="161" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">Filesystem Actions</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 02: معمارية تثبيت الحزم — واجهة التثبيت التي يراها المستخدم هي مجرد بوابة أمامية؛ العمل الحقيقي للنظام تتولاه خدمة إدارة الحزم (PackageManagerService) داخل خادم النظام بالتعاون مع البرنامج الخفي installd لتجهيز الملفات وصلاحيات النواة.'
+      : 'Figure 02: Android package installation subsystem — the visible installer UI is merely a client. The authoritative validation, UID allocation, and database commitments are executed by PackageManagerService inside system_server, calling the privileged installd daemon.'}
+  </figcaption>
+</figure>

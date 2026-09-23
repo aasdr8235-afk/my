@@ -8,9 +8,10 @@ import VpnTunnelDiagram from '../../components/diagrams/VpnTunnelDiagram.astro';
 import VpnTrustShiftDiagram from '../../components/diagrams/VpnTrustShiftDiagram.astro';
 import DnsResolutionDiagram from '../../components/diagrams/DnsResolutionDiagram.astro';
 import LoginFlowDiagram from '../../components/diagrams/LoginFlowDiagram.astro';
+import ApkThumbnailDiagram from '../../components/diagrams/ApkThumbnailDiagram.astro';
 
 const pageTitle = "Mouhib Writeups — ملاحظات تقنية حول الأمن، الشبكات والأنظمة";
-const pageDescription = "مجلة تحريرية تقنية متخصصة في تفكيك معمارية الشبكات، أمن التطبيقات، وتصميم البروتوكولات. بقلم محب م.ح.";
+const pageDescription = "ملاحظات وكتابات تقنية حول أمن الويب، الشبكات، Linux وهندسة الأنظمة. أتعلم الأشياء بعمق، أجرّبها، وأشرح كيف تعمل فعليًا. بقلم محب م.ح.";
 ---
 
 <BaseLayout
@@ -20,6 +21,8 @@ const pageDescription = "مجلة تحريرية تقنية متخصصة في ت
   arUrl="/ar/"
   enUrl="/en/"
   currentPath="/ar/"
+  ogType="website"
+  ogImage="/assets/og/og-cover.jpg"
 >
   <!-- Masthead with Homepage Navigation -->
   <Header
@@ -48,11 +51,11 @@ const pageDescription = "مجلة تحريرية تقنية متخصصة في ت
             <span>03 / الشبكات / الخصوصية</span>
           </div>
 
-          <h2 class="featured-title">
+          <h1 class="featured-title">
             <a href="/ar/articles/what-a-vpn-actually-does/">
               <span class="ar-prefix-term">الـ<span class="term" dir="ltr">VPN</span></span> لا يجعلك مختفيًا… هو فقط يغيّر من يرى ماذا
             </a>
-          </h2>
+          </h1>
 
           <p class="featured-excerpt">
             شرح مباشر وهادئ لما يفعله نفق الـ<span class="term" dir="ltr">VPN</span> فعليًا: ما يراه مزود الإنترنت، ما يراه مزود الـ<span class="term" dir="ltr">VPN</span>، متى تحدث تسريبات <span class="term" dir="ltr">DNS</span>، ولماذا لا يعتبر الـ<span class="term" dir="ltr">VPN</span> بديلاً عن <span class="term" dir="ltr">HTTPS</span> أو مانعًا للتتبع.
@@ -76,10 +79,11 @@ const pageDescription = "مجلة تحريرية تقنية متخصصة في ت
     <nav id="topics" class="topic-filters-wrapper" aria-label="تصنيف المواضيع">
       <span class="topic-filters-label">تصفية حسب التخصص:</span>
       <div class="topic-filter-buttons" role="tablist">
-        <button type="button" class="topic-btn is-active" data-filter="all">الكل (3)</button>
+        <button type="button" class="topic-btn is-active" data-filter="all">الكل (4)</button>
         <button type="button" class="topic-btn" data-filter="cybersecurity">الأمن السيبراني (1)</button>
         <button type="button" class="topic-btn" data-filter="networking">الشبكات (1)</button>
         <button type="button" class="topic-btn" data-filter="privacy">الخصوصية والأنفاق (1)</button>
+        <button type="button" class="topic-btn" data-filter="mobile">الهواتف وأندرويد (1)</button>
       </div>
     </nav>
 
@@ -87,8 +91,41 @@ const pageDescription = "مجلة تحريرية تقنية متخصصة في ت
     <section id="articles" class="editorial-pub-rows" aria-label="المقالات">
       <div class="index-section-header">
         <span class="index-section-title">جميع المقالات المنشورة</span>
-        <span class="index-section-count">3 مقالات تقنية</span>
+        <span class="index-section-count">4 مقالات تقنية</span>
       </div>
+
+      <!-- Row 04: What Happens When You Install an APK -->
+      <article class="editorial-pub-row is-reversed" data-category="mobile">
+        <div class="pub-row-content">
+          <div class="pub-row-meta">
+            <span class="pub-row-number">04</span>
+            <span>/</span>
+            <span class="pub-row-category">الهواتف / أندرويد</span>
+            <span>•</span>
+            <span class="pub-row-time">15 دقيقة قراءة</span>
+          </div>
+
+          <h2 class="pub-row-title">
+            <a href="/ar/articles/what-happens-when-you-install-an-apk/">
+              ضغطت Install على <span class="term" dir="ltr">APK</span>… ماذا حدث داخل <span class="term" dir="ltr">Android</span>؟
+            </a>
+          </h2>
+
+          <p class="pub-row-excerpt">
+            ماذا يفعل <span class="term" dir="ltr">Android</span> بملف <span class="term" dir="ltr">APK</span> قبل أول تشغيل؟ من <span class="term" dir="ltr">Manifest</span> والتوقيع إلى <span class="term" dir="ltr">UID</span> و<span class="term" dir="ltr">Sandbox</span> والصلاحيات و<span class="term" dir="ltr">ART</span>.
+          </p>
+
+          <div class="pub-row-action">
+            <a href="/ar/articles/what-happens-when-you-install-an-apk/" class="pub-row-link">
+              اقرأ المقال ←
+            </a>
+          </div>
+        </div>
+
+        <div class="pub-row-visual">
+          <ApkThumbnailDiagram lang="ar" />
+        </div>
+      </article>
 
       <!-- Row 03: What a VPN Actually Does -->
       <article class="editorial-pub-row" data-category="privacy">
@@ -101,11 +138,11 @@ const pageDescription = "مجلة تحريرية تقنية متخصصة في ت
             <span class="pub-row-time">14 دقيقة قراءة</span>
           </div>
 
-          <h3 class="pub-row-title">
+          <h2 class="pub-row-title">
             <a href="/ar/articles/what-a-vpn-actually-does/">
               <span class="ar-prefix-term">الـ<span class="term" dir="ltr">VPN</span></span> لا يجعلك مختفيًا… هو فقط يغيّر من يرى ماذا
             </a>
-          </h3>
+          </h2>
 
           <p class="pub-row-excerpt">
             شرح مباشر وهادئ لما يفعله نفق الـ<span class="term" dir="ltr">VPN</span> فعليًا: ما يراه مزود الإنترنت، ما يراه مزود الـ<span class="term" dir="ltr">VPN</span>، متى تحدث تسريبات <span class="term" dir="ltr">DNS</span>، ولماذا لا يعتبر الـ<span class="term" dir="ltr">VPN</span> بديلاً عن <span class="term" dir="ltr">HTTPS</span> أو مانعًا للتتبع.
@@ -134,11 +171,11 @@ const pageDescription = "مجلة تحريرية تقنية متخصصة في ت
             <span class="pub-row-time">16 دقيقة قراءة</span>
           </div>
 
-          <h3 class="pub-row-title">
+          <h2 class="pub-row-title">
             <a href="/ar/articles/what-happens-when-you-type-a-domain/">
               كتبت اسم موقع وضغطت Enter… ماذا حدث فعلًا؟
             </a>
-          </h3>
+          </h2>
 
           <p class="pub-row-excerpt">
             شرح خطوة بخطوة لما يحدث خلف الكواليس: من الذاكرة المحلية وDNS وبوابة الراوتر إلى مصافحات TCP/TLS والـHTTP وعرض الصفحة في المتصفح.
@@ -167,11 +204,11 @@ const pageDescription = "مجلة تحريرية تقنية متخصصة في ت
             <span class="pub-row-time">12 دقيقة قراءة</span>
           </div>
 
-          <h3 class="pub-row-title">
+          <h2 class="pub-row-title">
             <a href="/ar/articles/session-hijacking/">
               كيف تُسرق جلسة تسجيل الدخول بدون سرقة كلمة السر؟
             </a>
-          </h3>
+          </h2>
 
           <p class="pub-row-excerpt">
             شرح عملي لكيفية عمل Session Cookies، ولماذا يؤدي تسريب معرّف الجلسة إلى الدخول للحساب مباشرة بدون الحاجة لكلمة المرور.
@@ -215,7 +252,7 @@ const pageDescription = "مجلة تحريرية تقنية متخصصة في ت
     <div class="container">
       <div class="footer-inner">
         <div class="footer-brand">
-          <img src="/assets/brand/logo.png" alt="" class="brand-logo-img" width="36" height="36" loading="lazy" />
+          <img src="/assets/brand/logo-transparent.png" alt="" class="brand-logo-img" width="36" height="36" loading="lazy" />
           <div>
             <div class="footer-brand-title">MOUHIB WRITEUPS</div>
             <div class="footer-brand-tagline">{SITE_CONFIG.tagline.ar}</div>

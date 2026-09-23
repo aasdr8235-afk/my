@@ -52,11 +52,12 @@ html[lang="ar"] h4 {
 
 /* Fluid Hero Heading */
 .hero-title {
-  font-size: clamp(2.1rem, 5.2vw, 3.8rem);
-  line-height: 1.18;
+  font-size: clamp(1.75rem, 4.8vw, 3.8rem);
+  line-height: 1.2;
   font-weight: 700;
   color: var(--color-ink);
   margin-block-end: 1.25rem;
+  overflow-wrap: break-word;
 }
 
 html[lang="ar"] .hero-title {

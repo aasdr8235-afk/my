@@ -2,6 +2,7 @@
 import HeroDiagram from './diagrams/HeroDiagram.astro';
 import VpnTrustModelDiagram from './diagrams/VpnTrustModelDiagram.astro';
 import BrowserRenderPipelineDiagram from './diagrams/BrowserRenderPipelineDiagram.astro';
+import ApkInstallJourneyDiagram from './diagrams/ApkInstallJourneyDiagram.astro';
 
 interface Props {
   lang: 'ar' | 'en';
@@ -10,16 +11,59 @@ interface Props {
   category: string;
   articleMeta: string;
   currentPath?: string;
+  displayTitle?: string;
+  breadcrumbCategory?: string;
+  breadcrumbCurrent?: string;
 }
 
-const { lang, title, subtitle, category, articleMeta, currentPath = '' } = Astro.props;
+const {
+  lang,
+  title,
+  subtitle,
+  category,
+  articleMeta,
+  currentPath = '',
+  displayTitle,
+  breadcrumbCategory,
+  breadcrumbCurrent
+} = Astro.props;
 
+const isApk = currentPath.includes('what-happens-when-you-install-an-apk');
 const isVpn = currentPath.includes('what-a-vpn-actually-does');
 const isDomain = currentPath.includes('what-happens-when-you-type-a-domain');
-const issueNumber = isVpn ? '03' : isDomain ? '02' : '01';
+const issueNumber = isApk ? '04' : isVpn ? '03' : isDomain ? '02' : '01';
+
+const resolvedCategory = breadcrumbCategory || category;
+const resolvedCurrent = breadcrumbCurrent || (
+  isApk ? (lang === 'ar' ? 'تثبيت APK' : 'APK Installation') :
+  isVpn ? (lang === 'ar' ? 'عمل الـVPN' : 'VPN Operation') :
+  isDomain ? (lang === 'ar' ? 'رحلة النطاق' : 'Domain Journey') :
+  (lang === 'ar' ? 'سرقة الجلسات' : 'Session Hijacking')
+);
 ---
 
 <header class="article-hero-section">
+  <!-- Lightweight Editorial Breadcrumbs (Single Owner) -->
+  <nav class="article-breadcrumb" aria-label={lang === 'ar' ? 'مسار التصفح' : 'Breadcrumbs'}>
+    <ol class="breadcrumb-list">
+      <li class="breadcrumb-item">
+        <a href={`/${lang}/`}>{lang === 'ar' ? 'الرئيسية' : 'Home'}</a>
+      </li>
+      <li class="breadcrumb-separator" aria-hidden="true">{lang === 'ar' ? '←' : '→'}</li>
+      <li class="breadcrumb-item">
+        <a href={`/${lang}/#articles`}>{lang === 'ar' ? 'المقالات' : 'Articles'}</a>
+      </li>
+      <li class="breadcrumb-separator" aria-hidden="true">{lang === 'ar' ? '←' : '→'}</li>
+      <li class="breadcrumb-item">
+        <span>{resolvedCategory}</span>
+      </li>
+      <li class="breadcrumb-separator" aria-hidden="true">{lang === 'ar' ? '←' : '→'}</li>
+      <li class="breadcrumb-item is-current" aria-current="page">
+        <span>{resolvedCurrent}</span>
+      </li>
+    </ol>
+  </nav>
+
   <!-- Top Editorial Metadata Strip -->
   <div class="hero-meta-strip">
     <div class="meta-tag-group">
@@ -52,9 +96,13 @@ const issueNumber = isVpn ? '03' : isDomain ? '02' : '01';
       </span>
     </div>
     
-    <h1 class="hero-title" style="white-space: pre-line;">
-      {title}
-    </h1>
+    {displayTitle ? (
+      <h1 class="hero-title" style="white-space: pre-line;" set:html={displayTitle} />
+    ) : (
+      <h1 class="hero-title" style="white-space: pre-line;">
+        {title}
+      </h1>
+    )}
 
     <p class="hero-subtitle">
       {subtitle}
@@ -63,7 +111,9 @@ const issueNumber = isVpn ? '03' : isDomain ? '02' : '01';
 
   <!-- Hero Technical Architectural Diagram -->
   <div class="hero-diagram-slot" style="margin-block-start: 2.5rem;">
-    {isVpn ? (
+    {isApk ? (
+      <ApkInstallJourneyDiagram lang={lang} />
+    ) : isVpn ? (
       <VpnTrustModelDiagram lang={lang} />
     ) : isDomain ? (
       <BrowserRenderPipelineDiagram lang={lang} />
@@ -139,5 +189,49 @@ const issueNumber = isVpn ? '03' : isDomain ? '02' : '01';
     font-family: var(--font-arabic);
     letter-spacing: normal !important;
     font-size: 0.8rem;
+  }
+
+  /* Breadcrumb Navigation Styles */
+  .article-breadcrumb {
+    margin-block-end: 1rem;
+  }
+
+  .breadcrumb-list {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--color-ink-muted);
+  }
+
+  .breadcrumb-item a {
+    color: var(--color-ink-muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .breadcrumb-item a:hover {
+    color: var(--color-ink);
+    text-decoration: underline;
+  }
+
+  .breadcrumb-separator {
+    opacity: 0.4;
+    user-select: none;
+    font-size: 0.75rem;
+  }
+
+  .breadcrumb-item.is-current {
+    color: var(--color-ink);
+    font-weight: 500;
+  }
+
+  :global(html[lang="ar"]) .breadcrumb-list {
+    font-family: var(--font-arabic);
+    font-size: 0.82rem;
   }
 </style>

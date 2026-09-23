@@ -27,9 +27,11 @@ const tocItems = [
   { id: 'sec-10', num: '10', title: 'Browser Critical Rendering Pipeline' }
 ];
 
-const pageTitle = "You Typed a Domain and Pressed Enter. What Actually Happened?";
+const pageTitle = "What Happens When You Type a URL and Press Enter?";
 const pageSubtitle = "Between typing the domain and seeing the first pixel, your request crossed several layers across your machine and the network.";
-const pageDescription = "A step-by-step technical walkthrough of a web request: from local caches, DNS, and the gateway MAC to TCP handshakes, TLS 1.3, wire HTTP, and browser rendering.";
+const pageDescription = "What happens when you type a domain and press Enter? Follow the packet journey through recursive DNS resolution, TCP and TLS handshakes, HTTP/3, and browser rendering.";
+const socialTitle = "From Keystroke to Pixels: What Actually Happens Over the Wire.";
+const ogImage = "/assets/og/what-happens-when-you-type-a-domain.jpg";
 ---
 
 <ArticleLayout
@@ -43,6 +45,12 @@ const pageDescription = "A step-by-step technical walkthrough of a web request: 
   tocItems={tocItems}
   categoryText="NETWORKING / WEB"
   articleMeta="ARTICLE 02 / NETWORK REQUEST JOURNEY"
+  socialTitle={socialTitle}
+  ogImage={ogImage}
+  publishedDate="2026-09-22"
+  modifiedDate="2026-09-22"
+  breadcrumbCategory="Networking / Web Protocols"
+  breadcrumbCurrent="Domain Journey"
 >
 
   <!-- 01 / BEFORE DNS -->
@@ -283,7 +291,7 @@ Upgrade-Insecure-Requests: 1`}
     />
 
     <p>
-      These headers communicate vital runtime constraints: supported content types (<code dir="ltr">Accept</code>), compression algorithms (<code dir="ltr">Accept-Encoding: br</code>), client language preferences, and security isolation directives (<code dir="ltr">Sec-Fetch-Dest</code>).
+      These headers communicate vital runtime constraints: supported content types (<code dir="ltr">Accept</code>), compression algorithms (<code dir="ltr">Accept-Encoding: br</code>), client language preferences, and security isolation directives (<code dir="ltr">Sec-Fetch-Dest</code>). In authenticated browsing, requests also include the <code>Cookie</code> header carrying session tokens (see <a href="/en/articles/session-hijacking/" style="color: var(--color-olive); text-decoration: underline;">how session cookies work and how sessions get hijacked</a>).
     </p>
   </section>
 

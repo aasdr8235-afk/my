@@ -1,0 +1,104 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط بنية صندوق الحماية وعزل البيانات في Android' : 'Android app private data sandbox and filesystem permissions layout'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">{lang === 'ar' ? 'مخطط 06 / صندوق حماية البيانات' : 'FIGURE 06 / APP DATA SANDBOX'}</span>
+    <span>{lang === 'ar' ? 'عزل نظام الملفات وصلاحيات الوصول الداخلية' : 'FILESYSTEM PRIVACY & POSIX PERMISSION BOUNDARIES'}</span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 680px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="sandbox-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+        <marker id="sb-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="sb-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Left Box: Compatibility Symlink vs Actual Canonical Path -->
+      <g transform="translate(25, 45)">
+        <rect width="235" height="195" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="235" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">01 / STORAGE LAYOUT</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">Filesystem Locations</text>
+        <line x1="10" y1="52" x2="225" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+
+        <text x="10" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Canonical User 0 Path:</text>
+        <text x="10" y="86" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="600" fill="#5F6849">/data/user/0/com.example.app/</text>
+
+        <text x="10" y="112" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Legacy Compatibility View:</text>
+        <text x="10" y="128" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">/data/data/com.example.app</text>
+        <text x="10" y="142" font-family="sans-serif" font-size="7" fill="#5F5D56">↳ Symbolic link to /data/user/0</text>
+
+        <rect x="10" y="156" width="215" height="26" fill="url(#sandbox-hatch)" stroke="#151515" stroke-width="0.6"/>
+        <text x="16" y="172" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">Multi-User Ready Storage Engine</text>
+      </g>
+
+      <!-- Arrow 1 -> 2 (Olive) -->
+      <path d="M 260 142 L 290 142" stroke="#5F6849" stroke-width="1.4" marker-end="url(#sb-arrow-olive)"/>
+
+      <!-- Center Box: Sandbox Internal Directory Tree -->
+      <g transform="translate(295, 45)">
+        <rect width="270" height="195" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.8"/>
+        <rect width="270" height="22" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">02 / PRIVATE APP DIRECTORY (drwx------)</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">Owner: u0_a142:u0_a142 (Mode 0700)</text>
+        <line x1="10" y1="52" x2="260" y2="52" stroke="#5F6849" stroke-width="0.5" stroke-opacity="0.3"/>
+
+        <!-- Subdirs -->
+        <g transform="translate(10, 60)">
+          <text x="8" y="14" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">├── databases/      <tspan fill="#5F5D56"># SQLite / Room DBs</tspan></text>
+          <text x="8" y="30" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">├── shared_prefs/   <tspan fill="#5F5D56"># XML preferences &amp; tokens</tspan></text>
+          <text x="8" y="46" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">├── files/          <tspan fill="#5F5D56"># Internal persistent files</tspan></text>
+          <text x="8" y="62" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">├── cache/          <tspan fill="#5F5D56"># Disposable HTTP / images</tspan></text>
+          <text x="8" y="78" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">└── code_cache/     <tspan fill="#5F5D56"># Compiled JIT / AOT files</tspan></text>
+        </g>
+
+        <rect x="10" y="152" width="250" height="28" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="16" y="166" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#5F6849">Linux Mode 0700:</text>
+        <text x="16" y="176" font-family="sans-serif" font-size="7" fill="#151515">Only processes matching UID 10142 can open/read</text>
+      </g>
+
+      <!-- Arrow 2 -> 3 -->
+      <path d="M 565 142 L 595 142" stroke="#151515" stroke-width="1.4" marker-end="url(#sb-arrow)"/>
+
+      <!-- Right Box: Access Attempt by Other Apps -->
+      <g transform="translate(600, 45)">
+        <rect width="195" height="195" fill="#FAF8F2" stroke="#151515" stroke-width="1.4"/>
+        <rect width="195" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">03 / ISOLATION BARRIER</text>
+        <text x="8" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">Other Apps (UID 10143)</text>
+        <line x1="8" y1="52" x2="187" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        
+        <rect x="8" y="60" width="179" height="60" fill="#F4F1E9" stroke="#151515" stroke-width="0.7"/>
+        <text x="12" y="78" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">open("/data/user/0/...")</text>
+        <text x="12" y="96" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#C3423F">errno = EACCES</text>
+        <text x="12" y="110" font-family="sans-serif" font-size="7" fill="#5F5D56">Permission denied by kernel</text>
+
+        <text x="8" y="142" font-family="sans-serif" font-size="7" fill="#5F5D56">• No root access = no cross-read</text>
+        <text x="8" y="156" font-family="sans-serif" font-size="7" fill="#5F5D56">• Sharing requires ContentProvider</text>
+        <text x="8" y="170" font-family="sans-serif" font-size="7" fill="#5F5D56">• Or explicit FileProvider URI grant</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 06: صندوق حماية البيانات في نظام الملفات — يُنشئ installd مجلدًا خاصًا للتطبيق مملوكًا حصريًا لمعرّف UID الخاص به بصلاحية 0700، مما يجعل محاولة أي تطبيق آخر لقراءة قواعد البيانات أو التوكنز مرفوضة على مستوى نواة لينكس مباشرة.'
+      : 'Figure 06: App data sandbox on the filesystem — installd creates an isolated directory owned strictly by the app UID with POSIX mode 0700. Other apps attempting to open databases or preference files are denied at the Linux kernel level.'}
+  </figcaption>
+</figure>

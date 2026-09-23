@@ -32,7 +32,9 @@ const tocItems = [
 
 const pageTitle = "كيف تُسرق جلسة تسجيل الدخول بدون سرقة كلمة السر؟";
 const pageSubtitle = "أحيانًا المهاجم لا يحتاج كلمة السر أصلًا. يكفيه الشيء الذي يثبت أنك سجّلت الدخول بالفعل.";
-const pageDescription = "شرح عملي لكيفية عمل جلسات تسجيل الدخول، ملفات تعريف الارتباط (Session Cookies)، ولماذا يؤدي تسريب معرّف الجلسة إلى الدخول للحساب مباشرة بدون الحاجة لكلمة المرور.";
+const pageDescription = "كيف تُسرق جلسة تسجيل الدخول دون معرفة كلمة السر؟ شرح تفصيلي لـSession Cookies، معايير HttpOnly وSameSite، وهجمات XSS وMan-in-the-Middle وكيفية حماية الجلسات.";
+const socialTitle = "كيف تستمر جلسة الموقع حتى بعد إغلاق المتصفح؟ وكيف تُخطف؟";
+const ogImage = "/assets/og/session-hijacking.jpg";
 ---
 
 <ArticleLayout
@@ -46,6 +48,12 @@ const pageDescription = "شرح عملي لكيفية عمل جلسات تسجي
   tocItems={tocItems}
   categoryText="الأمن السيبراني / أمن الويب"
   articleMeta="مقال 01 / أمن الجلسات"
+  socialTitle={socialTitle}
+  ogImage={ogImage}
+  publishedDate="2026-09-22"
+  modifiedDate="2026-09-22"
+  breadcrumbCategory="الأمن السيبراني / أمن الويب"
+  breadcrumbCurrent="سرقة الجلسات"
 >
 
   <!-- 01 / THE LOGIN -->
@@ -279,7 +287,7 @@ Sec-Fetch-Site: same-origin`}
 
     <CodeBlock
       title="Hardened Set-Cookie Header Directive"
-      code={`Set-Cookie: session_id=a3f9e7c4b281f90e3d5a; Path=/; Domain=mouhibmahadbi.online; Secure; HttpOnly; SameSite=Lax; Max-Age=43200`}
+      code={`Set-Cookie: session_id=a3f9e7c4b281f90e3d5a; Path=/; Domain=writeups.mouhibmahadbi.online; Secure; HttpOnly; SameSite=Lax; Max-Age=43200`}
       language="http"
     />
 
@@ -293,7 +301,7 @@ Sec-Fetch-Site: same-origin`}
 
     <h3>2. خاصية <span class="term" dir="ltr">Secure</span></h3>
     <p>
-      تمنع المتصفح من إرسال الكوكي عبر أي اتصال غير مشفر (<bdi dir="ltr">Plaintext HTTP</bdi>). يضمن هذا أن معرّف الجلسة لا يسير في أسلاك الشبكة إلا داخل نفق تشفير آمن ببروتوكول <bdi dir="ltr">TLS / HTTPS</bdi>، مما يحيّد هجمات التنصت والتقاط الحزم (<bdi dir="ltr">Sniffing / MitM</bdi>) على الشبكات العامة.
+      تمنع المتصفح من إرسال الكوكي عبر أي اتصال غير مشفر (<bdi dir="ltr">Plaintext HTTP</bdi>). يضمن هذا أن معرّف الجلسة لا يسير في أسلاك الشبكة إلا بعد إتمام <a href="/ar/articles/what-happens-when-you-type-a-domain/#sec-05" style="color: var(--color-olive); text-decoration: underline;">مصافحة TLS وتشفير القناة</a> ببروتوكول <bdi dir="ltr">HTTPS</bdi>، مما يحيّد هجمات التنصت والتقاط الحزم (<bdi dir="ltr">Sniffing / MitM</bdi>) على الشبكات العامة.
     </p>
 
     <h3>3. خاصية <span class="term" dir="ltr">SameSite</span></h3>

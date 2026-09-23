@@ -10,6 +10,12 @@ interface Props {
   arUrl: string;
   enUrl: string;
   currentPath: string;
+  socialTitle?: string;
+  ogType?: 'website' | 'article';
+  ogImage?: string;
+  ogImageAlt?: string;
+  articleSection?: string;
+  articleTags?: string[];
   publishedDate?: string;
   modifiedDate?: string;
 }
@@ -21,6 +27,12 @@ const {
   arUrl,
   enUrl,
   currentPath,
+  socialTitle,
+  ogType = 'article',
+  ogImage,
+  ogImageAlt,
+  articleSection,
+  articleTags = [],
   publishedDate = '2026-09-22',
   modifiedDate = '2026-09-22'
 } = Astro.props;
@@ -30,10 +42,79 @@ const fullArUrl = getCanonicalUrl(arUrl);
 const fullEnUrl = getCanonicalUrl(enUrl);
 const dir = lang === 'ar' ? 'rtl' : 'ltr';
 
-// JSON-LD Schemas
+// Smart title: avoid "Mouhib Writeups — … | Mouhib Writeups" duplication
+const fullTitle = title.includes(SITE_CONFIG.name)
+  ? title
+  : `${title} | ${SITE_CONFIG.name}`;
+
+// Social title (can differ from SEO title for high click appeal)
+const resolvedSocialTitle = socialTitle
+  ? (socialTitle.includes(SITE_CONFIG.name) ? socialTitle : `${socialTitle} | ${SITE_CONFIG.name}`)
+  : fullTitle;
+
+// OG image resolution
+const resolvedOgImage = `${SITE_CONFIG.url}${ogImage || SITE_CONFIG.defaultOgImage}`;
+const resolvedOgImageAlt = ogImageAlt || `${SITE_CONFIG.name} — ${lang === 'ar' ? SITE_CONFIG.tagline.ar : SITE_CONFIG.tagline.en}`;
+
+// Determine if this is a homepage/index (for schema selection)
+const isHomePage = ogType === 'website';
+const isArticlePage = ogType === 'article';
+
+// JSON-LD: Person entity (shared across pages)
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${SITE_CONFIG.url}/#person`,
+  'name': SITE_CONFIG.author.name,
+  'url': `${SITE_CONFIG.url}/${lang}/`,
+  'description': lang === 'ar' ? SITE_CONFIG.author.bio.ar : SITE_CONFIG.author.bio.en,
+  'image': `${SITE_CONFIG.url}/assets/brand/logo-transparent.png`
+};
+
+// JSON-LD: WebSite schema (for homepages)
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${SITE_CONFIG.url}/#website`,
+  'name': SITE_CONFIG.name,
+  'url': SITE_CONFIG.url,
+  'description': lang === 'ar' ? SITE_CONFIG.tagline.ar : SITE_CONFIG.tagline.en,
+  'inLanguage': [lang === 'ar' ? 'ar' : 'en'],
+  'author': {
+    '@id': `${SITE_CONFIG.url}/#person`
+  },
+  'publisher': {
+    '@type': 'Organization',
+    '@id': `${SITE_CONFIG.url}/#organization`,
+    'name': SITE_CONFIG.name,
+    'logo': {
+      '@type': 'ImageObject',
+      'url': `${SITE_CONFIG.url}/assets/brand/logo-transparent.png`
+    }
+  }
+};
+
+// JSON-LD: CollectionPage (for homepages)
+const collectionSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  '@id': `${canonicalUrl}#collection`,
+  'url': canonicalUrl,
+  'name': lang === 'ar' ? 'جميع المقالات التقنية' : 'All Technical Writeups',
+  'description': lang === 'ar' ? SITE_CONFIG.tagline.ar : SITE_CONFIG.tagline.en,
+  'isPartOf': {
+    '@id': `${SITE_CONFIG.url}/#website`
+  },
+  'about': {
+    '@id': `${SITE_CONFIG.url}/#person`
+  }
+};
+
+// JSON-LD: TechArticle schema (for article pages)
 const articleSchema = {
   '@context': 'https://schema.org',
   '@type': 'TechArticle',
+  '@id': `${canonicalUrl}#article`,
   'headline': title,
   'description': description,
   'inLanguage': lang,
@@ -43,41 +124,95 @@ const articleSchema = {
   },
   'author': {
     '@type': 'Person',
+    '@id': `${SITE_CONFIG.url}/#person`,
     'name': SITE_CONFIG.author.name
   },
   'publisher': {
     '@type': 'Organization',
+    '@id': `${SITE_CONFIG.url}/#organization`,
     'name': SITE_CONFIG.name,
     'logo': {
       '@type': 'ImageObject',
-      'url': `${SITE_CONFIG.url}/assets/brand/logo.png`
+      'url': `${SITE_CONFIG.url}/assets/brand/logo-transparent.png`
     }
   },
+  'image': resolvedOgImage,
   'datePublished': publishedDate,
-  'dateModified': modifiedDate
+  'dateModified': modifiedDate,
+  ...(articleSection && { 'articleSection': articleSection })
 };
 
+// JSON-LD: BreadcrumbList (for article pages)
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
+  '@id': `${canonicalUrl}#breadcrumb`,
   'itemListElement': [
     {
       '@type': 'ListItem',
       'position': 1,
-      'name': SITE_CONFIG.name,
-      'item': SITE_CONFIG.url
+      'name': lang === 'ar' ? 'الرئيسية' : 'Home',
+      'item': `${SITE_CONFIG.url}/${lang}/`
     },
     {
       '@type': 'ListItem',
       'position': 2,
       'name': lang === 'ar' ? 'المقالات' : 'Articles',
+      'item': `${SITE_CONFIG.url}/${lang}/#articles`
+    },
+    ...(articleSection ? [{
+      '@type': 'ListItem',
+      'position': 3,
+      'name': articleSection,
       'item': `${SITE_CONFIG.url}/${lang}/`
+    }] : []),
+    {
+      '@type': 'ListItem',
+      'position': articleSection ? 4 : 3,
+      'name': title,
+      'item': canonicalUrl
+    }
+  ]
+};
+
+// JSON-LD: ItemList (for index pages listing articles)
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  'name': lang === 'ar' ? 'جميع المقالات المنشورة' : 'All Published Writeups',
+  'numberOfItems': 4,
+  'itemListElement': [
+    {
+      '@type': 'ListItem',
+      'position': 1,
+      'url': `${SITE_CONFIG.url}/${lang}/articles/what-happens-when-you-install-an-apk/`,
+      'name': lang === 'ar'
+        ? 'ضغطت Install على APK… ماذا حدث داخل Android؟'
+        : 'You Pressed Install on an APK. What Actually Happens Inside Android?'
+    },
+    {
+      '@type': 'ListItem',
+      'position': 2,
+      'url': `${SITE_CONFIG.url}/${lang}/articles/what-a-vpn-actually-does/`,
+      'name': lang === 'ar'
+        ? 'ماذا يفعل VPN فعلًا؟ ومن يستطيع رؤية اتصالك؟'
+        : 'What Does a VPN Actually Do — and Who Can Still See Your Traffic?'
     },
     {
       '@type': 'ListItem',
       'position': 3,
-      'name': title,
-      'item': canonicalUrl
+      'url': `${SITE_CONFIG.url}/${lang}/articles/what-happens-when-you-type-a-domain/`,
+      'name': lang === 'ar'
+        ? 'كتبت اسم موقع وضغطت Enter… ماذا يحدث فعلًا؟'
+        : 'What Happens When You Type a URL and Press Enter?'
+    },
+    {
+      '@type': 'ListItem',
+      'position': 4,
+      'url': `${SITE_CONFIG.url}/${lang}/articles/session-hijacking/`,
+      'name': lang === 'ar'
+        ? 'كيف تُسرق جلسة تسجيل الدخول بدون سرقة كلمة السر؟'
+        : 'How Session Hijacking Works Without Stealing the Password'
     }
   ]
 };
@@ -89,47 +224,96 @@ const breadcrumbSchema = {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="format-detection" content="telephone=no" />
-    
-    <!-- Title & SEO Metadata -->
-    <title>{title} | {SITE_CONFIG.name}</title>
+
+    <!-- Title & Core SEO Metadata -->
+    <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <meta name="author" content={SITE_CONFIG.author.name} />
     <link rel="canonical" href={canonicalUrl} />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="theme-color" content={SITE_CONFIG.themeColor} />
+    <meta name="color-scheme" content="light" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- RSS & Sitemap Discovery -->
     <link rel="alternate" type="application/rss+xml" title="Mouhib Writeups" href="/rss.xml" />
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
 
-    <!-- Hreflang Alternates -->
+    <!-- Hreflang Alternates (Strict Language Pairs) -->
     <link rel="alternate" hreflang="ar" href={fullArUrl} />
     <link rel="alternate" hreflang="en" href={fullEnUrl} />
-    <link rel="alternate" hreflang="x-default" href={fullArUrl} />
+    {isHomePage && <link rel="alternate" hreflang="x-default" href={fullArUrl} />}
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/assets/brand/logo.png" />
+    <!-- Favicon Suite -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="article" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={SITE_CONFIG.name} />
     <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:title" content={`${title} | ${SITE_CONFIG.name}`} />
+    <meta property="og:title" content={resolvedSocialTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={`${SITE_CONFIG.url}${SITE_CONFIG.defaultOgImage}`} />
+    <meta property="og:image" content={resolvedOgImage} />
+    <meta property="og:image:width" content={String(SITE_CONFIG.ogImageWidth)} />
+    <meta property="og:image:height" content={String(SITE_CONFIG.ogImageHeight)} />
+    <meta property="og:image:alt" content={resolvedOgImageAlt} />
     <meta property="og:locale" content={lang === 'ar' ? 'ar_AR' : 'en_US'} />
+    <meta property="og:locale:alternate" content={lang === 'ar' ? 'en_US' : 'ar_AR'} />
+
+    <!-- Article-specific Open Graph -->
+    {isArticlePage && (
+      <>
+        <meta property="article:published_time" content={publishedDate} />
+        <meta property="article:modified_time" content={modifiedDate} />
+        <meta property="article:author" content={SITE_CONFIG.author.name} />
+        {articleSection && <meta property="article:section" content={articleSection} />}
+      </>
+    )}
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={`${title} | ${SITE_CONFIG.name}`} />
+    <meta name="twitter:title" content={resolvedSocialTitle} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={`${SITE_CONFIG.url}${SITE_CONFIG.defaultOgImage}`} />
+    <meta name="twitter:image" content={resolvedOgImage} />
+    <meta name="twitter:image:alt" content={resolvedOgImageAlt} />
 
-    <!-- Structured Data JSON-LD -->
-    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
-    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+    <!-- Structured Data JSON-LD (Concise, Stable @id) -->
+    {isHomePage ? (
+      <>
+        <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+        <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+        <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+        <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+      </>
+    ) : (
+      <>
+        <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+        <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+      </>
+    )}
 
-    <!-- Zero-Flash Branded Fast Loader Styles -->
+    <!-- Branded Asset Loading Bar & Top Progress Styles -->
     <style is:inline>
+      #top-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2.5px;
+        width: 0%;
+        background-color: #5F6849;
+        z-index: 10001;
+        box-shadow: 0 1px 4px rgba(95, 104, 73, 0.35);
+        pointer-events: none;
+        transition: width 0.12s linear, opacity 0.3s ease;
+        opacity: 1;
+      }
+      #top-loader.is-finished {
+        opacity: 0;
+      }
       #app-loader {
         position: fixed;
         inset: 0;
@@ -161,8 +345,8 @@ const breadcrumbSchema = {
         transform: translateY(-8px);
       }
       .loader-logo-img {
-        width: 48px;
-        height: 48px;
+        width: 52px;
+        height: 52px;
         border-radius: 50%;
         object-fit: contain;
         display: block;
@@ -185,13 +369,28 @@ const breadcrumbSchema = {
         margin: 0;
         letter-spacing: 0.04em;
       }
+      html[lang="ar"] .loader-tagline {
+        direction: rtl;
+        font-family: 'Noto Sans Arabic', 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 0.8rem;
+        letter-spacing: 0;
+      }
+      .loader-progress-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.55rem;
+        margin-top: 1.35rem;
+        width: 250px;
+        max-width: 82vw;
+      }
       .loader-bar-track {
-        width: 140px;
-        height: 2px;
-        background-color: rgba(21, 21, 21, 0.08);
-        margin-top: 1.25rem;
+        width: 100%;
+        height: 3.5px;
+        background-color: rgba(21, 21, 21, 0.09);
         position: relative;
         overflow: hidden;
+        border-radius: 3px;
       }
       .loader-bar-fill {
         position: absolute;
@@ -200,82 +399,219 @@ const breadcrumbSchema = {
         height: 100%;
         width: 0%;
         background-color: #5F6849;
-        animation: loader-progress 0.75s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        border-radius: 3px;
+        transition: width 0.08s ease-out;
       }
-      @keyframes loader-progress {
-        0% { width: 0%; }
-        50% { width: 70%; }
-        100% { width: 100%; }
+      .loader-status-row {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        direction: ltr !important;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0.02em;
+        color: #5F5D56;
+      }
+      .loader-status-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 185px;
+      }
+      .loader-percent-text {
+        font-weight: 700;
+        color: #151515;
+        font-variant-numeric: tabular-nums;
       }
       @media (prefers-reduced-motion: reduce) {
-        .loader-bar-fill {
-          animation: none;
-          width: 100%;
+        .loader-bar-fill, #top-loader {
+          transition: none !important;
+          width: 100% !important;
         }
         #app-loader {
-          transition: none;
+          transition: none !important;
         }
       }
     </style>
+    <noscript>
+      <style>
+        #app-loader, #top-loader { display: none !important; }
+      </style>
+    </noscript>
   </head>
   <body>
-    <!-- Branded Initial Loading Overlay -->
+    <!-- Persistent Top Loading Bar (Syncs with asset loading & route transitions) -->
+    <div id="top-loader" aria-hidden="true"></div>
+
+    <!-- Branded Initial Loading Overlay (Non-blocking: static content renders underneath) -->
     <div id="app-loader" aria-hidden="true" role="status">
       <div class="loader-brand-box">
-        <img src="/assets/brand/logo.png" alt="Mouhib Writeups" class="loader-logo-img" width="48" height="48" />
+        <img src="/assets/brand/logo-transparent.png" alt="Mouhib Writeups" class="loader-logo-img" width="52" height="52" />
         <h2 class="loader-title">MOUHIB WRITEUPS</h2>
-        <p class="loader-tagline">Technical notes on security, networks & systems</p>
-        <div class="loader-bar-track">
-          <div class="loader-bar-fill"></div>
+        <p class="loader-tagline">{lang === 'ar' ? SITE_CONFIG.tagline.ar : SITE_CONFIG.tagline.en}</p>
+        <div class="loader-progress-wrap">
+          <div class="loader-bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="loader-track">
+            <div class="loader-bar-fill" id="loader-bar-fill"></div>
+          </div>
+          <div class="loader-status-row">
+            <span class="loader-status-text" id="loader-status-text">{lang === 'ar' ? 'تهيئة الأصول...' : 'INITIALIZING...'}</span>
+            <span class="loader-percent-text" id="loader-percent-text">0%</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Dismiss Script: Instant for repeat navigation, gentle for first load -->
+    <!-- Real Asset Tracking & Progress Script -->
     <script is:inline>
       (function() {
-        var isVisited = sessionStorage.getItem('mouhib_visited');
-        var loader = document.getElementById('app-loader');
+        var topLoader = document.getElementById('top-loader');
+        var appLoader = document.getElementById('app-loader');
+        var barFill = document.getElementById('loader-bar-fill');
+        var percentText = document.getElementById('loader-percent-text');
+        var statusText = document.getElementById('loader-status-text');
+        var track = document.getElementById('loader-track');
 
-        function dismissLoader() {
-          document.documentElement.classList.add('is-loaded');
-          sessionStorage.setItem('mouhib_visited', 'true');
-          if (loader) {
+        var isArabic = document.documentElement.lang === 'ar';
+        var strInit = isArabic ? 'تهيئة الموارد...' : 'INITIALIZING ASSETS...';
+        var strStyles = isArabic ? 'معالجة الأنماط...' : 'STYLES READY';
+        var strFonts = isArabic ? 'تحميل الخطوط...' : 'FONTS LOADED';
+        var strMedia = isArabic ? 'فحص الوسائط' : 'CHECKING ASSETS';
+        var strReady = isArabic ? 'اكتمل التحميل' : 'READY';
+
+        var targetProgress = 14;
+        var currentProgress = 0;
+        var isDismissed = false;
+
+        function updateUI(val, status) {
+          var clamped = Math.min(100, Math.max(0, val));
+          if (barFill) barFill.style.width = clamped + '%';
+          if (topLoader) topLoader.style.width = clamped + '%';
+          if (percentText) percentText.textContent = Math.round(clamped) + '%';
+          if (track) track.setAttribute('aria-valuenow', Math.round(clamped));
+          if (status && statusText) statusText.textContent = status;
+        }
+
+        function finish() {
+          if (isDismissed) return;
+          isDismissed = true;
+          updateUI(100, strReady);
+          setTimeout(function() {
+            document.documentElement.classList.add('is-loaded');
+            if (topLoader) topLoader.classList.add('is-finished');
             setTimeout(function() {
-              if (loader && loader.parentNode) {
-                loader.parentNode.removeChild(loader);
+              if (appLoader && appLoader.parentNode) {
+                appLoader.parentNode.removeChild(appLoader);
               }
-            }, 380);
+              if (topLoader) {
+                topLoader.style.width = '0%';
+                topLoader.classList.remove('is-finished');
+              }
+            }, 350);
+          }, 140);
+        }
+
+        function tick() {
+          if (isDismissed) return;
+          if (currentProgress < targetProgress) {
+            var diff = targetProgress - currentProgress;
+            var step = Math.max(0.7, diff * 0.16);
+            currentProgress = Math.min(targetProgress, currentProgress + step);
+            updateUI(currentProgress);
           }
-        }
-
-        if (isVisited) {
-          dismissLoader();
-          return;
-        }
-
-        var startTime = Date.now();
-        var hardTimeout = setTimeout(dismissLoader, 1100);
-
-        function onReady() {
-          var elapsed = Date.now() - startTime;
-          var minDuration = 350;
-          if (elapsed >= minDuration) {
-            clearTimeout(hardTimeout);
-            dismissLoader();
+          if (currentProgress < 100) {
+            requestAnimationFrame(tick);
           } else {
-            setTimeout(function() {
-              clearTimeout(hardTimeout);
-              dismissLoader();
-            }, minDuration - elapsed);
+            finish();
           }
         }
+        requestAnimationFrame(tick);
 
-        if (document.readyState === 'complete') {
-          onReady();
-        } else {
-          window.addEventListener('load', onReady, { once: true });
+        // 1. Stylesheets detection
+        if (document.styleSheets && document.styleSheets.length > 0) {
+          targetProgress = Math.max(targetProgress, 28);
+          if (statusText) statusText.textContent = strStyles;
         }
+
+        // 2. Fonts readiness
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(function() {
+            targetProgress = Math.max(targetProgress, 52);
+            if (statusText) statusText.textContent = strFonts;
+          }).catch(function() {
+            targetProgress = Math.max(targetProgress, 45);
+          });
+        } else {
+          targetProgress = Math.max(targetProgress, 45);
+        }
+
+        // 3. Document images & assets
+        function trackImages() {
+          var imgs = Array.prototype.slice.call(document.images || []);
+          if (imgs.length === 0) {
+            targetProgress = Math.max(targetProgress, 80);
+            return;
+          }
+          var total = imgs.length;
+          var done = 0;
+          function onImg() {
+            done++;
+            var pct = 52 + (done / total) * 36;
+            targetProgress = Math.max(targetProgress, pct);
+            if (statusText) {
+              statusText.textContent = strMedia + ' [' + done + '/' + total + ']';
+            }
+          }
+          imgs.forEach(function(img) {
+            if (img.complete) {
+              onImg();
+            } else {
+              img.addEventListener('load', onImg, { once: true });
+              img.addEventListener('error', onImg, { once: true });
+            }
+          });
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function() {
+            targetProgress = Math.max(targetProgress, 40);
+            trackImages();
+          }, { once: true });
+        } else {
+          trackImages();
+        }
+
+        // 4. Window load complete
+        if (document.readyState === 'complete') {
+          targetProgress = 100;
+        } else {
+          window.addEventListener('load', function() {
+            targetProgress = 100;
+          }, { once: true });
+        }
+
+        // 5. Safety timeout (ensures it never hangs on slow network)
+        setTimeout(function() {
+          targetProgress = 100;
+        }, 1200);
+
+        // 6. Navigation indicator on internal link clicks
+        document.addEventListener('click', function(e) {
+          var a = e.target.closest('a');
+          if (!a) return;
+          var href = a.getAttribute('href');
+          if (!href || href.startsWith('#') || href.startsWith('javascript:') || a.target === '_blank') return;
+          if (href.startsWith('/') || href.startsWith(window.location.origin)) {
+            if (topLoader) {
+              topLoader.classList.remove('is-finished');
+              topLoader.style.width = '0%';
+              topLoader.style.opacity = '1';
+              setTimeout(function() {
+                topLoader.style.width = '75%';
+              }, 20);
+            }
+          }
+        });
       })();
     </script>
 

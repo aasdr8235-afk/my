@@ -2,51 +2,65 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Mouhib Writeups</title>
-    <link>https://writeups.mouhibmahadbi.online/</link>
+    <link>https://writeups.mouhibmahadbi.online/ar/</link>
     <description>Technical notes on security, networks and systems by Mouhib MH.</description>
     <language>ar</language>
     <atom:link href="https://writeups.mouhibmahadbi.online/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>ضغطت Install على APK… ماذا يحدث داخل Android؟</title>
+      <link>https://writeups.mouhibmahadbi.online/ar/articles/what-happens-when-you-install-an-apk/</link>
+      <guid>https://writeups.mouhibmahadbi.online/ar/articles/what-happens-when-you-install-an-apk/</guid>
+      <pubDate>Wed, 23 Sep 2026 12:00:00 GMT</pubDate>
+      <description>ماذا يفعل Android بملف APK عند التثبيت؟ شرح خطوة بخطوة لـManifest، التوقيع، UID، Sandbox، الصلاحيات وAndroid Runtime قبل تشغيل التطبيق.</description>
+    </item>
+    <item>
+      <title>What Happens When You Install an APK on Android?</title>
+      <link>https://writeups.mouhibmahadbi.online/en/articles/what-happens-when-you-install-an-apk/</link>
+      <guid>https://writeups.mouhibmahadbi.online/en/articles/what-happens-when-you-install-an-apk/</guid>
+      <pubDate>Wed, 23 Sep 2026 12:00:00 GMT</pubDate>
+      <description>What happens inside Android when you install an APK? Follow the package from manifest and signing checks to UID isolation, permissions, the app sandbox and ART.</description>
+    </item>
+    <item>
+      <title>ماذا يفعل VPN فعلًا؟ ومن يستطيع رؤية اتصالك؟</title>
+      <link>https://writeups.mouhibmahadbi.online/ar/articles/what-a-vpn-actually-does/</link>
+      <guid>https://writeups.mouhibmahadbi.online/ar/articles/what-a-vpn-actually-does/</guid>
+      <pubDate>Tue, 22 Sep 2026 12:00:00 GMT</pubDate>
+      <description>ماذا يفعل VPN فعليًا لحركة بياناتك؟ توضيح تقني لما يراه مزود الإنترنت (ISP)، الفرق بين تشفير VPN وتشفير HTTPS، وفهم حدود الخصوصية دون مبالغات تسويقية.</description>
+    </item>
+    <item>
+      <title>What Does a VPN Actually Do — and Who Can Still See Your Traffic?</title>
+      <link>https://writeups.mouhibmahadbi.online/en/articles/what-a-vpn-actually-does/</link>
+      <guid>https://writeups.mouhibmahadbi.online/en/articles/what-a-vpn-actually-does/</guid>
+      <pubDate>Tue, 22 Sep 2026 12:00:00 GMT</pubDate>
+      <description>What does a VPN actually do to your traffic? A technical look at what your ISP sees, how VPN tunnels interact with HTTPS, and the real boundaries of network privacy.</description>
+    </item>
+    <item>
+      <title>كتبت اسم موقع وضغطت Enter… ماذا يحدث فعلًا؟</title>
+      <link>https://writeups.mouhibmahadbi.online/ar/articles/what-happens-when-you-type-a-domain/</link>
+      <guid>https://writeups.mouhibmahadbi.online/ar/articles/what-happens-when-you-type-a-domain/</guid>
+      <pubDate>Tue, 22 Sep 2026 12:00:00 GMT</pubDate>
+      <description>ماذا يحدث في الشبكة والأنظمة عند كتابة اسم نطاق والضغط على Enter؟ رحلة تفصيلية من استعلام DNS والـTLS Handshake حتى جلب بيانات HTTP ورسم المتصفح للصفحة.</description>
+    </item>
+    <item>
+      <title>What Happens When You Type a URL and Press Enter?</title>
+      <link>https://writeups.mouhibmahadbi.online/en/articles/what-happens-when-you-type-a-domain/</link>
+      <guid>https://writeups.mouhibmahadbi.online/en/articles/what-happens-when-you-type-a-domain/</guid>
+      <pubDate>Tue, 22 Sep 2026 12:00:00 GMT</pubDate>
+      <description>What happens when you type a domain and press Enter? Follow the packet journey through recursive DNS resolution, TCP and TLS handshakes, HTTP/3, and browser rendering.</description>
+    </item>
     <item>
       <title>كيف تُسرق جلسة تسجيل الدخول بدون سرقة كلمة السر؟</title>
       <link>https://writeups.mouhibmahadbi.online/ar/articles/session-hijacking/</link>
       <guid>https://writeups.mouhibmahadbi.online/ar/articles/session-hijacking/</guid>
       <pubDate>Tue, 22 Sep 2026 12:00:00 GMT</pubDate>
-      <description>شرح تقني لكيفية عمل جلسات تسجيل الدخول، Session Cookies، ولماذا يمكن أن يؤدي تسريب جلسة صالحة إلى الوصول للحساب حتى بدون معرفة كلمة السر.</description>
+      <description>كيف تُسرق جلسة تسجيل الدخول دون معرفة كلمة السر؟ شرح تفصيلي لـSession Cookies، معايير HttpOnly وSameSite، وهجمات XSS وMan-in-the-Middle وكيفية حماية الجلسات.</description>
     </item>
     <item>
-      <title>How Can a Session Be Stolen Without Stealing the Password?</title>
+      <title>How Session Hijacking Works Without Stealing the Password</title>
       <link>https://writeups.mouhibmahadbi.online/en/articles/session-hijacking/</link>
       <guid>https://writeups.mouhibmahadbi.online/en/articles/session-hijacking/</guid>
       <pubDate>Tue, 22 Sep 2026 12:00:00 GMT</pubDate>
-      <description>A deep-dive technical examination into HTTP session cookies, bearer token trust models, and mitigating session hijacking.</description>
-    </item>
-    <item>
-      <title>كتبت اسم موقع وضغطت Enter… ماذا حدث فعلًا؟</title>
-      <link>https://writeups.mouhibmahadbi.online/ar/articles/what-happens-when-you-type-a-domain/</link>
-      <guid>https://writeups.mouhibmahadbi.online/ar/articles/what-happens-when-you-type-a-domain/</guid>
-      <pubDate>Tue, 22 Sep 2026 12:00:00 GMT</pubDate>
-      <description>شرح خطوة بخطوة لما يحدث خلف الكواليس: من الذاكرة المحلية وDNS وبوابة الراوتر إلى مصافحات TCP/TLS والـHTTP وعرض الصفحة في المتصفح.</description>
-    </item>
-    <item>
-      <title>You Typed a Domain and Pressed Enter. What Actually Happened?</title>
-      <link>https://writeups.mouhibmahadbi.online/en/articles/what-happens-when-you-type-a-domain/</link>
-      <guid>https://writeups.mouhibmahadbi.online/en/articles/what-happens-when-you-type-a-domain/</guid>
-      <pubDate>Tue, 22 Sep 2026 12:00:00 GMT</pubDate>
-      <description>A step-by-step walkthrough of what happens under the hood: from local cache, DNS and the gateway MAC to TCP/TLS handshakes, HTTP requests and browser rendering.</description>
-    </item>
-    <item>
-      <title>الـVPN لا يجعلك مختفيًا… هو فقط يغيّر من يرى ماذا</title>
-      <link>https://writeups.mouhibmahadbi.online/ar/articles/what-a-vpn-actually-does/</link>
-      <guid>https://writeups.mouhibmahadbi.online/ar/articles/what-a-vpn-actually-does/</guid>
-      <pubDate>Tue, 22 Sep 2026 12:00:00 GMT</pubDate>
-      <description>شرح مباشر وهادئ لما يفعله نفق الـVPN فعليًا: ما يراه مزود الإنترنت، ما يراه مزود الـVPN، متى تحدث تسريبات DNS، ولماذا لا يعتبر الـVPN بديلاً عن HTTPS أو مانعًا للتتبع.</description>
-    </item>
-    <item>
-      <title>A VPN Does Not Make You Invisible. It Changes Who Can See What.</title>
-      <link>https://writeups.mouhibmahadbi.online/en/articles/what-a-vpn-actually-does/</link>
-      <guid>https://writeups.mouhibmahadbi.online/en/articles/what-a-vpn-actually-does/</guid>
-      <pubDate>Tue, 22 Sep 2026 12:00:00 GMT</pubDate>
-      <description>A clear look at what an encrypted tunnel actually does: what your ISP sees, what the VPN provider can see, how DNS leaks happen, and why a VPN is not a replacement for HTTPS.</description>
+      <description>How login sessions get hijacked without passwords. A step-by-step technical breakdown of session cookies, HttpOnly and SameSite flags, XSS, and transport interception.</description>
     </item>
   </channel>
 </rss>

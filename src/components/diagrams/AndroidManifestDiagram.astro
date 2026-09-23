@@ -1,0 +1,119 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط مكونات وتصريحات ملف البيان AndroidManifest.xml' : 'Declarations and core components in AndroidManifest.xml'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">{lang === 'ar' ? 'مخطط 03 / تشريح البيان' : 'FIGURE 03 / MANIFEST SCHEMA'}</span>
+    <span>{lang === 'ar' ? 'هوية التطبيق ومكوناته وتصريحات الوصول' : 'APPLICATION IDENTITY, COMPONENT EXPOSURE & CONSTRAINTS'}</span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 270" width="100%" height="auto" style="min-width: 680px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="manifest-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+        <marker id="mnf-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="mnf-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="254" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Root Box: Binary AndroidManifest.xml -->
+      <g transform="translate(25, 45)">
+        <rect width="185" height="185" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="185" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">01 / ROOT DECLARATION</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">&lt;manifest&gt;</text>
+        <line x1="10" y1="52" x2="175" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="10" y="70" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F6849">package="com.example.app"</text>
+        <text x="10" y="86" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Unique namespace identifier</text>
+        <text x="10" y="104" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">&lt;uses-sdk&gt;</text>
+        <text x="10" y="120" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• minSdkVersion="26"</text>
+        <text x="10" y="136" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• targetSdkVersion="34"</text>
+        <rect x="10" y="148" width="165" height="22" fill="url(#manifest-hatch)" stroke="#151515" stroke-width="0.6"/>
+        <text x="16" y="163" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">Identity &amp; API Contract</text>
+      </g>
+
+      <!-- Arrow 1 -> 2 -->
+      <path d="M 210 137 L 238 137" stroke="#151515" stroke-width="1.4" marker-end="url(#mnf-arrow)"/>
+
+      <!-- 4 Core Components Grid -->
+      <g transform="translate(245, 45)">
+        <rect width="270" height="185" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.8"/>
+        <rect width="270" height="22" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">02 / 4 CORE APPLICATION COMPONENTS</text>
+        
+        <!-- Component A: Activity -->
+        <g transform="translate(10, 32)">
+          <rect width="120" height="60" fill="#FAF8F2" stroke="#151515" stroke-width="0.9"/>
+          <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">&lt;activity&gt;</text>
+          <text x="8" y="30" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Interactive UI screen</text>
+          <text x="8" y="44" font-family="sans-serif" font-size="7" fill="#5F6849">LAUNCHER / MAIN</text>
+        </g>
+
+        <!-- Component B: Service -->
+        <g transform="translate(140, 32)">
+          <rect width="120" height="60" fill="#FAF8F2" stroke="#151515" stroke-width="0.9"/>
+          <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">&lt;service&gt;</text>
+          <text x="8" y="30" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Background task execution</text>
+          <text x="8" y="44" font-family="sans-serif" font-size="7" fill="#5F6849">Foreground / WorkManager</text>
+        </g>
+
+        <!-- Component C: Receiver -->
+        <g transform="translate(10, 102)">
+          <rect width="120" height="60" fill="#FAF8F2" stroke="#151515" stroke-width="0.9"/>
+          <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">&lt;receiver&gt;</text>
+          <text x="8" y="30" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Broadcast event listener</text>
+          <text x="8" y="44" font-family="sans-serif" font-size="7" fill="#5F6849">BOOT_COMPLETED, etc.</text>
+        </g>
+
+        <!-- Component D: Provider -->
+        <g transform="translate(140, 102)">
+          <rect width="120" height="60" fill="#FAF8F2" stroke="#151515" stroke-width="0.9"/>
+          <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">&lt;provider&gt;</text>
+          <text x="8" y="30" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Structured data sharing</text>
+          <text x="8" y="44" font-family="sans-serif" font-size="7" fill="#5F6849">FileProvider / SQL</text>
+        </g>
+
+        <text x="10" y="174" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">Gatekeeper: android:exported="true|false"</text>
+      </g>
+
+      <!-- Arrow 2 -> 3 (Olive) -->
+      <path d="M 515 137 L 543 137" stroke="#5F6849" stroke-width="1.4" marker-end="url(#mnf-arrow-olive)"/>
+
+      <!-- Permissions Declarations Box -->
+      <g transform="translate(550, 45)">
+        <rect width="245" height="185" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="245" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">03 / PERMISSION REQUESTS</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">&lt;uses-permission&gt;</text>
+        <line x1="10" y1="52" x2="235" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="10" y="68" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F5D56">android.permission.CAMERA</text>
+        <text x="10" y="84" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F5D56">android.permission.INTERNET</text>
+        <text x="10" y="100" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F5D56">android.permission.POST_NOTIFICATIONS</text>
+        
+        <rect x="10" y="114" width="225" height="56" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="16" y="130" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">CRUCIAL SECURITY BOUNDARY:</text>
+        <text x="16" y="146" font-family="sans-serif" font-size="7.5" fill="#151515">• Declaration ≠ Granted Access</text>
+        <text x="16" y="160" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Runtime prompt required for dangerous APIs</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 03: هيكل وتصريحات AndroidManifest.xml — يحدد هوية الحزمة، المكونات الأربعة (Activity, Service, Receiver, Provider)، ونطاق الصلاحيات المطلوبة. مجرد وجود الصلاحية في البيان لا يعني منحها تلقائيًا.'
+      : 'Figure 03: The structural declarations in AndroidManifest.xml — defines package identity, exports the 4 core component types, and lists requested permissions. Declaring a permission does not confer automatic or unconstrained authorization.'}
+  </figcaption>
+</figure>

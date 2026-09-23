@@ -1,0 +1,104 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط تحسين وتنفيذ الشفرة عبر بيئة Android Runtime (ART)' : 'Android Runtime (ART) hybrid compilation and profile-guided execution flow'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">{lang === 'ar' ? 'مخطط 08 / محرك التنفيذ ART' : 'FIGURE 08 / ART EXECUTION PIPELINE'}</span>
+    <span>{lang === 'ar' ? 'من شفرة DEX الثنائية إلى المعالجة الهجينة' : 'FROM BYTECODE TO HYBRID AOT/JIT NATIVE EXECUTION'}</span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 680px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="art-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+        <marker id="art-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="art-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Node 1: DEX Bytecode in APK -->
+      <g transform="translate(25, 45)">
+        <rect width="180" height="195" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="180" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">01 / INPUT BYTECODE</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">classes.dex</text>
+        <line x1="10" y1="52" x2="170" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="10" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Contained inside APK</text>
+        <text x="10" y="86" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Platform-independent format</text>
+        <text x="10" y="102" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Compact register instructions</text>
+        <rect x="10" y="122" width="160" height="42" fill="url(#art-hatch)" stroke="#151515" stroke-width="0.6"/>
+        <text x="16" y="138" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">MODERN ANDROID:</text>
+        <text x="16" y="154" font-family="sans-serif" font-size="7" fill="#151515">No pure interpretation lag</text>
+      </g>
+
+      <!-- Arrow 1 -> 2 (Olive) -->
+      <path d="M 205 142 L 235 142" stroke="#5F6849" stroke-width="1.4" marker-end="url(#art-arrow-olive)"/>
+
+      <!-- Node 2: ART Hybrid Engine Core -->
+      <g transform="translate(240, 45)">
+        <rect width="280" height="195" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.8"/>
+        <rect width="280" height="22" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">02 / ANDROID RUNTIME (ART)</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">Hybrid JIT / Profile / AOT Model</text>
+        <line x1="10" y1="52" x2="270" y2="52" stroke="#5F6849" stroke-width="0.5" stroke-opacity="0.3"/>
+
+        <!-- Phase A: Initial JIT -->
+        <g transform="translate(10, 60)">
+          <rect width="260" height="34" fill="#FAF8F2" stroke="#151515" stroke-width="0.8"/>
+          <text x="8" y="14" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">PHASE 1: JIT COMPILER</text>
+          <text x="8" y="26" font-family="sans-serif" font-size="7" fill="#5F5D56">Runs code immediately; profiles hot methods in RAM</text>
+        </g>
+
+        <!-- Phase B: Profiling -->
+        <g transform="translate(10, 100)">
+          <rect width="260" height="34" fill="#FAF8F2" stroke="#5F6849" stroke-width="1.2"/>
+          <text x="8" y="14" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">PHASE 2: PROFILER (.prof)</text>
+          <text x="8" y="26" font-family="sans-serif" font-size="7" fill="#151515">Saves hot execution traces to app private storage</text>
+        </g>
+
+        <text x="12" y="158" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Balances fast app installs with maximum execution speed</text>
+        <text x="12" y="172" font-family="sans-serif" font-size="7.5" fill="#5F5D56">without draining device battery during installation</text>
+      </g>
+
+      <!-- Arrow 2 -> 3 -->
+      <path d="M 520 142 L 550 142" stroke="#151515" stroke-width="1.4" marker-end="url(#art-arrow)"/>
+
+      <!-- Node 3: Background dex2oat Optimization -->
+      <g transform="translate(555, 45)">
+        <rect width="240" height="195" fill="#FAF8F2" stroke="#151515" stroke-width="1.4"/>
+        <rect width="240" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">03 / AOT OPTIMIZATION</text>
+        <text x="8" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">Background dex2oat Daemon</text>
+        <line x1="8" y1="52" x2="232" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+
+        <rect x="8" y="60" width="224" height="60" fill="#F4F1E9" stroke="#5F6849" stroke-width="0.9"/>
+        <text x="12" y="78" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">TRIGGER: IDLE + CHARGING</text>
+        <text x="12" y="94" font-family="sans-serif" font-size="7.5" fill="#151515">• Compiles hot methods to machine code</text>
+        <text x="12" y="108" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">• Generates .odex / .vdex / .art cache</text>
+
+        <text x="10" y="142" font-family="sans-serif" font-size="7" fill="#5F5D56">• Cloud profiles (Play) pre-compile hot paths</text>
+        <text x="10" y="156" font-family="sans-serif" font-size="7" fill="#5F5D56">• Next launch loads native code directly</text>
+        <text x="10" y="170" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F6849">Result: Zero-latency execution</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 08: معمارية تشغيل الشفرة في بيئة ART — لا يكتفي Android بتفسير classes.dex سطرًا بسطر؛ بل يجمع بين المترجم الفوري (JIT) لتسريع الإقلاع وتتبع الدوال الأكثر استخدامًا، ثم تحويلها لاحقًا لشفرة آلة أصلية (AOT) أثناء شحن الجهاز.'
+      : 'Figure 08: Android Runtime execution pipeline — ART does not simply interpret classes.dex; it leverages a hybrid JIT engine to profile hot paths, which dex2oat later compiles into native machine code (AOT) when the device is idle and connected to power.'}
+  </figcaption>
+</figure>

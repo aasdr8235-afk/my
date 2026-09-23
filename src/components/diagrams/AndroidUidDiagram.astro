@@ -1,0 +1,112 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط عزل هوية المستخدم Linux UID في Android' : 'Linux UID process and filesystem isolation in Android'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">{lang === 'ar' ? 'مخطط 05 / عزل الهوية' : 'FIGURE 05 / LINUX UID ISOLATION'}</span>
+    <span>{lang === 'ar' ? 'معاملة كل تطبيق كمستخدم نظام مستقل' : 'TREATING APPS AS ISOLATED MULTI-USER IDENTITIES'}</span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 680px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="uid-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+        <marker id="uid-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="uid-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Left Box: Registration in packages.xml -->
+      <g transform="translate(25, 45)">
+        <rect width="210" height="195" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="210" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">01 / SYSTEM REGISTRY</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">packages.xml</text>
+        <line x1="10" y1="52" x2="200" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="10" y="70" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">&lt;package name="com.app.a"&gt;</text>
+        <text x="10" y="86" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#5F6849">  userId="10142"</text>
+        <text x="10" y="102" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">&lt;/package&gt;</text>
+        <text x="10" y="122" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Persistent PMS state</text>
+        <text x="10" y="138" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Calculated UID offset</text>
+        <rect x="10" y="154" width="190" height="24" fill="url(#uid-hatch)" stroke="#151515" stroke-width="0.6"/>
+        <text x="16" y="169" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">FIRST_APPLICATION_UID (10000)</text>
+      </g>
+
+      <!-- Arrow 1 -> Kernel -->
+      <path d="M 235 142 L 268 142" stroke="#151515" stroke-width="1.4" marker-end="url(#uid-arrow)"/>
+
+      <!-- Center Box: Linux Kernel UID Model -->
+      <g transform="translate(275, 45)">
+        <rect width="280" height="195" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.8"/>
+        <rect width="280" height="22" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">02 / LINUX KERNEL ENFORCEMENT</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">Process Boundary Isolation</text>
+        <line x1="10" y1="52" x2="270" y2="52" stroke="#5F6849" stroke-width="0.5" stroke-opacity="0.3"/>
+
+        <!-- App A -->
+        <g transform="translate(10, 60)">
+          <rect width="260" height="34" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+          <text x="8" y="14" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">APP A: com.example.notes</text>
+          <text x="8" y="27" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">PID: 3821 │ UID: 10142 (u0_a142)</text>
+        </g>
+
+        <!-- Isolation Wall -->
+        <line x1="10" y1="102" x2="270" y2="102" stroke="#C3423F" stroke-width="1" stroke-dasharray="4 2"/>
+        <text x="65" y="112" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#C3423F">KERNEL MEMORY / IPC WALL</text>
+
+        <!-- App B -->
+        <g transform="translate(10, 118)">
+          <rect width="260" height="34" fill="#FAF8F2" stroke="#151515" stroke-width="1"/>
+          <text x="8" y="14" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">APP B: com.example.browser</text>
+          <text x="8" y="27" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F5D56">PID: 4109 │ UID: 10143 (u0_a143)</text>
+        </g>
+
+        <text x="10" y="172" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Kernel disallows ptracing, signal sending, or RAM read</text>
+        <text x="10" y="184" font-family="sans-serif" font-size="7.5" fill="#5F5D56">between distinct process UIDs without root</text>
+      </g>
+
+      <!-- Arrow Kernel -> MultiUser -->
+      <path d="M 555 142 L 585 142" stroke="#5F6849" stroke-width="1.4" marker-end="url(#uid-arrow-olive)"/>
+
+      <!-- Right Box: Multi-User Profile Nuance -->
+      <g transform="translate(590, 45)">
+        <rect width="205" height="195" fill="#FAF8F2" stroke="#151515" stroke-width="1.4"/>
+        <rect width="205" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">03 / MULTI-USER NUANCE</text>
+        <text x="8" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">UID Calculation</text>
+        <line x1="8" y1="52" x2="197" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        
+        <rect x="8" y="60" width="189" height="48" fill="#F4F1E9" stroke="#151515" stroke-width="0.7"/>
+        <text x="12" y="75" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#151515">USER 0 (Main Profile):</text>
+        <text x="12" y="89" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F6849">UID = 10142 (u0_a142)</text>
+        <text x="12" y="101" font-family="sans-serif" font-size="7" fill="#5F5D56">0 * 100000 + 10142</text>
+
+        <rect x="8" y="115" width="189" height="48" fill="#F4F1E9" stroke="#151515" stroke-width="0.7"/>
+        <text x="12" y="130" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#151515">USER 10 (Work Profile):</text>
+        <text x="12" y="144" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F6849">UID = 1010142 (u10_a142)</text>
+        <text x="12" y="156" font-family="sans-serif" font-size="7" fill="#5F5D56">10 * 100000 + 10142</text>
+
+        <text x="10" y="180" font-family="sans-serif" font-size="7" fill="#5F5D56">UIDs are user-scoped, not global</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 05: نموذج العزل عبر هوية Linux UID — يسجل نظام Android كل تطبيق كمستخدم نظام منفصل (مثل u0_a142)، وتتولى نواة لينكس منع أي تطبيق آخر من اختراق ذاكرته أو إرسال إشارات له مباشرة.'
+      : 'Figure 05: Android Linux UID isolation — each application is registered as a distinct Linux system user (e.g. u0_a142). The kernel enforces process boundaries and memory separation, scaled mathematically for multi-user profiles.'}
+  </figcaption>
+</figure>

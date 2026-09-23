@@ -27,9 +27,11 @@ const tocItems = [
   { id: 'sec-10', num: '10', title: 'The Main Idea: Relocating Trust' }
 ];
 
-const pageTitle = "A VPN Does Not Make You Invisible. It Changes Who Can See What.";
+const pageTitle = "What Does a VPN Actually Do — and Who Can Still See Your Traffic?";
 const pageSubtitle = "A VPN does not eliminate trust. It relocates it.";
-const pageDescription = "A clear look at what an encrypted tunnel actually does: what your ISP sees, what the VPN provider can see, how DNS leaks happen, and why a VPN is not a replacement for HTTPS.";
+const pageDescription = "What does a VPN actually do to your traffic? A technical look at what your ISP sees, how VPN tunnels interact with HTTPS, and the real boundaries of network privacy.";
+const socialTitle = "A VPN Does Not Make You Anonymous. It Changes Who Observes You.";
+const ogImage = "/assets/og/what-a-vpn-actually-does.jpg";
 ---
 
 <ArticleLayout
@@ -43,6 +45,12 @@ const pageDescription = "A clear look at what an encrypted tunnel actually does:
   tocItems={tocItems}
   categoryText="NETWORKING / PRIVACY"
   articleMeta="ARTICLE 03 / PRIVACY & TUNNELS"
+  socialTitle={socialTitle}
+  ogImage={ogImage}
+  publishedDate="2026-09-22"
+  modifiedDate="2026-09-22"
+  breadcrumbCategory="Networks & Privacy"
+  breadcrumbCurrent="VPN Operation"
 >
 
   <!-- 01 / WITHOUT VPN -->
@@ -320,7 +328,7 @@ const pageDescription = "A clear look at what an encrypted tunnel actually does:
     </p>
 
     <p>
-      <strong>The HTTPS / TLS Protection Boundary</strong> stretches from the client application directly to the TLS endpoint serving the website (<strong>Application ↔ TLS Endpoint</strong>). In modern distributed infrastructure, this terminating endpoint is frequently a Content Delivery Network (CDN) edge node, cloud load balancer, or reverse proxy that terminates TLS before communicating with an internal backend origin. No transit intermediary—including the VPN provider itself—can decrypt or tamper with the payload without triggering certificate trust failures.
+      <strong>The HTTPS / TLS Protection Boundary</strong> stretches from the client application directly to the TLS endpoint serving the website (<strong>Application ↔ TLS Endpoint</strong>) — to explore how this is established packet-by-packet, see our <a href="/en/articles/what-happens-when-you-type-a-domain/#sec-05" style="color: var(--color-olive); text-decoration: underline;">breakdown of the TLS handshake and key derivation</a>. In modern distributed infrastructure, this terminating endpoint is frequently a Content Delivery Network (CDN) edge node, cloud load balancer, or reverse proxy that terminates TLS before communicating with an internal backend origin. No transit intermediary—including the VPN provider itself—can decrypt or tamper with the payload without triggering certificate trust failures.
     </p>
   </section>
 

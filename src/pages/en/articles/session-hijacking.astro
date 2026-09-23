@@ -30,9 +30,11 @@ const tocItems = [
   { id: 'sec-10', num: '10', title: 'Key Takeaway' }
 ];
 
-const pageTitle = "How Can a Session Be Stolen Without Stealing the Password?";
+const pageTitle = "How Session Hijacking Works Without Stealing the Password";
 const pageSubtitle = "Sometimes the attacker does not need the password. They only need the thing that proves you already authenticated.";
-const pageDescription = "A practical walkthrough of how web sessions and session cookies work, why session tokens are targeted, and how a valid token grants account access without credentials.";
+const pageDescription = "How login sessions get hijacked without passwords. A step-by-step technical breakdown of session cookies, HttpOnly and SameSite flags, XSS, and transport interception.";
+const socialTitle = "A Stolen Cookie Bypasses 2FA: How Session Hijacking Works.";
+const ogImage = "/assets/og/session-hijacking.jpg";
 ---
 
 <ArticleLayout
@@ -46,6 +48,12 @@ const pageDescription = "A practical walkthrough of how web sessions and session
   tocItems={tocItems}
   categoryText="Cybersecurity / Web Security"
   articleMeta="ARTICLE 01 / SESSION SECURITY"
+  socialTitle={socialTitle}
+  ogImage={ogImage}
+  publishedDate="2026-09-22"
+  modifiedDate="2026-09-22"
+  breadcrumbCategory="Cybersecurity / Web Security"
+  breadcrumbCurrent="Session Hijacking"
 >
 
   <!-- 01 / THE LOGIN -->
@@ -291,7 +299,7 @@ Sec-Fetch-Site: same-origin`}
 
     <h3>2. The <code>Secure</code> Attribute</h3>
     <p>
-      Prohibits the browser from transmitting the cookie over unencrypted HTTP channels. This guarantees the token travels exclusively within an encrypted TLS tunnel, preventing passive network sniffing on untrusted networks.
+      Prohibits the browser from transmitting the cookie over unencrypted HTTP channels. This guarantees the token travels exclusively after establishing an encrypted <a href="/en/articles/what-happens-when-you-type-a-domain/#sec-05" style="color: var(--color-olive); text-decoration: underline;">TLS handshake</a> over HTTPS, preventing passive network sniffing on untrusted networks.
     </p>
 
     <h3>3. The <code>SameSite</code> Attribute</h3>

@@ -8,9 +8,10 @@ import VpnTunnelDiagram from '../../components/diagrams/VpnTunnelDiagram.astro';
 import VpnTrustShiftDiagram from '../../components/diagrams/VpnTrustShiftDiagram.astro';
 import DnsResolutionDiagram from '../../components/diagrams/DnsResolutionDiagram.astro';
 import LoginFlowDiagram from '../../components/diagrams/LoginFlowDiagram.astro';
+import ApkThumbnailDiagram from '../../components/diagrams/ApkThumbnailDiagram.astro';
 
 const pageTitle = "Mouhib Writeups — Technical Notes on Security, Networks & Systems";
-const pageDescription = "Independent technical editorial journal dissecting network architecture, application security boundaries, and protocol engineering. Written by Mouhib MH.";
+const pageDescription = "Technical writeups and notes on web security, networking, Linux, and system internals. Learning things deeply, experimenting, and explaining how they actually work. By Mouhib MH.";
 ---
 
 <BaseLayout
@@ -20,6 +21,8 @@ const pageDescription = "Independent technical editorial journal dissecting netw
   arUrl="/ar/"
   enUrl="/en/"
   currentPath="/en/"
+  ogType="website"
+  ogImage="/assets/og/og-cover.jpg"
 >
   <!-- Masthead with Homepage Navigation -->
   <Header
@@ -48,11 +51,11 @@ const pageDescription = "Independent technical editorial journal dissecting netw
             <span>03 / NETWORKING / PRIVACY</span>
           </div>
 
-          <h2 class="featured-title">
+          <h1 class="featured-title">
             <a href="/en/articles/what-a-vpn-actually-does/">
               A VPN Does Not Make You Invisible. It Changes Who Can See What.
             </a>
-          </h2>
+          </h1>
 
           <p class="featured-excerpt">
             A clear look at what an encrypted tunnel actually does: what your ISP sees, what the VPN provider can see, how DNS leaks happen, and why a VPN is not a replacement for HTTPS.
@@ -76,10 +79,11 @@ const pageDescription = "Independent technical editorial journal dissecting netw
     <nav id="topics" class="topic-filters-wrapper" aria-label="Topic Filter">
       <span class="topic-filters-label">Filter by Focus:</span>
       <div class="topic-filter-buttons" role="tablist">
-        <button type="button" class="topic-btn is-active" data-filter="all">All (3)</button>
+        <button type="button" class="topic-btn is-active" data-filter="all">All (4)</button>
         <button type="button" class="topic-btn" data-filter="cybersecurity">Cybersecurity (1)</button>
         <button type="button" class="topic-btn" data-filter="networking">Networking (1)</button>
         <button type="button" class="topic-btn" data-filter="privacy">Privacy &amp; Tunnels (1)</button>
+        <button type="button" class="topic-btn" data-filter="mobile">Mobile &amp; Android (1)</button>
       </div>
     </nav>
 
@@ -87,8 +91,41 @@ const pageDescription = "Independent technical editorial journal dissecting netw
     <section id="articles" class="editorial-pub-rows" aria-label="Articles">
       <div class="index-section-header">
         <span class="index-section-title">ALL WRITEUPS</span>
-        <span class="index-section-count">3 PUBLISHED ARTICLES</span>
+        <span class="index-section-count">4 PUBLISHED ARTICLES</span>
       </div>
+
+      <!-- Row 04: What Happens When You Install an APK -->
+      <article class="editorial-pub-row is-reversed" data-category="mobile">
+        <div class="pub-row-content">
+          <div class="pub-row-meta">
+            <span class="pub-row-number">04</span>
+            <span>/</span>
+            <span class="pub-row-category">MOBILE / ANDROID</span>
+            <span>•</span>
+            <span class="pub-row-time">15 min read</span>
+          </div>
+
+          <h2 class="pub-row-title">
+            <a href="/en/articles/what-happens-when-you-install-an-apk/">
+              You Pressed Install on an APK. What Actually Happens Inside Android?
+            </a>
+          </h2>
+
+          <p class="pub-row-excerpt">
+            What does Android do with an APK before the first launch? From the manifest and signing identity to UID isolation, permissions, the sandbox and ART.
+          </p>
+
+          <div class="pub-row-action">
+            <a href="/en/articles/what-happens-when-you-install-an-apk/" class="pub-row-link">
+              Read article →
+            </a>
+          </div>
+        </div>
+
+        <div class="pub-row-visual">
+          <ApkThumbnailDiagram lang="en" />
+        </div>
+      </article>
 
       <!-- Row 03: What a VPN Actually Does -->
       <article class="editorial-pub-row" data-category="privacy">
@@ -101,11 +138,11 @@ const pageDescription = "Independent technical editorial journal dissecting netw
             <span class="pub-row-time">14 min read</span>
           </div>
 
-          <h3 class="pub-row-title">
+          <h2 class="pub-row-title">
             <a href="/en/articles/what-a-vpn-actually-does/">
               A VPN Does Not Make You Invisible. It Changes Who Can See What.
             </a>
-          </h3>
+          </h2>
 
           <p class="pub-row-excerpt">
             A clear look at what an encrypted tunnel actually does: what your ISP sees, what the VPN provider can see, how DNS leaks happen, and why a VPN is not a replacement for HTTPS.
@@ -134,11 +171,11 @@ const pageDescription = "Independent technical editorial journal dissecting netw
             <span class="pub-row-time">16 min read</span>
           </div>
 
-          <h3 class="pub-row-title">
+          <h2 class="pub-row-title">
             <a href="/en/articles/what-happens-when-you-type-a-domain/">
               You Typed a Domain and Pressed Enter. What Actually Happened?
             </a>
-          </h3>
+          </h2>
 
           <p class="pub-row-excerpt">
             A step-by-step walkthrough of what happens under the hood: from local cache, DNS and the gateway MAC to TCP/TLS handshakes, HTTP requests and browser rendering.
@@ -167,11 +204,11 @@ const pageDescription = "Independent technical editorial journal dissecting netw
             <span class="pub-row-time">12 min read</span>
           </div>
 
-          <h3 class="pub-row-title">
+          <h2 class="pub-row-title">
             <a href="/en/articles/session-hijacking/">
               How Can a Session Be Stolen Without Stealing the Password?
             </a>
-          </h3>
+          </h2>
 
           <p class="pub-row-excerpt">
             A practical look at how session cookies work, why session tokens are targeted, and how a valid token lets someone into an account without the password.
@@ -215,7 +252,7 @@ const pageDescription = "Independent technical editorial journal dissecting netw
     <div class="container">
       <div class="footer-inner">
         <div class="footer-brand">
-          <img src="/assets/brand/logo.png" alt="" class="brand-logo-img" width="36" height="36" loading="lazy" />
+          <img src="/assets/brand/logo-transparent.png" alt="" class="brand-logo-img" width="36" height="36" loading="lazy" />
           <div>
             <div class="footer-brand-title">MOUHIB WRITEUPS</div>
             <div class="footer-brand-tagline">{SITE_CONFIG.tagline.en}</div>

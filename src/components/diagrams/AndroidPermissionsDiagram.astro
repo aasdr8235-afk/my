@@ -1,0 +1,114 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط تصنيف وإدارة الصلاحيات في Android' : 'Android permission classification and runtime authorization pipeline'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">{lang === 'ar' ? 'مخطط 07 / مسار الصلاحيات' : 'FIGURE 07 / PERMISSIONS PIPELINE'}</span>
+    <span>{lang === 'ar' ? 'من تصريح البيان إلى نافذة الموافقة أو الرفض' : 'FROM MANIFEST DECLARATION TO RUNTIME ARBITRATION'}</span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 680px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="perm-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+        <marker id="pm-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="pm-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Step 1: Manifest Declaration -->
+      <g transform="translate(25, 45)">
+        <rect width="180" height="195" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="180" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">01 / DECLARATION</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">&lt;uses-permission&gt;</text>
+        <line x1="10" y1="52" x2="170" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="10" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Parsed during install</text>
+        <text x="10" y="86" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Registered in PMS</text>
+        <text x="10" y="102" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Defines maximum scope</text>
+        <rect x="10" y="120" width="160" height="42" fill="url(#perm-hatch)" stroke="#151515" stroke-width="0.6"/>
+        <text x="16" y="136" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">RULE:</text>
+        <text x="16" y="152" font-family="sans-serif" font-size="7" fill="#151515">Undeclared perms fail instantly</text>
+      </g>
+
+      <!-- Arrow 1 -> 2 (Olive) -->
+      <path d="M 205 142 L 235 142" stroke="#5F6849" stroke-width="1.4" marker-end="url(#pm-arrow-olive)"/>
+
+      <!-- Step 2: Protection Level Triage -->
+      <g transform="translate(240, 45)">
+        <rect width="280" height="195" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.8"/>
+        <rect width="280" height="22" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">02 / ANDROID POLICY TRIAGE</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">protectionLevel Classification</text>
+        <line x1="10" y1="52" x2="270" y2="52" stroke="#5F6849" stroke-width="0.5" stroke-opacity="0.3"/>
+
+        <!-- Tier 1: Normal -->
+        <g transform="translate(10, 60)">
+          <rect width="260" height="32" fill="#FAF8F2" stroke="#151515" stroke-width="0.8"/>
+          <text x="8" y="14" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#151515">NORMAL (e.g. INTERNET, ACCESS_NETWORK_STATE)</text>
+          <text x="8" y="25" font-family="sans-serif" font-size="7" fill="#5F6849">→ Granted automatically at install time (no prompt)</text>
+        </g>
+
+        <!-- Tier 2: Dangerous / Runtime -->
+        <g transform="translate(10, 98)">
+          <rect width="260" height="34" fill="#FAF8F2" stroke="#5F6849" stroke-width="1.2"/>
+          <text x="8" y="14" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#5F6849">DANGEROUS / RUNTIME (CAMERA, LOCATION, AUDIO)</text>
+          <text x="8" y="26" font-family="sans-serif" font-size="7" fill="#151515">→ Deferred! App must invoke requestPermissions()</text>
+        </g>
+
+        <!-- Tier 3: Special Access -->
+        <g transform="translate(10, 138)">
+          <rect width="260" height="32" fill="#FAF8F2" stroke="#151515" stroke-width="0.8"/>
+          <text x="8" y="14" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#151515">SPECIAL APP ACCESS (ALL_FILES, ACCESSIBILITY)</text>
+          <text x="8" y="25" font-family="sans-serif" font-size="7" fill="#5F5D56">→ Requires user going into system Settings</text>
+        </g>
+      </g>
+
+      <!-- Arrow 2 -> 3 -->
+      <path d="M 520 142 L 550 142" stroke="#151515" stroke-width="1.4" marker-end="url(#pm-arrow)"/>
+
+      <!-- Step 3: Runtime Decision -->
+      <g transform="translate(555, 45)">
+        <rect width="240" height="195" fill="#FAF8F2" stroke="#151515" stroke-width="1.4"/>
+        <rect width="240" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">03 / RUNTIME EVALUATION</text>
+        <text x="8" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">User Dialog / System Check</text>
+        <line x1="8" y1="52" x2="232" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+
+        <g transform="translate(10, 60)">
+          <rect width="220" height="34" fill="#F4F1E9" stroke="#5F6849" stroke-width="1"/>
+          <text x="8" y="14" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">USER: "WHILE USING THE APP"</text>
+          <text x="8" y="26" font-family="sans-serif" font-size="7" fill="#151515">PERMISSION_GRANTED → API unblocked</text>
+        </g>
+
+        <g transform="translate(10, 102)">
+          <rect width="220" height="34" fill="#F4F1E9" stroke="#151515" stroke-width="1"/>
+          <text x="8" y="14" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#C3423F">USER: "DON'T ALLOW"</text>
+          <text x="8" y="26" font-family="sans-serif" font-size="7" fill="#5F5D56">PERMISSION_DENIED → SecurityException</text>
+        </g>
+
+        <text x="10" y="154" font-family="sans-serif" font-size="7" fill="#5F5D56">• Android 11+: Auto-reset unused perms</text>
+        <text x="10" y="168" font-family="sans-serif" font-size="7" fill="#5F5D56">• One-time grants for location/mic</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 07: شجرة تصنيف وإدارة الصلاحيات — الصلاحيات العادية (مثل الإنترنت) تُمنح تلقائيًا عند التثبيت، بينما الصلاحيات الخطيرة (مثل الكاميرا والموقع) تظل معلقة حتى يطلبها التطبيق أثناء التشغيل ويوافق عليها المستخدم.'
+      : 'Figure 07: Android permission triage pipeline — normal permissions are granted automatically at installation, while dangerous permissions remain dormant until explicitly requested at runtime and approved by the user.'}
+  </figcaption>
+</figure>

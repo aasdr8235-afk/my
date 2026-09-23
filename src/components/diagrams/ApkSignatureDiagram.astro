@@ -1,0 +1,112 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط التحقق من التوقيع الرقمي واستمرارية التحديث' : 'APK signature verification and update continuity cryptographic flow'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">{lang === 'ar' ? 'مخطط 04 / التوقيع الرقمي' : 'FIGURE 04 / PACKAGE SIGNING'}</span>
+    <span>{lang === 'ar' ? 'إثبات سلامة الحزمة واستمرارية التحديث' : 'INTEGRITY VERIFICATION & UPDATE CONTINUITY'}</span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 680px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="sig-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+        <marker id="sig-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="sig-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Column 1: Package Signing Verification Schemes -->
+      <g transform="translate(25, 45)">
+        <rect width="235" height="195" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="235" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">01 / SIGNATURE SCHEMES</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#151515">Integrity &amp; Certificate</text>
+        <line x1="10" y1="52" x2="225" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        <text x="10" y="70" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F6849">v1 (JAR):</text>
+        <text x="65" y="70" font-family="sans-serif" font-size="7.5" fill="#5F5D56">File-by-file in META-INF</text>
+        <text x="10" y="88" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F6849">v2 (APK Block):</text>
+        <text x="95" y="88" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Full-archive binary hash</text>
+        <text x="10" y="106" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F6849">v3 (Rotation):</text>
+        <text x="90" y="106" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Lineage proof for cert keys</text>
+        <text x="10" y="124" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F6849">v4 (Streaming):</text>
+        <text x="95" y="124" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Merkle tree hash (fs-verity)</text>
+        
+        <rect x="10" y="138" width="215" height="42" fill="url(#sig-hatch)" stroke="#151515" stroke-width="0.6"/>
+        <text x="16" y="153" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">WHAT IT ACTUALLY PROVES:</text>
+        <text x="16" y="169" font-family="sans-serif" font-size="7.5" fill="#151515">Bits were not altered in transit</text>
+      </g>
+
+      <!-- Arrow 1 -> 2 (Olive) -->
+      <path d="M 260 142 L 290 142" stroke="#5F6849" stroke-width="1.4" marker-end="url(#sig-arrow-olive)"/>
+
+      <!-- Column 2: Update Continuity Logic -->
+      <g transform="translate(295, 45)">
+        <rect width="255" height="195" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.8"/>
+        <rect width="255" height="22" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">02 / UPDATE CONTINUITY</text>
+        <text x="10" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">Replacing Existing Package</text>
+        <line x1="10" y1="52" x2="245" y2="52" stroke="#5F6849" stroke-width="0.5" stroke-opacity="0.3"/>
+
+        <!-- Scenario A: Same Key -->
+        <g transform="translate(10, 60)">
+          <rect width="235" height="38" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.9"/>
+          <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">NEW APK SIGNED BY KEY A</text>
+          <text x="8" y="29" font-family="sans-serif" font-size="7.5" fill="#151515">Matches installed cert → </text>
+          <text x="135" y="29" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">UPDATE ALLOWED ✓</text>
+        </g>
+
+        <!-- Scenario B: Different Key -->
+        <g transform="translate(10, 105)">
+          <rect width="235" height="42" fill="#FAF8F2" stroke="#151515" stroke-width="0.9"/>
+          <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">NEW APK SIGNED BY KEY B</text>
+          <text x="8" y="29" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Signature mismatch → </text>
+          <text x="125" y="29" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#C3423F">INSTALL_FAILED ✗</text>
+          <text x="8" y="38" font-family="'JetBrains Mono', monospace" font-size="6.5" fill="#5F5D56">UPDATE_INCOMPATIBLE</text>
+        </g>
+
+        <text x="12" y="165" font-family="sans-serif" font-size="7" fill="#5F5D56">Protects existing app private data from hijack</text>
+        <text x="12" y="177" font-family="sans-serif" font-size="7" fill="#5F5D56">by an unauthorized third-party update</text>
+      </g>
+
+      <!-- Arrow 2 -> 3 -->
+      <path d="M 550 142 L 578 142" stroke="#151515" stroke-width="1.4" marker-end="url(#sig-arrow)"/>
+
+      <!-- Column 3: The Critical Truth / Reality Check -->
+      <g transform="translate(585, 45)">
+        <rect width="210" height="195" fill="#FAF8F2" stroke="#151515" stroke-width="1.4"/>
+        <rect width="210" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">03 / REALITY CHECK</text>
+        <text x="8" y="44" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">What Signature DOES NOT Mean</text>
+        <line x1="8" y1="52" x2="202" y2="52" stroke="#151515" stroke-width="0.5" stroke-opacity="0.2"/>
+        
+        <rect x="8" y="60" width="194" height="120" fill="#F4F1E9" stroke="#151515" stroke-width="0.7"/>
+        <text x="14" y="78" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#C3423F">✗ NOT SAFETY PROOF</text>
+        <text x="14" y="94" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Does not verify real identity</text>
+        <text x="14" y="110" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Does not mean code is clean</text>
+        <text x="14" y="126" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Malware signs its own APKs</text>
+        <text x="14" y="144" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Self-signed certs are valid</text>
+        <text x="14" y="165" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#5F6849">Only proves author consistency</text>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="diagram-caption">
+    {lang === 'ar'
+      ? 'الشكل 04: التوقيع الرقمي واستمرارية التحديث — التوقيع في Android يثبت تكامل الحزمة واستمرارية التحديث لنفس المطور لمنع استبدال التطبيق بحزمة غريبة، لكنه لا يعني إطلاقًا أن التطبيق آمن أو خبير أو خالٍ من البرمجيات الخبيثة.'
+      : 'Figure 04: APK cryptographic signing and update continuity — Android signature verification guarantees package integrity and author continuity across updates. A valid signature does not verify real-world developer identity or absence of malware.'}
+  </figcaption>
+</figure>

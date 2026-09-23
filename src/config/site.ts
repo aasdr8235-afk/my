@@ -5,8 +5,8 @@ export const SITE_CONFIG = {
   author: {
     name: 'Mouhib MH',
     bio: {
-      ar: 'أهتم بالأمن السيبراني، الشبكات، Linux، الخصوصية وبناء المشاريع التقنية. أوثّق ما أتعلمه وأجرّبه، وأشرح كيف تعمل الأنظمة فعليًا.',
-      en: 'Interested in cybersecurity, networking, Linux, privacy, and building technical projects. I document what I learn and experiment with, with an emphasis on how systems actually work.'
+      ar: 'أهتم بالأمن السيبراني، الشبكات، Linux، الخصوصية وبناء المشاريع التقنية. أوثّق ما أتعلمه وأجرّبه وأشرح كيف تعمل الأنظمة فعليًا.',
+      en: 'Interested in cybersecurity, networking, Linux, privacy and building technical projects. I document what I learn and experiment with, with a focus on how systems actually work.'
     }
   },
   tagline: {
@@ -17,7 +17,10 @@ export const SITE_CONFIG = {
     ar: 'الأمن السيبراني / أمن الويب',
     en: 'Cybersecurity / Web Security'
   },
-  defaultOgImage: '/assets/brand/og-card.png'
+  themeColor: '#FAF8F2',
+  defaultOgImage: '/assets/og/og-cover.jpg',
+  ogImageWidth: 1200,
+  ogImageHeight: 630
 };
 
 export function getCanonicalUrl(pathname: string): string {

@@ -2,7 +2,7 @@ export interface ArticleMeta {
   id: string;
   number: string;
   slug: string;
-  filterKey: 'cybersecurity' | 'networking' | 'privacy';
+  filterKey: 'cybersecurity' | 'networking' | 'privacy' | 'mobile';
   featured?: boolean;
   status: 'published' | 'draft';
   publishedAt: string;
@@ -98,7 +98,7 @@ export const ARTICLES: ArticleMeta[] = [
     featured: true,
     status: 'published',
     publishedAt: '2026-09-22',
-    relatedId: 'session-hijacking',
+    relatedId: 'what-happens-when-you-install-an-apk',
     category: {
       ar: 'الشبكات / الخصوصية',
       en: 'NETWORKING / PRIVACY'
@@ -118,6 +118,36 @@ export const ARTICLES: ArticleMeta[] = [
     readingTime: {
       ar: '14 دقيقة قراءة',
       en: '14 min read'
+    }
+  },
+  {
+    id: 'what-happens-when-you-install-an-apk',
+    number: '04',
+    slug: 'what-happens-when-you-install-an-apk',
+    filterKey: 'mobile',
+    featured: false,
+    status: 'published',
+    publishedAt: '2026-09-23',
+    relatedId: 'session-hijacking',
+    category: {
+      ar: 'الهواتف / أندرويد',
+      en: 'MOBILE / ANDROID'
+    },
+    title: {
+      ar: 'ضغطت Install على APK… ماذا حدث داخل Android؟',
+      en: 'You Pressed Install on an APK. What Actually Happens Inside Android?'
+    },
+    subtitle: {
+      ar: 'عندما تضغط Install، Android لا يأخذ ملف الـAPK ويشغّله مباشرة.',
+      en: 'Pressing Install does not mean Android immediately executes the APK.'
+    },
+    excerpt: {
+      ar: 'ماذا يفعل Android بملف APK قبل أول تشغيل؟ من Manifest والتوقيع إلى UID وSandbox والصلاحيات وART.',
+      en: 'What does Android do with an APK before the first launch? From the manifest and signing identity to UID isolation, permissions, the sandbox and ART.'
+    },
+    readingTime: {
+      ar: '15 دقيقة قراءة',
+      en: '15 min read'
     }
   }
 ];

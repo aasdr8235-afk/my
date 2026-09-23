@@ -1,0 +1,566 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import SectionHeading from '../../../components/SectionHeading.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import TechnicalNote from '../../../components/TechnicalNote.astro';
+import ContinueReading from '../../../components/ContinueReading.astro';
+
+// Technical SVG Diagrams
+import ApkContentsDiagram from '../../../components/diagrams/ApkContentsDiagram.astro';
+import PackageInstallFlowDiagram from '../../../components/diagrams/PackageInstallFlowDiagram.astro';
+import AndroidManifestDiagram from '../../../components/diagrams/AndroidManifestDiagram.astro';
+import ApkSignatureDiagram from '../../../components/diagrams/ApkSignatureDiagram.astro';
+import AndroidUidDiagram from '../../../components/diagrams/AndroidUidDiagram.astro';
+import AppSandboxDiagram from '../../../components/diagrams/AppSandboxDiagram.astro';
+import AndroidPermissionsDiagram from '../../../components/diagrams/AndroidPermissionsDiagram.astro';
+import ArtExecutionDiagram from '../../../components/diagrams/ArtExecutionDiagram.astro';
+import AndroidProcessDiagram from '../../../components/diagrams/AndroidProcessDiagram.astro';
+
+const tocItems = [
+  { id: 'sec-01', num: '01', title: 'APK' },
+  { id: 'sec-02', num: '02', title: 'Package Installation' },
+  { id: 'sec-03', num: '03', title: 'Manifest' },
+  { id: 'sec-04', num: '04', title: 'Signature' },
+  { id: 'sec-05', num: '05', title: 'UID' },
+  { id: 'sec-06', num: '06', title: 'Sandbox' },
+  { id: 'sec-07', num: '07', title: 'Permissions' },
+  { id: 'sec-08', num: '08', title: 'ART' },
+  { id: 'sec-09', num: '09', title: 'Process' },
+  { id: 'sec-10', num: '10', title: 'Access' }
+];
+
+const pageTitle = "What Happens When You Install an APK on Android?";
+const pageSubtitle = "Pressing Install does not mean Android immediately executes the APK. Before the app runs, the system has to inspect the package, verify its signer, register the application, prepare its data, apply Android's isolation model, and only then launch it.";
+const pageDescription = "What happens inside Android when you install an APK? Follow the package from manifest and signing checks to UID isolation, permissions, the app sandbox and ART.";
+const socialTitle = "You Installed an APK. Android Did Much More Than Copy a File.";
+const ogImage = "/assets/og/what-happens-when-you-install-an-apk.jpg";
+
+const references = [
+  {
+    num: '[01]',
+    title: 'AOSP: Android Security Architecture & Application Sandbox',
+    org: 'Google / Android Open Source Project',
+    link: 'https://source.android.com/docs/security/overview/app-security'
+  },
+  {
+    num: '[02]',
+    title: 'Android Developers: APK Signature Scheme v2, v3 and v4 Specifications',
+    org: 'Google Android Developer Documentation',
+    link: 'https://source.android.com/docs/security/features/apksigning'
+  },
+  {
+    num: '[03]',
+    title: 'Android Runtime (ART) Architecture and Profile-Guided Optimization (PGO)',
+    org: 'AOSP Architecture & Platform Documentation',
+    link: 'https://source.android.com/docs/core/runtime'
+  },
+  {
+    num: '[04]',
+    title: 'Linux Kernel Security: User Credentials, UID Sandboxing & SELinux in Android',
+    org: 'Android Open Source Project / SELinux Project',
+    link: 'https://source.android.com/docs/security/features/selinux'
+  }
+];
+---
+
+<ArticleLayout
+  title={pageTitle}
+  subtitle={pageSubtitle}
+  description={pageDescription}
+  lang="en"
+  arUrl="/ar/articles/what-happens-when-you-install-an-apk/"
+  enUrl="/en/articles/what-happens-when-you-install-an-apk/"
+  currentPath="/en/articles/what-happens-when-you-install-an-apk/"
+  tocItems={tocItems}
+  categoryText="MOBILE / ANDROID"
+  articleMeta="ARTICLE 04 / ANDROID INTERNALS"
+  references={references}
+  socialTitle={socialTitle}
+  ogImage={ogImage}
+  publishedDate="2026-09-23"
+  modifiedDate="2026-09-23"
+  breadcrumbCategory="Mobile / Android"
+  breadcrumbCurrent="APK Installation"
+>
+
+  <!-- 01 / WHAT IS AN APK -->
+  <section class="article-section">
+    <SectionHeading
+      number="01"
+      tag="APK"
+      title="An APK Is More Than Just an App File"
+      id="sec-01"
+    />
+
+    <p>
+      You tap <span class="term" dir="ltr">Install</span>, and within seconds the application icon appears on your home screen. But between those two moments, Android performed far more than copying a file. It parsed package metadata, verified cryptographic signatures, assigned a unique operating system identity, carved out an isolated storage sandbox, and negotiated permission boundaries before a single process ever executed.
+    </p>
+
+    <p>
+      The APK file itself (<bdi dir="ltr">Android Package Kit</bdi>) is not an executable binary in the classical desktop sense: it is an <strong>archive container in ZIP format</strong> containing compiled bytecode, serialized resources, native runtime libraries, and cryptographic validation manifests.
+    </p>
+
+    <p>
+      If you rename any <code>.apk</code> file to <code>.zip</code> and decompress it, you will find a predictable, highly structured directory layout:
+    </p>
+
+    <!-- Diagram 01: APK Anatomy -->
+    <ApkContentsDiagram lang="en" />
+
+    <ul>
+      <li>
+        <strong><code>AndroidManifest.xml</code>:</strong> The structural blueprint and identity contract of the application. Crucially, the manifest inside an APK is not raw, human-readable XML. It is compiled into <strong>binary XML (AXML)</strong>, where element tags and attribute strings are tokenized into an indexed resource table so the system parser can inspect it with minimal memory overhead.
+      </li>
+      <li>
+        <strong><code>classes.dex</code>:</strong> The compiled Java and Kotlin application code, transformed from JVM bytecode into register-based Dalvik Executable bytecode. Large applications frequently span multiple files (<code>classes2.dex</code>, <code>classes3.dex</code>).
+      </li>
+      <li>
+        <strong><code>resources.arsc</code> &amp; <code>res/</code>:</strong> A pre-indexed binary resource table mapping string tokens, layout identifiers, and drawable IDs to compiled XML views and graphical assets.
+      </li>
+      <li>
+        <strong><code>lib/&lt;abi&gt;/</code>:</strong> Pre-compiled native C/C++ shared libraries (<code>.so</code> files) built specifically for target CPU architectures (such as <code>arm64-v8a</code>, <code>armeabi-v7a</code>, or <code>x86_64</code>).
+      </li>
+      <li>
+        <strong><code>assets/</code>:</strong> Arbitrary raw assets that require direct streaming without being indexed into the system resource table, such as custom font files, offline databases, or bundled machine learning models.
+      </li>
+      <li>
+        <strong>Signing Metadata (<code>META-INF/</code> &amp; APK Signing Block):</strong> Cryptographic certificates and block hashes that guarantee package integrity and enforce developer continuity.
+      </li>
+    </ul>
+
+    <TechnicalNote
+      lang="en"
+      label="Note on Modern Android App Bundles (AAB)"
+      text="On the Google Play Store, developers upload Android App Bundles (.aab). Google Play's delivery infrastructure processes the bundle and serves device-optimized Split APKs containing only the specific density, language, and ABI required for your particular hardware. Once delivered to the device, Android's internal package installation engine processes them using the exact same APK verification mechanics described here."
+    />
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 02 / WHO HANDLES INSTALLATION -->
+  <section class="article-section">
+    <SectionHeading
+      number="02"
+      tag="PACKAGE INSTALLATION"
+      title="Who Receives the APK File?"
+      id="sec-02"
+    />
+
+    <p>
+      When you download an APK through a browser or file explorer and tap "Install", a clean system dialog prompts: <em>"Do you want to install this app?"</em>
+    </p>
+
+    <p>
+      It is tempting to assume that this visible prompt handles the installation directly. In Android's modular architecture, however, that prompt is merely a front-facing client UI (the <code>PackageInstaller</code> activity). The actual validation, file operations, and security commitments are handled by dedicated system daemons and privileged services:
+    </p>
+
+    <!-- Diagram 02: Install Subsystem -->
+    <PackageInstallFlowDiagram lang="en" />
+
+    <p>
+      Let's trace what happens step-by-step when an installation begins:
+    </p>
+
+    <ol>
+      <li>
+        <strong>Staging the Session (<code>PackageInstaller.Session</code>):</strong> The installer client opens a transactional session with the platform. The APK stream is written into a staging directory located at <code>/data/app/vmdl*.tmp</code>. Staging ensures that an interrupted download or corrupted byte stream cannot leave partially written files in the production app registry.
+      </li>
+      <li>
+        <strong>Handing Off to <code>PackageManagerService</code> (PMS):</strong> PMS runs inside <code>system_server</code>, Android's most privileged user-space process. PMS is the central authority on the device for application state, package parsing, permission mapping, and system component tables.
+      </li>
+      <li>
+        <strong>Dispatching Filesystem Tasks to <code>installd</code>:</strong> To keep <code>system_server</code> resilient, Android does not perform raw disk operations or permission changes directly from Java services. Instead, PMS communicates over a local UNIX socket with <code>installd</code>, a native C++ daemon running with elevated Linux privileges that creates directories, assigns POSIX ownership, and labels SELinux contexts.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 03 / MANIFEST PARSING -->
+  <section class="article-section">
+    <SectionHeading
+      number="03"
+      tag="MANIFEST"
+      title="Before Execution: Android Needs to Know What the App Is"
+      id="sec-03"
+    />
+
+    <p>
+      Before any file is permanently saved or code is touched, the operating system must understand what the package contains. PMS invokes its internal parser to read the compiled <code>AndroidManifest.xml</code> binary:
+    </p>
+
+    <!-- Diagram 03: Manifest Schema -->
+    <AndroidManifestDiagram lang="en" />
+
+    <p>
+      The manifest establishes five foundational declarations:
+    </p>
+
+    <ul>
+      <li>
+        <strong>Unique Package Name (<code>package="com.example.app"</code>):</strong> The global namespace identity of the application. Android will not allow two distinct apps with the exact same package name to coexist simultaneously.
+      </li>
+      <li>
+        <strong>The 4 Core Components:</strong>
+        Interactive screens (<code>&lt;activity&gt;</code>), background execution workers (<code>&lt;service&gt;</code>), system and broadcast listeners (<code>&lt;receiver&gt;</code>), and cross-application structured data stores (<code>&lt;provider&gt;</code>).
+      </li>
+      <li>
+        <strong>Component Visibility &amp; Export Boundaries (<code>android:exported</code>):</strong> Explicitly flags which components can be triggered by external applications or system intents, and which are strictly internal to the app's own process.
+      </li>
+      <li>
+        <strong>API Compatibility (<code>&lt;uses-sdk&gt;</code>):</strong> Enforces the <code>minSdkVersion</code> required to run the code, and the <code>targetSdkVersion</code> that informs Android which platform runtime security policies to enforce.
+      </li>
+      <li>
+        <strong>Permission Declarations (<code>&lt;uses-permission&gt;</code>):</strong> An upfront declaration of every sensitive device capability or hardware API the application might request.
+      </li>
+    </ul>
+
+    <CodeBlock
+      code={`<!-- Typical Manifest Component & Permission Declaration -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.cameraapp">
+
+    <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="34" />
+
+    <!-- Declaring intent to access sensitive hardware -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:label="Camera App"
+        android:icon="@mipmap/ic_launcher">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>`}
+      lang="xml"
+      filename="AndroidManifest.xml (Application Declarations)"
+    />
+
+    <p>
+      <strong>Essential security principle:</strong> Declaring a permission in the manifest is a formal notice of intent, not an automatic grant. It merely registers the application's desire with PMS.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 04 / APK SIGNATURE -->
+  <section class="article-section">
+    <SectionHeading
+      number="04"
+      tag="SIGNATURE"
+      title="Android Verifies the Package Signer"
+      id="sec-04"
+    />
+
+    <p>
+      Every APK installed on Android must carry a valid cryptographic signature. Android validates the package against its cryptographic signature schemes (ranging from legacy JAR signing v1 up to whole-archive v2, key rotation v3, and Merkle-tree v4 schemes).
+    </p>
+
+    <!-- Diagram 04: Signature Verification -->
+    <ApkSignatureDiagram lang="en" />
+
+    <p>
+      However, there is a <strong>widespread misunderstanding</strong> regarding what an APK signature actually signifies:
+    </p>
+
+    <TechnicalNote
+      lang="en"
+      label="Critical Technical Clarification on Signing"
+      text="An APK signature does NOT prove that the developer is reputable, nor does it guarantee that the code is safe or free of malicious functionality. Anyone—including malware authors—can generate a self-signed X.509 certificate in seconds and sign an APK with it. Android accepts self-signed certificates unconditionally."
+    />
+
+    <p>
+      What an APK signature actually guarantees is two concrete technical invariants:
+    </p>
+
+    <ol>
+      <li>
+        <strong>Package Integrity:</strong> It mathematically proves that not a single byte of the APK archive has been modified or corrupted since the developer signed it. If a third party tampers with <code>classes.dex</code> or injects a payload into <code>res/</code>, the computed cryptographic hash will mismatch the signed digest, and Android immediately halts installation with a signature verification failure.
+      </li>
+      <li>
+        <strong>Update Continuity:</strong> When an app is already installed and signed by Certificate A, any future update bearing the same package name <strong>must be signed by the exact same Certificate A</strong> (or present a cryptographically verified v3 rotation proof). If an update signed by Certificate B is presented, Android rejects it outright with <code>INSTALL_FAILED_UPDATE_INCOMPATIBLE</code>. This prevents hostile third parties from impersonating an installed app and gaining unauthorized access to its private data.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 05 / REGISTRATION & UID -->
+  <section class="article-section">
+    <SectionHeading
+      number="05"
+      tag="UID"
+      title="After Acceptance: The App Becomes a Registered System Entity"
+      id="sec-05"
+    />
+
+    <p>
+      Once validation succeeds, <code>PackageManagerService</code> moves the APK into its permanent location inside <code>/data/app/</code> and commits its metadata to the primary persistent registry:
+    </p>
+
+    <CodeBlock
+      code={`/data/system/packages.xml`}
+      lang="bash"
+      filename="Primary Android Package Registry File"
+    />
+
+    <p>
+      Here lies Android's foundational architectural innovation: building its security model directly on top of the <strong>Linux kernel user separation mechanism (UID Isolation)</strong>.
+    </p>
+
+    <!-- Diagram 05: Linux UID -->
+    <AndroidUidDiagram lang="en" />
+
+    <p>
+      On a traditional multi-user desktop Linux system, all software executed by user "Alice" runs under Alice's user ID (<code>UID 1000</code>). As a result, any desktop program can inspect Alice's home directory or access other running processes belonging to her.
+    </p>
+
+    <p>
+      Android turned this model inside out: <strong>each installed application is assigned its own unique, isolated Linux user account</strong>.
+    </p>
+
+    <ul>
+      <li>App A (Notes) is allocated: <code>u0_a142</code> (Linux <code>UID 10142</code>).</li>
+      <li>App B (Browser) is allocated: <code>u0_a143</code> (Linux <code>UID 10143</code>).</li>
+      <li>App C (Messenger) is allocated: <code>u0_a144</code> (Linux <code>UID 10144</code>).</li>
+    </ul>
+
+    <TechnicalNote
+      lang="en"
+      label="Technical Nuance: Multi-User Profile Mapping"
+      text="A UID is not an immutable global identifier across the universe. It is a calculated, user-specific allocation generated during local installation. On modern devices supporting multi-user profiles (such as Work Profiles or Guest users), the formula multiplies the Android user ID by 100,000. An app assigned UID 10142 under User 0 will run under UID 1010142 under User 10, completely isolating corporate work data from personal data at the kernel level."
+    />
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 06 / APP SANDBOX & DATA -->
+  <section class="article-section">
+    <SectionHeading
+      number="06"
+      tag="SANDBOX"
+      title="Then the App Gets an Isolated Data Sandbox"
+      id="sec-06"
+    />
+
+    <p>
+      With the Linux UID assigned, PMS instructs the <code>installd</code> daemon to create the application's dedicated filesystem sandbox.
+    </p>
+
+    <p>
+      On modern multi-user Android releases, the canonical storage path is created at:
+    </p>
+
+    <CodeBlock
+      code={`/data/user/0/com.example.app/`}
+      lang="bash"
+      filename="Canonical Internal App Data Sandbox"
+    />
+
+    <p>
+      (The familiar legacy path <code>/data/data/com.example.app</code> is maintained primarily as a convenience symlink that resolves directly to the active user's internal directory).
+    </p>
+
+    <!-- Diagram 06: App Sandbox -->
+    <AppSandboxDiagram lang="en" />
+
+    <p>
+      What enforces this directory as an impenetrable sandbox?
+    </p>
+
+    <ol>
+      <li>
+        <strong>Strict POSIX Ownership:</strong> <code>installd</code> sets the owner and group of the entire tree exclusively to the application's allocated identity (<code>u0_a142:u0_a142</code>).
+      </li>
+      <li>
+        <strong>Restrictive Access Mask (<code>0700 / drwx------</code>):</strong> Only processes executing with the matching UID (<code>10142</code>) have permission to read, write, or enter the directory. If App B (running as <code>UID 10143</code>) executes a low-level syscall like <code>open()</code> targeting App A's internal database, the Linux kernel intercepts the request and terminates it immediately with <code>EACCES (Permission Denied)</code>.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 07 / PERMISSIONS -->
+  <section class="article-section">
+    <SectionHeading
+      number="07"
+      tag="PERMISSIONS"
+      title="Install Does Not Mean All Permissions Are Granted"
+      id="sec-07"
+    />
+
+    <p>
+      A successful installation does not grant an application blanket authority over device hardware or private user data. Android stratifies permissions by security risk using its <code>protectionLevel</code> attribute:
+    </p>
+
+    <!-- Diagram 07: Permissions Pipeline -->
+    <AndroidPermissionsDiagram lang="en" />
+
+    <ul>
+      <li>
+        <strong>Normal Permissions (<code>PROTECTION_NORMAL</code>):</strong>
+        Capabilities such as accessing the internet (<code>INTERNET</code>) or reading network connectivity state (<code>ACCESS_NETWORK_STATE</code>). Because these present minimal direct privacy risk to personal files on disk, Android grants them automatically at installation time without interrupting the user.
+      </li>
+      <li>
+        <strong>Dangerous / Runtime Permissions (<code>PROTECTION_DANGEROUS</code>):</strong>
+        Capabilities that interact directly with private user data or sensitive hardware (such as <code>CAMERA</code>, <code>RECORD_AUDIO</code>, <code>ACCESS_FINE_LOCATION</code>, and contacts). These permissions remain <strong>dormant and ungranted</strong> upon installation. The app must explicitly invoke <code>requestPermissions()</code> during active runtime, presenting a system-controlled prompt that requires user consent.
+      </li>
+      <li>
+        <strong>Special App Access:</strong>
+        High-impact privileges like broad storage management (<code>MANAGE_EXTERNAL_STORAGE</code>) or Accessibility services. These cannot be granted via simple runtime popups; the user must deliberately navigate deep into system Settings to enable them manually.
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 08 / WHAT HAPPENS TO THE CODE -->
+  <section class="article-section">
+    <SectionHeading
+      number="08"
+      tag="ART"
+      title="Where Does classes.dex Go?"
+      id="sec-08"
+    />
+
+    <p>
+      The <code>classes.dex</code> bytecode inside the package is compiled for the Android Runtime (ART).
+    </p>
+
+    <p>
+      Historically, Android navigated extremes: early Dalvik simply interpreted bytecode on the fly, while Android 5.0 introduced pure Ahead-Of-Time (AOT) compilation, which compiled every single method during installation, leading to painful 20-minute app install times and bloated storage footprint.
+    </p>
+
+    <!-- Diagram 08: ART Execution -->
+    <ArtExecutionDiagram lang="en" />
+
+    <p>
+      Modern Android devices resolve this through a sophisticated <strong>hybrid compilation model</strong>:
+    </p>
+
+    <ol>
+      <li>
+        <strong>Instant Launch via JIT:</strong> Upon first launch, ART executes the DEX bytecode using an optimized Just-In-Time (JIT) compiler. Installations finish almost instantaneously.
+      </li>
+      <li>
+        <strong>Dynamic Profiling:</strong> As you navigate the app, ART monitors which methods are executed frequently and writes their signatures into a lightweight profile file (<code>app.prof</code>).
+      </li>
+      <li>
+        <strong>Idle Background AOT (<code>dex2oat</code>):</strong> When your phone is plugged into a charger and left idle, a background maintenance daemon executes <code>dex2oat</code>. It parses the profile file and compiles only the frequently used "hot" code paths into optimized native machine code stored in <code>.odex</code> and <code>.vdex</code> artifacts. Subsequent launches load pre-compiled native code with zero JIT overhead.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 09 / FIRST LAUNCH -->
+  <section class="article-section">
+    <SectionHeading
+      number="09"
+      tag="PROCESS"
+      title="Installation Is Complete… But the App Has Not Started Yet"
+      id="sec-09"
+    />
+
+    <p>
+      There is an essential architectural distinction that is often overlooked:
+    </p>
+
+    <div style="padding: 1.25rem 1.5rem; border: 1px solid var(--color-hairline); background-color: var(--color-bg-warm); margin-block: 1.5rem; font-family: var(--font-mono); font-size: 0.95rem;">
+      <strong style="color: var(--color-olive);">ARCHITECTURAL AXIOM:</strong> An installed package resting on disk is fundamentally distinct from an active process running in memory (<strong>Installed Package ≠ Running Process</strong>).
+    </div>
+
+    <p>
+      Until invoked, an installed app is entirely inert. It possesses no Process ID (PID), occupies zero RAM, and consumes zero CPU cycles.
+    </p>
+
+    <p>
+      When does the app actually come alive? Only when the user taps its launcher icon, or when an explicit Intent targets one of its exported components:
+    </p>
+
+    <!-- Diagram 09: Process Spawn -->
+    <AndroidProcessDiagram lang="en" />
+
+    <ol>
+      <li>The Launcher sends a launch Intent to <code>ActivityTaskManagerService</code>.</li>
+      <li>The system verifies that no running process currently hosts this UID. It opens a local UNIX socket connection to Android's master process incubator: <strong>Zygote</strong>.</li>
+      <li><strong>Cloning via <code>fork()</code>:</strong> The root Zygote process—which preloads the entire Android core framework and common class libraries into RAM at boot—clones itself via the Linux <code>fork()</code> system call. Thanks to copy-on-write memory sharing, the new process spawns in milliseconds.</li>
+      <li><strong>Dropping Privileges:</strong> While the child process begins with root privileges, it immediately invokes the kernel syscall <code>setresuid()</code> to permanently demote itself to the application's unprivileged user ID (e.g. <code>UID 10142</code>), while simultaneously applying its strict SELinux domain (<code>u:r:untrusted_app:s0</code>).</li>
+      <li>The runtime initializes <code>ActivityThread.main()</code>, attaches to the system framework, executes <code>Application.onCreate()</code>, and finally calls <code>Activity.onCreate()</code> to render the first pixel on your screen.</li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 10 / ACCESS REALITY -->
+  <section class="article-section">
+    <SectionHeading
+      number="10"
+      tag="ACCESS"
+      title="So What Can the App Actually Access?"
+      id="sec-10"
+    />
+
+    <p>
+      When we review the complete journey from raw APK archive to running application, an app's actual capabilities are governed not by a single wall, but by <strong>seven concentric layers of defense-in-depth</strong>:
+    </p>
+
+    <ul>
+      <li><strong>Linux UID &amp; App Sandbox:</strong> Confines the process strictly to its own internal data directory and isolates its memory space from all peer applications.</li>
+      <li><strong>Granted Runtime Permissions:</strong> Hardware features (cameras, microphones, location sensors) remain locked until explicit user consent is confirmed.</li>
+      <li><strong>Android Framework APIs:</strong> Applications cannot make arbitrary raw hardware calls; all interactions pass through monitored system service IPC proxies.</li>
+      <li><strong>Scoped Storage Boundaries:</strong> Apps no longer have free-form access to shared external storage; media files and documents are mediated through isolated directory access or the system Photo Picker.</li>
+      <li><strong>Component Exposure Filters:</strong> Components not marked with <code>exported="true"</code> are unreachable by external apps on the device.</li>
+      <li><strong>Platform Security Policies:</strong> System rules govern background execution limits, power consumption restrictions, and non-SDK interface blacklists.</li>
+      <li><strong>SELinux Mandatory Access Control (MAC):</strong> Even if an attacker finds a vulnerability that compromises the app's UID, the kernel enforces SELinux rules restricting the <code>untrusted_app</code> domain, preventing unauthorized execution of binaries, raw socket creation, or access to sensitive system nodes.</li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 11 / FINAL SUMMARY -->
+  <section class="article-section">
+    <SectionHeading
+      number="11"
+      tag="KEY TAKEAWAY"
+      title="Install Does Not Mean Full Access"
+      id="sec-11"
+    />
+
+    <p style="font-size: 1.25rem; font-weight: 600; color: var(--color-ink); line-height: 1.85;">
+      Installing an APK registers an application with Android. It does not hand the app unrestricted access to the device.
+    </p>
+
+    <p>
+      Android progresses through a multi-stage validation sequence to parse the package, verify cryptographic continuity, allocate a discrete Linux identity, and construct an isolated sandbox governed by runtime permissions and platform policy.
+    </p>
+
+    <p style="font-size: 1.15rem; color: var(--color-ink-muted); line-height: 1.8;">
+      Installation is merely the beginning. What the app can actually do next is governed by multiple other layers of Android.
+    </p>
+
+    <!-- Standard Site CTA Box -->
+    <div style="padding: 1.5rem; border: 1px solid var(--color-hairline); background-color: var(--color-bg-warm); margin-block: 2.5rem;">
+      <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--color-olive); margin-block-end: 0.5rem;">
+        FOR DEEPER TECHNICAL BREAKDOWNS &amp; FUTURE NOTES
+      </div>
+      <p style="margin: 0; font-size: 1.15rem; font-weight: 600; line-height: 1.85; color: var(--color-ink);">
+        Explore more systems engineering and security writeups at:
+        <a href="https://writeups.mouhibmahadbi.online" target="_blank" rel="noopener noreferrer" style="color: var(--color-olive); text-decoration: underline; margin-inline-start: 0.35rem;">
+          writeups.mouhibmahadbi.online
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Related Articles -->
+  <ContinueReading currentArticleId="what-happens-when-you-install-an-apk" lang="en" />
+
+</ArticleLayout>
