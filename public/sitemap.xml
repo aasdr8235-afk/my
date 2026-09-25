@@ -3,7 +3,7 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://writeups.mouhibmahadbi.online/ar/</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="https://writeups.mouhibmahadbi.online/ar/"/>
@@ -11,7 +11,7 @@
   </url>
   <url>
     <loc>https://writeups.mouhibmahadbi.online/en/</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="https://writeups.mouhibmahadbi.online/ar/"/>
@@ -80,5 +80,37 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="https://writeups.mouhibmahadbi.online/ar/articles/what-happens-when-you-install-an-apk/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://writeups.mouhibmahadbi.online/en/articles/what-happens-when-you-install-an-apk/"/>
+  </url>
+  <url>
+    <loc>https://writeups.mouhibmahadbi.online/ar/articles/how-your-message-reaches-another-phone/</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://writeups.mouhibmahadbi.online/ar/articles/how-your-message-reaches-another-phone/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://writeups.mouhibmahadbi.online/en/articles/how-your-message-reaches-another-phone/"/>
+  </url>
+  <url>
+    <loc>https://writeups.mouhibmahadbi.online/en/articles/how-your-message-reaches-another-phone/</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://writeups.mouhibmahadbi.online/ar/articles/how-your-message-reaches-another-phone/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://writeups.mouhibmahadbi.online/en/articles/how-your-message-reaches-another-phone/"/>
+  </url>
+  <url>
+    <loc>https://writeups.mouhibmahadbi.online/ar/articles/how-contactless-payment-works/</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://writeups.mouhibmahadbi.online/ar/articles/how-contactless-payment-works/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://writeups.mouhibmahadbi.online/en/articles/how-contactless-payment-works/"/>
+  </url>
+  <url>
+    <loc>https://writeups.mouhibmahadbi.online/en/articles/how-contactless-payment-works/</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://writeups.mouhibmahadbi.online/ar/articles/how-contactless-payment-works/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://writeups.mouhibmahadbi.online/en/articles/how-contactless-payment-works/"/>
   </url>
 </urlset>

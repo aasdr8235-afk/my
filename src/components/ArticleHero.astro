@@ -3,6 +3,8 @@ import HeroDiagram from './diagrams/HeroDiagram.astro';
 import VpnTrustModelDiagram from './diagrams/VpnTrustModelDiagram.astro';
 import BrowserRenderPipelineDiagram from './diagrams/BrowserRenderPipelineDiagram.astro';
 import ApkInstallJourneyDiagram from './diagrams/ApkInstallJourneyDiagram.astro';
+import MessageSendOverviewDiagram from './diagrams/MessageSendOverviewDiagram.astro';
+import ContactlessTapDiagram from './diagrams/ContactlessTapDiagram.astro';
 
 interface Props {
   lang: 'ar' | 'en';
@@ -28,13 +30,17 @@ const {
   breadcrumbCurrent
 } = Astro.props;
 
+const isPayment = currentPath.includes('how-contactless-payment-works');
+const isMessage = currentPath.includes('how-your-message-reaches-another-phone');
 const isApk = currentPath.includes('what-happens-when-you-install-an-apk');
 const isVpn = currentPath.includes('what-a-vpn-actually-does');
 const isDomain = currentPath.includes('what-happens-when-you-type-a-domain');
-const issueNumber = isApk ? '04' : isVpn ? '03' : isDomain ? '02' : '01';
+const issueNumber = isPayment ? '06' : isMessage ? '05' : isApk ? '04' : isVpn ? '03' : isDomain ? '02' : '01';
 
 const resolvedCategory = breadcrumbCategory || category;
 const resolvedCurrent = breadcrumbCurrent || (
+  isPayment ? (lang === 'ar' ? 'الدفع اللاتلامسي' : 'Contactless Payment') :
+  isMessage ? (lang === 'ar' ? 'رحلة الرسالة الفورية' : 'Instant Message Delivery') :
   isApk ? (lang === 'ar' ? 'تثبيت APK' : 'APK Installation') :
   isVpn ? (lang === 'ar' ? 'عمل الـVPN' : 'VPN Operation') :
   isDomain ? (lang === 'ar' ? 'رحلة النطاق' : 'Domain Journey') :
@@ -111,7 +117,11 @@ const resolvedCurrent = breadcrumbCurrent || (
 
   <!-- Hero Technical Architectural Diagram -->
   <div class="hero-diagram-slot" style="margin-block-start: 2.5rem;">
-    {isApk ? (
+    {isPayment ? (
+      <ContactlessTapDiagram lang={lang} />
+    ) : isMessage ? (
+      <MessageSendOverviewDiagram lang={lang} />
+    ) : isApk ? (
       <ApkInstallJourneyDiagram lang={lang} />
     ) : isVpn ? (
       <VpnTrustModelDiagram lang={lang} />

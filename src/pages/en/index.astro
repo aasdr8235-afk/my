@@ -9,6 +9,8 @@ import VpnTrustShiftDiagram from '../../components/diagrams/VpnTrustShiftDiagram
 import DnsResolutionDiagram from '../../components/diagrams/DnsResolutionDiagram.astro';
 import LoginFlowDiagram from '../../components/diagrams/LoginFlowDiagram.astro';
 import ApkThumbnailDiagram from '../../components/diagrams/ApkThumbnailDiagram.astro';
+import MessageThumbnailDiagram from '../../components/diagrams/MessageThumbnailDiagram.astro';
+import PaymentThumbnailDiagram from '../../components/diagrams/PaymentThumbnailDiagram.astro';
 
 const pageTitle = "Mouhib Writeups — Technical Notes on Security, Networks & Systems";
 const pageDescription = "Technical writeups and notes on web security, networking, Linux, and system internals. Learning things deeply, experimenting, and explaining how they actually work. By Mouhib MH.";
@@ -79,11 +81,12 @@ const pageDescription = "Technical writeups and notes on web security, networkin
     <nav id="topics" class="topic-filters-wrapper" aria-label="Topic Filter">
       <span class="topic-filters-label">Filter by Focus:</span>
       <div class="topic-filter-buttons" role="tablist">
-        <button type="button" class="topic-btn is-active" data-filter="all">All (4)</button>
+        <button type="button" class="topic-btn is-active" data-filter="all">All (6)</button>
         <button type="button" class="topic-btn" data-filter="cybersecurity">Cybersecurity (1)</button>
-        <button type="button" class="topic-btn" data-filter="networking">Networking (1)</button>
+        <button type="button" class="topic-btn" data-filter="networking">Networking (2)</button>
         <button type="button" class="topic-btn" data-filter="privacy">Privacy &amp; Tunnels (1)</button>
         <button type="button" class="topic-btn" data-filter="mobile">Mobile &amp; Android (1)</button>
+        <button type="button" class="topic-btn" data-filter="payments">Payment Systems (1)</button>
       </div>
     </nav>
 
@@ -91,8 +94,74 @@ const pageDescription = "Technical writeups and notes on web security, networkin
     <section id="articles" class="editorial-pub-rows" aria-label="Articles">
       <div class="index-section-header">
         <span class="index-section-title">ALL WRITEUPS</span>
-        <span class="index-section-count">4 PUBLISHED ARTICLES</span>
+        <span class="index-section-count">6 PUBLISHED ARTICLES</span>
       </div>
+
+      <!-- Row 06: How Contactless Payment Works -->
+      <article class="editorial-pub-row is-reversed" data-category="payments">
+        <div class="pub-row-content">
+          <div class="pub-row-meta">
+            <span class="pub-row-number">06</span>
+            <span>/</span>
+            <span class="pub-row-category">HARDWARE / PAYMENTS</span>
+            <span>•</span>
+            <span class="pub-row-time">15 min read</span>
+          </div>
+
+          <h2 class="pub-row-title">
+            <a href="/en/articles/how-contactless-payment-works/">
+              You Tapped Your Card on a Payment Terminal. How Was the Payment Approved in Seconds?
+            </a>
+          </h2>
+
+          <p class="pub-row-excerpt">
+            A technical teardown of contactless payment: from NFC inductive coupling and the EMV protocol to dynamic ARQC cryptograms, ISO message routing, and issuer bank authorization.
+          </p>
+
+          <div class="pub-row-action">
+            <a href="/en/articles/how-contactless-payment-works/" class="pub-row-link">
+              Read article →
+            </a>
+          </div>
+        </div>
+
+        <div class="pub-row-visual">
+          <PaymentThumbnailDiagram lang="en" />
+        </div>
+      </article>
+
+      <!-- Row 05: How Your Message Reaches Another Phone -->
+      <article class="editorial-pub-row" data-category="networking">
+        <div class="pub-row-content">
+          <div class="pub-row-meta">
+            <span class="pub-row-number">05</span>
+            <span>/</span>
+            <span class="pub-row-category">NETWORKING / MESSAGING</span>
+            <span>•</span>
+            <span class="pub-row-time">16 min read</span>
+          </div>
+
+          <h2 class="pub-row-title">
+            <a href="/en/articles/how-your-message-reaches-another-phone/">
+              You Pressed Send. How Did Your Message Reach Another Phone?
+            </a>
+          </h2>
+
+          <p class="pub-row-excerpt">
+            The step-by-step journey of an instant message: from serialization and transport security to edge gateways, store-and-forward queues, push notification wakeups, and local decryption.
+          </p>
+
+          <div class="pub-row-action">
+            <a href="/en/articles/how-your-message-reaches-another-phone/" class="pub-row-link">
+              Read article →
+            </a>
+          </div>
+        </div>
+
+        <div class="pub-row-visual">
+          <MessageThumbnailDiagram lang="en" />
+        </div>
+      </article>
 
       <!-- Row 04: What Happens When You Install an APK -->
       <article class="editorial-pub-row is-reversed" data-category="mobile">

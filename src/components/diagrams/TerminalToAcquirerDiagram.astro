@@ -1,0 +1,116 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مسار الرسالة من جهاز التاجر إلى البنك المستحوذ' : 'Packaging and transport from merchant terminal to acquirer'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">
+      {lang === 'ar' ? 'مخطط 05 / إرسال التفويض' : 'FIGURE 05 / TERMINAL TO ACQUIRER'}
+    </span>
+    <span>
+      {lang === 'ar' ? 'تجميع رسالة التفويض المالي ونقلها إلى البنك المستحوذ (Acquirer)' : 'Financial authorization messaging (e.g. ISO 8583 / AS 2805 conceptual format)'}
+    </span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 680px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="acq-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+        <marker id="acq-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="acq-arr-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Step 1: POS Terminal Packaging -->
+      <g transform="translate(25, 30)">
+        <rect width="210" height="215" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="210" height="26" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="12" y="17" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">1. MERCHANT POS TERMINAL</text>
+
+        <rect x="10" y="36" width="190" height="52" fill="#FAF8F2" stroke="#151515" stroke-width="0.7"/>
+        <text x="14" y="50" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">ASSEMBLE AUTH PACKET</text>
+        <text x="14" y="64" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Merges chip APDU data</text>
+        <text x="14" y="78" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Adds Merchant ID &amp; Terminal ID</text>
+
+        <rect x="10" y="96" width="190" height="52" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="14" y="110" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">LOCAL ENCRYPTION</text>
+        <text x="14" y="124" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Point-to-Point Encryption (P2PE)</text>
+        <text x="14" y="138" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Cardholder data protected in POS</text>
+
+        <rect x="10" y="156" width="190" height="42" fill="#EBE7DE" stroke="#151515" stroke-width="0.6"/>
+        <text x="14" y="172" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#151515">DISPATCH TRANSPORT</text>
+        <text x="14" y="186" font-family="sans-serif" font-size="7" fill="#5F5D56">Ethernet / 4G cellular TLS socket</text>
+      </g>
+
+      <!-- Arrow 1 -> 2 -->
+      <line x1="235" y1="140" x2="275" y2="140" stroke="#5F6849" stroke-width="1.8" marker-end="url(#acq-arr-olive)"/>
+      <text x="240" y="130" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F6849">TLS</text>
+
+      <!-- Middle: Structured Financial Message (ISO 8583 Example) -->
+      <g transform="translate(285, 30)">
+        <rect width="250" height="215" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.6"/>
+        <rect width="250" height="26" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="12" y="17" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">2. AUTHORIZATION MESSAGE (ISO 8583)</text>
+
+        <!-- Message Fields representation -->
+        <g transform="translate(10, 36)">
+          <rect width="230" height="26" fill="#FAF8F2" stroke="#151515" stroke-width="0.6"/>
+          <text x="10" y="17" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#151515">MTI: 0100</text>
+          <text x="90" y="17" font-family="sans-serif" font-size="7" fill="#5F5D56">Authorization Request</text>
+
+          <rect y="30" width="230" height="26" fill="#FAF8F2" stroke="#151515" stroke-width="0.6"/>
+          <text x="10" y="47" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#151515">Field 2: PAN</text>
+          <text x="90" y="47" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">4111 •••• •••• 8492</text>
+
+          <rect y="60" width="230" height="26" fill="#FAF8F2" stroke="#151515" stroke-width="0.6"/>
+          <text x="10" y="77" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#151515">Field 4: Amount</text>
+          <text x="90" y="77" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">$000000002450 (USD)</text>
+
+          <rect y="90" width="230" height="34" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+          <text x="10" y="105" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">Field 55: EMV DATA</text>
+          <text x="10" y="117" font-family="'JetBrains Mono', monospace" font-size="6.5" fill="#151515">ARQC, ATC, UN, AIP, TVR</text>
+        </g>
+
+        <rect x="10" y="168" width="230" height="34" fill="url(#acq-hatch)" stroke="#151515" stroke-width="0.6"/>
+        <text x="16" y="184" font-family="sans-serif" font-size="7" fill="#151515">Common industry format example (AS 2805 / Nexo)</text>
+        <text x="16" y="196" font-family="sans-serif" font-size="7" fill="#5F5D56">Not universal; varies by merchant gateway</text>
+      </g>
+
+      <!-- Arrow 2 -> 3 -->
+      <line x1="535" y1="140" x2="575" y2="140" stroke="#151515" stroke-width="1.8" marker-end="url(#acq-arr)"/>
+
+      <!-- Step 3: Merchant Acquirer / Processor -->
+      <g transform="translate(585, 30)">
+        <rect width="210" height="215" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="210" height="26" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="12" y="17" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">3. ACQUIRING PROCESSOR</text>
+
+        <rect x="10" y="36" width="190" height="52" fill="#FAF8F2" stroke="#151515" stroke-width="0.7"/>
+        <text x="14" y="50" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">MERCHANT VALIDATION</text>
+        <text x="14" y="64" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Verifies merchant account</text>
+        <text x="14" y="78" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Checks terminal registration</text>
+
+        <rect x="10" y="96" width="190" height="52" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="14" y="110" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">BIN LOOKUP & ROUTE</text>
+        <text x="14" y="124" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• First 6-8 digits identify brand</text>
+        <text x="14" y="138" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Prepares card scheme uplink</text>
+
+        <rect x="10" y="156" width="190" height="42" fill="#EBE7DE" stroke="#151515" stroke-width="0.6"/>
+        <text x="14" y="172" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#151515">CARD SCHEME UPLINK</text>
+        <text x="14" y="186" font-family="sans-serif" font-size="7" fill="#5F5D56">Dispatches to Visa / Mastercard</text>
+      </g>
+    </svg>
+  </div>
+</figure>

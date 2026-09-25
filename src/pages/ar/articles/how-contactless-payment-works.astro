@@ -1,0 +1,489 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import SectionHeading from '../../../components/SectionHeading.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import TechnicalNote from '../../../components/TechnicalNote.astro';
+import ContinueReading from '../../../components/ContinueReading.astro';
+
+// Technical SVG Diagrams
+import ContactlessTapDiagram from '../../../components/diagrams/ContactlessTapDiagram.astro';
+import NfcFieldDiagram from '../../../components/diagrams/NfcFieldDiagram.astro';
+import PaymentDataExchangeDiagram from '../../../components/diagrams/PaymentDataExchangeDiagram.astro';
+import DynamicTransactionDiagram from '../../../components/diagrams/DynamicTransactionDiagram.astro';
+import TerminalToAcquirerDiagram from '../../../components/diagrams/TerminalToAcquirerDiagram.astro';
+import PaymentNetworkRoutingDiagram from '../../../components/diagrams/PaymentNetworkRoutingDiagram.astro';
+import IssuerDecisionDiagram from '../../../components/diagrams/IssuerDecisionDiagram.astro';
+import ApproveDeclineReturnDiagram from '../../../components/diagrams/ApproveDeclineReturnDiagram.astro';
+import CardVsPhoneWalletDiagram from '../../../components/diagrams/CardVsPhoneWalletDiagram.astro';
+import ContactlessSummaryDiagram from '../../../components/diagrams/ContactlessSummaryDiagram.astro';
+
+const tocItems = [
+  { id: 'sec-01', num: '01', title: 'الحث الكهرومغناطيسي' },
+  { id: 'sec-02', num: '02', title: 'مصافحة البروتوكول' },
+  { id: 'sec-03', num: '03', title: 'أوامر APDU' },
+  { id: 'sec-04', num: '04', title: 'التشفير الديناميكي' },
+  { id: 'sec-05', num: '05', title: 'البنك المستحوذ' },
+  { id: 'sec-06', num: '06', title: 'شبكات البطاقات' },
+  { id: 'sec-07', num: '07', title: 'قرار البنك المصدر' },
+  { id: 'sec-08', num: '08', title: 'مسار العودة' },
+  { id: 'sec-09', num: '09', title: 'المحافظ والترميز' },
+  { id: 'sec-10', num: '10', title: 'التفويض والتسوية' }
+];
+
+const pageTitle = "قرّبت بطاقتك من جهاز الدفع… كيف تمت العملية في ثوانٍ؟";
+const pageSubtitle = "بين ملامسة البطاقة للجهاز وسماع صوت التأكيد، دارت محادثة كهرومغناطيسية وتشفيرية قطعت آلاف الكيلومترات بين قارئ المتجر، شبكات البطاقات، وخوادم البنك المصدر.";
+const pageDescription = "تفكيك شامل لعملية الدفع اللاتلامسي: من الحث الكهرومغناطيسي لـNFC وبروتوكول EMV، إلى توليد التشفير الديناميكي ARQC، ورسائل شبكات الدفع، وقرار البنك المصدر.";
+const socialTitle = "قرّبت بطاقتك من جهاز الدفع… ماذا حدث خلال ثانيتين؟";
+const ogImage = "/assets/og/how-contactless-payment-works.jpg";
+
+const references = [
+  {
+    num: '[01]',
+    title: 'EMV Contactless Specifications for Payment Systems: Book C-2 & Architecture',
+    org: 'EMVCo Technical Architecture Group',
+    link: 'https://www.emvco.com/emv-technologies/contactless/'
+  },
+  {
+    num: '[02]',
+    title: 'ISO/IEC 14443: Identification Cards — Contactless Integrated Circuit Cards',
+    org: 'International Organization for Standardization (ISO)',
+    link: 'https://www.iso.org/standard/73596.html'
+  },
+  {
+    num: '[03]',
+    title: 'ISO 8583: Financial Transaction Card Originated Messages — Interchange Message Specifications',
+    org: 'ISO Financial Services Standards Committee',
+    link: 'https://www.iso.org/standard/31628.html'
+  },
+  {
+    num: '[04]',
+    title: 'PCI SSC: Point-to-Point Encryption (P2PE) Standard & Secure Elements',
+    org: 'Payment Card Industry Security Standards Council',
+    link: 'https://www.pcisecuritystandards.org/standards/p2pe/'
+  }
+];
+
+const displayTitle = 'قرّبت بطاقتك من جهاز الدفع… كيف تمت العملية في ثوانٍ؟';
+---
+
+<ArticleLayout
+  title={pageTitle}
+  displayTitle={displayTitle}
+  subtitle={pageSubtitle}
+  description={pageDescription}
+  lang="ar"
+  arUrl="/ar/articles/how-contactless-payment-works/"
+  enUrl="/en/articles/how-contactless-payment-works/"
+  currentPath="/ar/articles/how-contactless-payment-works/"
+  tocItems={tocItems}
+  categoryText="الأجهزة / المدفوعات"
+  articleMeta="مقال 06 / التقنية المالية وبروتوكولات الدفع"
+  references={references}
+  socialTitle={socialTitle}
+  ogImage={ogImage}
+  publishedDate="2026-09-25"
+  modifiedDate="2026-09-25"
+  breadcrumbCategory="الأجهزة والمدفوعات"
+  breadcrumbCurrent="الدفع اللاتلامسي"
+>
+
+  <!-- 01 / PHYSICAL CONTACT & INDUCTIVE COUPLING -->
+  <section class="article-section">
+    <SectionHeading
+      number="01"
+      tag="الحث الكهرومغناطيسي"
+      title="البطاقة لا تملك بطارية: كيف تبدأ الشريحة بالعمل؟"
+      id="sec-01"
+    />
+
+    <p>
+      تقف أمام الصندوق، تقرّب بطاقتك البنكية أو هاتفك من قارئ نقاط البيع (<span class="term" dir="ltr">POS Terminal</span>). بعد ثانية أو اثنتين، تضيء أربعة أضواء خضراء، تصدر صفارة ناعمة، وتظهر كلمة <span class="term" dir="ltr">&quot;APPROVED&quot;</span> على الشاشة.
+    </p>
+
+    <p>
+      في تلك اللحظة الوجيزة، لم تكن العملية مجرد &quot;قراءة رقم البطاقة&quot;؛ بل كانت تفاعلاً هندسيًا وفيزيائيًا متعدد الأطراف: من حث كهرومغناطيسي يغذي شريحة إلكترونية بالطاقة دون بطارية، إلى تبادل أوامر برمجية مشفرة، مرورًا بشبكات اتصالات دولية ومراكز فحص احتيال في بنوك تقع في قارات أخرى.
+    </p>
+
+    <p>
+      أول ما يثير الفضول الهندسي هو أن <strong>البطاقة البلاستيكية لا تحتوي على أي بطارية داخلية</strong>. إذن، كيف يستيقظ المعالج الدقيق المدمج داخلها؟
+    </p>
+
+    <p>
+      السر يكمن في <strong>الاقتران الحثي الكهرومغناطيسي (<bdi dir="ltr">Inductive Coupling</bdi>)</strong>:
+    </p>
+
+    <ul>
+      <li>
+        <strong>المجال الكهرومغناطيسي النشط:</strong> يولد جهاز الدفع مجالًا مغناطيسيًا متذبذبًا بتردد راديوي قياسي هو <strong>13.56 ميغاهرتز</strong>، وفق معايير الاتصال قريب المدى (<span class="term" dir="ltr">NFC / ISO/IEC 14443</span>).
+      </li>
+      <li>
+        <strong>هوائي البطاقة والحث الكهربائي:</strong> داخل البطاقة البلاستيكية حلقة نحاسية رفيعة تمتد حول حواف البطاقة وتتصل مباشرة بالشريحة الذكية (<span class="term" dir="ltr">Contactless Payment Chip</span>). عندما تدخل البطاقة في نطاق المجال (على مسافة بضعة سنتيمترات)، يولد الفيض المغناطيسي المتغير قوة دافعة كهربائية حثية (<span class="term" dir="ltr">Induced EMF</span>) داخل الحلقة، عملاً بقانون فاراداي للتحريض الكهرومغناطيسي.
+      </li>
+      <li>
+        <strong>تغذية الشريحة وإقلاع المعالج:</strong> تقوم دائرة مقوم مصغرة داخل الشريحة بتحويل التيار المتردد الحثي إلى تيار مستمر وتخزينه في مكثف صغير. في غضون <strong>أقل من 10 أجزاء من الألف من الثانية</strong>، يستيقظ المعالج الدقيق للبطاقة ويبدأ تنفيذ نظامه التشغيلي المصغر.
+      </li>
+    </ul>
+
+    <!-- Diagram 02: NFC Field -->
+    <NfcFieldDiagram lang="ar" />
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 02 / PROTOCOL HANDSHAKE -->
+  <section class="article-section">
+    <SectionHeading
+      number="02"
+      tag="مصافحة البروتوكول"
+      title="بروتوكول ISO/IEC 14443 وEMV: التعرف على البطاقة"
+      id="sec-02"
+    />
+
+    <p>
+      بمجرد أن تستيقظ شريحة البطاقة، يدخل الطرفان في مرحلة التفاوض الأولي ومصافحة التردد الراديوي:
+    </p>
+
+    <ol>
+      <li>
+        <strong>اكتشاف الوجود وحل التصادم (<bdi dir="ltr">Polling &amp; Anticollision</bdi>):</strong> يرسل جهاز الدفع إشارات استطلاع دورية. إذا وُجدت أكثر من بطاقة في المجال (كأن تقرّب محفظتك وبها بطاقتان)، يكتشف البروتوكول تداخل الإشارات ويجري خوارزمية حل التصادم لاختيار بطاقة واحدة والتخاطب معها بشكل فردي دون ارتباك.
+      </li>
+      <li>
+        <strong>تحديد نوع التضمين (<bdi dir="ltr">Type A / Type B</bdi>):</strong> يحدد الجهاز طريقة التعديل اللاسلكي المستخدمة لنقل البايتات بين الهوائيين وفق تصنيفات المعيار الدولي <span class="term" dir="ltr">ISO/IEC 14443-3</span>.
+      </li>
+      <li>
+        <strong>تأسيس بروتوكول الإطارات (<bdi dir="ltr">ISO/IEC 14443-4 / T=CL</bdi>):</strong> بعد انتهاء المستوى الفيزيائي، يتفق الطرفان على قواعد تجزئة البيانات والتحكم في التدفق (<span class="term" dir="ltr">Transport Protocol for Contactless</span>)، لتبدأ مرحلة الحوار المالي الأعلى: <strong>بروتوكول EMV اللاتلامسي (<bdi dir="ltr">EMV Contactless Kernel</bdi>)</strong>.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 03 / APDU DATA EXCHANGE -->
+  <section class="article-section">
+    <SectionHeading
+      number="03"
+      tag="أوامر APDU"
+      title="حوار الأوامر اللاتلامسية: ماذا يسأل القارئ وماذا تجيب الشريحة؟"
+      id="sec-03"
+    />
+
+    <p>
+      التواصل بين جهاز الدفع والبطاقة يتم عبر وحدات بيانات برمجية تُعرف بـ <strong>أوامر واستجابات APDU (<bdi dir="ltr">Application Protocol Data Units</bdi>)</strong>. 
+    </p>
+
+    <!-- Diagram 03: Payment Data Exchange -->
+    <PaymentDataExchangeDiagram lang="ar" />
+
+    <p>
+      في حوار الدفع اللاتلامسي النموذجي لبروتوكول <span class="term" dir="ltr">EMV</span>، يتبادل الطرفان سلسلة سريعة من الأوامر المهيكلة:
+    </p>
+
+    <ul>
+      <li>
+        <strong>1. اختيار تطبيق البيئة اللاتلامسية (<bdi dir="ltr">SELECT PPSE / AID</bdi>):</strong> يرسل القارئ أمرًا لاختيار بيئة الدفع اللاتلامسي الموحدة (<span class="term" dir="ltr">2PAY.SYS.DDF01</span>). تجيب البطاقة بقائمة التطبيقات التي تدعمها ومعرّفاتها الرسمية (<span class="term" dir="ltr">Application Identifier / AID</span>)، مثل معرّف فيزا (<span class="term" dir="ltr">A0000000031010</span>) أو ماستركارد (<span class="term" dir="ltr">A0000000041010</span>) أو شبكات الدفع الوطنية. يختار القارئ التطبيق المشترك المتوافق.
+      </li>
+      <li>
+        <strong>2. طلب خيارات المعالجة (<bdi dir="ltr">GET PROCESSING OPTIONS / GPO</bdi>):</strong> يرسل الجهاز بيانات العملية الأولية (مثل المبلغ والعملة والميزات التي يدعمها القارئ) وفق قائمة يطلبها التطبيق (<span class="term" dir="ltr">PDOL</span>). تجيب الشريحة بملف تعريف التبادل (<span class="term" dir="ltr">AIP</span>) ومحدد موقع سجلات الملفات (<span class="term" dir="ltr">Application File Locator / AFL</span>) الذي يحدد السجلات التي تحتوي على بيانات الحساب.
+      </li>
+      <li>
+        <strong>3. قراءة سجلات الحساب (<bdi dir="ltr">READ RECORDS</bdi>):</strong> يقرأ الجهاز سجلات البطاقة المحددة في الخطوة السابقة، والتي تتضمن رقم الحساب الأساسي (<span class="term" dir="ltr">PAN</span>)، وتاريخ انتهاء الصلاحية، وشهادات الأمان العامة الصادرة من البنك ومخطط البطاقات للتحقق من سلامة البطاقة دون اتصال.
+      </li>
+      <li>
+        <strong>4. طلب توليد التشفير الديناميكي (<bdi dir="ltr">GENERATE AC</bdi>):</strong> يطلب الجهاز من الشريحة إنتاج برهان تشفيري يثبت صحة العملية وقبول إرسالها إلى البنك.
+      </li>
+    </ul>
+
+    <TechnicalNote
+      title="تنوع نوى EMV اللاتلامسية (Contactless Kernels)"
+      category="EMV ARCHITECTURE"
+      lang="ar"
+    >
+      يجدر التنويه هندسيًا بأن تسلسل أوامر <span class="term" dir="ltr">APDU</span> ليس متطابقًا حرفيًا بنسبة 100% في جميع الأجهزة؛ حيث تمتلك كل شبكة دفع نواتها البرمجية اللاتلامسية الخاصة (<bdi dir="ltr">Kernel</bdi>) المعتمدة من منظمة EMVCo (مثل Kernel 2 لماستركارد، وKernel 3 لفيزا، ونواة أمريكان إكسبريس، إلخ). بعض النوى تدمج مرحلتي GPO وتوليد التشفير في تفاعل واحد فائق السرعة (<bdi dir="ltr">Fast Path</bdi>) لاختصار مدة التلامس إلى أقصى حد ممكن.
+    </TechnicalNote>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 04 / DYNAMIC CRYPTOGRAM -->
+  <section class="article-section">
+    <SectionHeading
+      number="04"
+      tag="التشفير الديناميكي"
+      title="التشفير الديناميكي ARQC: لماذا يستحيل استنساخ البطاقة؟"
+      id="sec-04"
+    />
+
+    <p>
+      في زمن البطاقات المغناطيسية القديمة (<span class="term" dir="ltr">Magnetic Stripe</span>)، كانت بيانات البطاقة مطبوعة بشكل ثابت كشريط مغناطيسي خلفي. إذا تمكن جهاز خبيث من قراءة هذا الشريط مرة واحدة، أمكنه نسخ البيانات إلى بطاقة بلاستيكية فارغة واستخدامها مئات المرات.
+    </p>
+
+    <p>
+      في البطاقات الذكية اللاتلامسية، <strong>هذا الهجوم مستحيل تمامًا</strong> بفضل التشفير الديناميكي للعملية: <strong>رمز طلب المصادقة التشفيري (<bdi dir="ltr">Application Request Cryptogram / ARQC</bdi>)</strong>.
+    </p>
+
+    <!-- Diagram 04: Dynamic Transaction Diagram -->
+    <DynamicTransactionDiagram lang="ar" />
+
+    <p>
+      كيف يُحسب رمز الـ<span class="term" dir="ltr">ARQC</span> داخل سيليكون الشريحة؟
+    </p>
+
+    <ul>
+      <li>
+        <strong>مفتاح الشريحة السري المشتق (<bdi dir="ltr">Card Derivation Key</bdi>):</strong> تمتلك كل بطاقة مفتاح تشفير متماثل فريد حُقن في عتادها الآمن أثناء تصنيعها، وهو مشتق من المفتاح الرئيسي للبنك المصدر (<span class="term" dir="ltr">UDK / MDK</span>). هذا المفتاح محمي عتاديًا ولا يمكن استخراجه أو قراءته عبر واجهة الـ<span class="term" dir="ltr">NFC</span>.
+      </li>
+      <li>
+        <strong>الرقم العشوائي الصادر من القارئ (<bdi dir="ltr">Unpredictable Number / UN</bdi>):</strong> يولد جهاز الدفع قيمة عشوائية جديدة تمامًا لكل عملية بطول 32 بت ويمررها للشريحة لمنع أي طرف من تسجيل تفاعل سابق وإعادة بثه (<bdi dir="ltr">Replay Attack</bdi>).
+      </li>
+      <li>
+        <strong>عداد عمليات البطاقة (<bdi dir="ltr">Application Transaction Counter / ATC</bdi>):</strong> داخل الشريحة عداد رقمي غير قابل للتراجع يزداد بمقدار 1 عند كل ملامسة.
+      </li>
+      <li>
+        <strong>حساب التشفير بالدمج الرياضي:</strong> تدمج الشريحة خوارزميًا: المبلغ الدقيق (مثلاً $24.50)، كود العملة، كود الدولة، العداد <span class="term" dir="ltr">ATC</span>، الرقم العشوائي <span class="term" dir="ltr">UN</span>، وتشفرها باستخدام مفتاح الجلسة المشتق لتوليد بصمة تشفيرية بطول 8 بايت هي الـ<span class="term" dir="ltr">ARQC</span>.
+      </li>
+    </ul>
+
+    <p>
+      إذا قام شخص بالتقاط إشارات اللاسلكي وحفظ الـ<span class="term" dir="ltr">ARQC</span>، فلن ينفعه بشيء في عملية قادمة؛ لأن الرقم العشوائي سيتغير، والعداد البنكي سيرفض أي رقم متكرر أو سابق، وتغيير فلس واحد في المبلغ سيبطل التشفير بالكامل.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 05 / TERMINAL TO ACQUIRER -->
+  <section class="article-section">
+    <SectionHeading
+      number="05"
+      tag="البنك المستحوذ"
+      title="من جهاز المتجر إلى البنك المستحوذ: صياغة رسالة التفويض المالي"
+      id="sec-05"
+    />
+
+    <p>
+      بعد أن يتسلم جهاز الدفع رمز الـ<span class="term" dir="ltr">ARQC</span> وبيانات البطاقة، تنتهي مرحلة التلامس اللاسلكي. يصدر الجهاز صوتًا مقتضبًا للإشارة إلى أن البطاقة يمكن سحبها، ثم يبدأ رحلة شبكية أطول بكثير.
+    </p>
+
+    <!-- Diagram 05: Terminal to Acquirer -->
+    <TerminalToAcquirerDiagram lang="ar" />
+
+    <p>
+      يقوم جهاز الـ<span class="term" dir="ltr">POS</span> بتجميع حزمة تفويض مالي تتضمن:
+    </p>
+
+    <ul>
+      <li>بيانات التاجر: معرّف التاجر (<span class="term" dir="ltr">MID</span>)، معرّف الجهاز (<span class="term" dir="ltr">TID</span>)، ونوع النشاط التجاري.</li>
+      <li>تفاصيل العملية: المبلغ، العملة، التوقيت، ورقم تتبع التدقيق (<span class="term" dir="ltr">STAN</span>).</li>
+      <li>حاوية بيانات EMV (المعروفة بالحقل 55 في بروتوكول <span class="term" dir="ltr">ISO 8583</span>): تضم الـ<span class="term" dir="ltr">ARQC</span> والـ<span class="term" dir="ltr">ATC</span> والرقم العشوائي ونتائج فحوصات القارئ.</li>
+    </ul>
+
+    <p>
+      تُشفر هذه البيانات محليًا داخل عتاد القارئ المقاوم للاختراق (<span class="term" dir="ltr">PCI PTS Certified Hardware</span>) باستخدام تقنية التشفير من نقطة لنقطة (<span class="term" dir="ltr">Point-to-Point Encryption / P2PE</span>) لحماية بيانات حامل البطاقة حتى لا يستطيع كود متجر التجزئة أو حاسوب الصندوق الوصول إليها.
+    </p>
+
+    <p>
+      تُرسل الحزمة عبر قناة شبكية مؤمنة (<span class="term" dir="ltr">TLS Uplink</span>) عبر خط إيثرنت أو شبكة الجيل الرابع إلى <strong>البنك المستحوذ (<bdi dir="ltr">Acquiring Bank / Processor</bdi>)</strong>، وهو البنك أو وسيط الدفع المالي الذي يدير حسابات التاجر ويوفر له خدمات تحصيل المدفوعات.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 06 / CARD SCHEME SWITCHING -->
+  <section class="article-section">
+    <SectionHeading
+      number="06"
+      tag="شبكات البطاقات"
+      title="شبكات الدفع العالمية: كيف تصل الرسالة إلى بنكك بالتحديد؟"
+      id="sec-06"
+    />
+
+    <p>
+      تشتري قهوتك في باريس باستخدام بطاقة صادرة من بنك في الرياض. كيف يعرف البنك المستحوذ للتاجر في باريس أي بنك في العالم يجب مخاطبته؟
+    </p>
+
+    <!-- Diagram 06: Payment Network Routing -->
+    <PaymentNetworkRoutingDiagram lang="ar" />
+
+    <p>
+      الإجابة تكمن في <strong>مقسمات شبكات البطاقات العالمية (<bdi dir="ltr">Card Scheme Switches</bdi>)</strong>، مثل شبكات فيزا وماستركارد والشبكات الوطنية:
+    </p>
+
+    <ol>
+      <li>
+        <strong>فحص معرّف البنك (<bdi dir="ltr">BIN / IIN Lookup</bdi>):</strong> الأرقام الستة إلى الثمانية الأولى من رقم بطاقتك تُعرف بـ <strong>رقم تعريف البنك (<bdi dir="ltr">Bank Identification Number</bdi>)</strong>. الرقم الأول يحدد مخطط الشبكة (مثلاً الرقم 4 لفيزا، والرقم 5 أو 2 لماستركارد).
+      </li>
+      <li>
+        <strong>التحويل إلى المقسم المركزي:</strong> يوجه المستحوذ الرسالة المالية مباشرة إلى أقرب بوابة لشبكة البطاقة المحددة (مثل مقسمات VisaNet أو Mastercard Banknet).
+      </li>
+      <li>
+        <strong>جدول التوجيه فائق السرعة:</strong> تمتلك شبكات البطاقات أدلة موزعة فائقة التوسع تسجل العناوين الشبكية المباشرة لكل بنك مرخص له بإصدار البطاقات في العالم. يقرأ المقسم كود الـ<span class="term" dir="ltr">BIN</span>، ويحدد فورًا الخادم التابع للبنك الذي أصدر البطاقة لك، ويحول الرسالة عبر شبكات الألياف البنكية الخاصة في غضون عشرات الميلي ثانية.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 07 / ISSUING BANK DECISION -->
+  <section class="article-section">
+    <SectionHeading
+      number="07"
+      tag="قرار البنك المصدر"
+      title="داخل البنك المصدر: فحص التشفير، الرصيد، والاحتيال"
+      id="sec-07"
+    />
+
+    <p>
+      وصلت الرسالة الآن إلى الخوادم المركزية لـ <strong>البنك المصدر (<bdi dir="ltr">Issuing Bank</bdi>)</strong>، وهو الجهة التي فتحتَ لديها حسابك البنكي وتأتمنها على أموالك.
+    </p>
+
+    <!-- Diagram 07: Issuer Decision -->
+    <IssuerDecisionDiagram lang="ar" />
+
+    <p>
+      هنا تُحسم نتيجة العملية عبر سلسلة متتابعة من الفحوصات الصارمة داخل أنظمة البنك:
+    </p>
+
+    <ul>
+      <li>
+        <strong>1. فحص التشفير داخل وحدات أمان العتاد (<bdi dir="ltr">HSM Cryptographic Verification</bdi>):</strong> تُمرر بيانات الحقل 55 إلى وحدة أمان عتادية بالغة التحصين (<span class="term" dir="ltr">Hardware Security Module / HSM</span>). تعيد الوحدة اشتقاق مفتاح جلسة البطاقة باستخدام المفتاح الرئيسي المخزن لديها والعداد <span class="term" dir="ltr">ATC</span>، ثم تحسب الـ<span class="term" dir="ltr">ARQC</span> المتوقع. إذا تطابقت البصمة، يتأكد البنك يقينًا أن <strong>البطاقة الأصلية الحقيقية هي التي لمست الجهاز</strong> وليست نسخة مقلدة.
+      </li>
+      <li>
+        <strong>2. التحقق من سلامة الحساب وصلاحية البطاقة:</strong> يتأكد النظام المصرفي من أن البطاقة مفعلة، وغير مفقودة أو مسروقة، وتاريخ صلاحيتها سارٍ.
+      </li>
+      <li>
+        <strong>3. فحص الرصيد وسقف السحب:</strong> يستعلم النظام من قاعدة بيانات الحسابات: هل يغطي الرصيد المتاح مبلغ $24.50؟ هل تجاوز العميل حد الشراء اليومي المسموح؟ عند الموافقة، يُحجز المبلغ فورًا (<span class="term" dir="ltr">Authorization Hold</span>) بحيث لا يمكن إنفاقه مرة أخرى.
+      </li>
+      <li>
+        <strong>4. محركات تقييم الاحتيال الآنية (<bdi dir="ltr">Real-Time Fraud Heuristics</bdi>):</strong> تفحص خوارزميات الذكاء الاصطناعي سلوك العملية: هل من المنطقي أن يشتري المستخدم قهوة في باريس بينما أجرى سحبًا من صراف آلي في مدريد قبل 20 دقيقة؟ هل النمط معتاد؟ إذا كان مؤشر الخطر منخفضًا، تصدر المنظومة قرار الموافقة.
+      </li>
+    </ul>
+
+    <p>
+      يولد البنك رمز الاستجابة الرسمي: <strong>Code 00 (موافق عليه / Approved)</strong>، ويرفق به كود تفويض فريد بطول 6 خانات (مثل <span class="term" dir="ltr">AUTH: 739201</span>) كوثيقة إثبات بنكية.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 08 / THE RETURN PATH -->
+  <section class="article-section">
+    <SectionHeading
+      number="08"
+      tag="مسار العودة"
+      title="مسار العودة: عودة رمز الموافقة والصفارة الخضراء"
+      id="sec-08"
+    />
+
+    <p>
+      بمجرد أن يقرر البنك المصدر الموافقة، تنعكس مسارات السفر الشبكية لتعود الرسالة في الاتجاه المعاكس:
+    </p>
+
+    <!-- Diagram 08: Approve Return Diagram -->
+    <ApproveDeclineReturnDiagram lang="ar" />
+
+    <ol>
+      <li>ينقل البنك المصدر رسالة الاستجابة (<span class="term" dir="ltr">Response 0110</span>) إلى شبكة البطاقات (Visa / Mastercard).</li>
+      <li>تعيد الشبكة توجيه الاستجابة إلى البنك المستحوذ للتاجر.</li>
+      <li>يدفع المستحوذ الرسالة عبر نفق الاتصال المفتوح مباشرة إلى جهاز الـ<span class="term" dir="ltr">POS</span> في المتجر.</li>
+      <li>يقرأ جهاز الدفع كود الاستجابة <span class="term" dir="ltr">00</span>، فيطلق أربعة أضواء خضراء ناصعة، يعزف صفارة التأكيد، وتُعرض كلمة <span class="term" dir="ltr">APPROVED</span>، ويطبع إيصال الشراء.</li>
+    </ol>
+
+    <p>
+      كل هذه الرحلة الدائرية — انطلاقًا من الحث الكهرومغناطيسي، مرورًا بثلاث مؤسسات بنكية وشبكة عالمية، والعودة إلى شاشة المتجر — <strong>استغرقت في مجملها ما بين 1.5 إلى 3 ثوانٍ فقط</strong>.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 09 / CARDS VS PHONE WALLETS -->
+  <section class="article-section">
+    <SectionHeading
+      number="09"
+      tag="المحافظ والترميز"
+      title="البطاقة البلاستيكية مقابل محافظ الهواتف: أين تكمن الحماية الإضافية؟"
+      id="sec-09"
+    />
+
+    <p>
+      كثيرًا ما يتساءل المستخدم: هل استخدام محفظة الهاتف (مثل <span class="term" dir="ltr">Apple Pay</span> أو <span class="term" dir="ltr">Google Wallet</span>) يعادل تمرير البطاقة البلاستيكية تمامًا، أم أن هناك طبقات أمان إضافية؟
+    </p>
+
+    <!-- Diagram 09: Card Vs Phone Wallet -->
+    <CardVsPhoneWalletDiagram lang="ar" />
+
+    <p>
+      من الناحية الفيزيائية لبروتوكول <span class="term" dir="ltr">NFC</span>، يتصرف الهاتف مثل بطاقة ذكية؛ لكن من الناحية المعمارية والأمنية، تتفوق محافظ الهواتف بميزتين جوهريتين:
+    </p>
+
+    <ul>
+      <li>
+        <strong>الترميز المالي وحجب رقم البطاقة (<bdi dir="ltr">Network Tokenization / DPAN</bdi>):</strong> عند إضافة بطاقتك للهاتف، لا يُخزن رقم بطاقتك الحقيقي المطبوع على البلاستيك (<span class="term" dir="ltr">Funding PAN / FPAN</span>) داخل الهاتف. بدلاً من ذلك، يتصل الهاتف بمزود خدمة الرموز (<span class="term" dir="ltr">Token Service Provider / TSP</span>) الذي يصدر رقمًا بديلاً فريدًا مقترنًا بهذا الجهاز فقط يُعرف بـ <strong>رقم حساب الجهاز (<bdi dir="ltr">Device PAN / DPAN</bdi>)</strong>. حتى لو اخترق أحد جهاز التاجر وسجل جميع البايتات المارة، فلن يحصل على رقم بطاقتك الحقيقي، ولا يمكن استخدام هذا الرمز في أي جهاز آخر.
+      </li>
+      <li>
+        <strong>المصادقة الحيوية على جهاز المستخدم (<bdi dir="ltr">CDCVM / Biometric Authentication</bdi>):</strong> البطاقة البلاستيكية لا تملك عيونًا أو مستشعر بصمة؛ إذا سُرقت البطاقة، يمكن لأي شخص تقريبها من الأجهزة للشراء طالما كان المبلغ تحت السقف اللاتلامسي المحدد دون إدخال الرمز السري. أما في الهاتف، فتنص المعايير على طريقة التحقق من حامل البطاقة عبر جهاز العميل (<span class="term" dir="ltr">Consumer Device Cardholder Verification Method / CDCVM</span>) عبر بصمة الوجه أو الإصبع أو رمز قفل الشاشة، مما يضمن أن صاحب الهاتف هو الوحيد القادر على تفويض العملية.
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 10 / AUTHORIZATION VS SETTLEMENT -->
+  <section class="article-section">
+    <SectionHeading
+      number="10"
+      tag="التفويض والتسوية"
+      title="التفويض ليس نقلًا للأموال: مرحلة التسوية البنكية"
+      id="sec-10"
+    />
+
+    <!-- Diagram 10: Complete Payment Pipeline -->
+    <ContactlessSummaryDiagram lang="ar" />
+
+    <p>
+      عندما تصدر الصفارة وتأخذ قهوتك وتمشي، قد تعتقد أن نقودك قد انتقلت في تلك الثانية إلى الحساب البنكي لصاحب المقهى.
+    </p>
+
+    <p>
+      حقيقة الأنظمة المالية المصرفية مختلفة تمامًا: ما تم في ثانيتين كان فقط <strong>التفويض المالي (<bdi dir="ltr">Authorization</bdi>)</strong>، وهو مجرد تعهد مصرفي موثق بحجز المبلغ وتجميده لصالح التاجر.
+    </p>
+
+    <p>
+      أما نقل الأموال الفعلي بين البنوك، فيحدث عبر مرحلتين منفصلتين لاحقتين:
+    </p>
+
+    <ul>
+      <li>
+        <strong>المقاصة (<bdi dir="ltr">Clearing</bdi>):</strong> في نهاية يوم العمل التجاري أو في فترات دورية مجدولة حسب اتفاقيات شبكات الدفع والمستحوذين، يجمع التاجر جميع العمليات المصرح بها في ملف مجمع (<span class="term" dir="ltr">Batch File</span>) ويقدمها للبنك المستحوذ. تتبادل البنوك سجلات العمليات عبر شبكات البطاقات لتحديد صافي المبالغ المستحقة لكل بنك تجاه الآخرين.
+      </li>
+      <li>
+        <strong>التسوية المالية النهائية (<bdi dir="ltr">Settlement</bdi>):</strong> تقوم البنوك المركزية وغرف المقاصة الآلية بنقل الأرصدة النقدية الفعلية بين الحسابات الاحتياطية للبنوك المعنية، ثم يودع البنك المستحوذ صافي المبالغ (بعد اقتطاع رسوم التبادل ومعالجة البطاقات) في الحساب المصرفي للتاجر، وهي عملية تستغرق عادة من يوم إلى عدة أيام عمل.
+      </li>
+    </ul>
+
+    <hr class="divider-hairline" />
+
+    <p style="font-size: 1.25rem; font-weight: 600; color: var(--color-ink); line-height: 1.85;">
+      تلك الصفارة الهادئة التي تسمعها كل صباح هي نتاج عقود من هندسة الفيزياء والتشفير والشبكات الموزعة.
+    </p>
+
+    <p style="font-size: 1.15rem; color: var(--color-ink-muted); line-height: 1.8;">
+      بين تقريب البطاقة وسماع النغمة، صعدت الإلكترونات في هوائي نحاسي، وحُسبت معادلات تشفيرية لمنع الاحتيال، وجابت حزم البيانات قارات العالم لتعود بالموافقة في طرفة عين.
+    </p>
+
+    <!-- Standard Site CTA Box -->
+    <div style="padding: 1.5rem; border: 1px solid var(--color-hairline); background-color: var(--color-bg-warm); margin-block: 2.5rem;">
+      <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--color-olive); margin-block-end: 0.5rem;">
+        لشرح أعمق وتفاصيل أكثر
+      </div>
+      <p style="margin: 0; font-size: 1.15rem; font-weight: 600; line-height: 1.85; color: var(--color-ink);">
+        تابع المزيد من الملاحظات التقنية وتفكيك الأنظمة عبر:
+        <a href="https://writeups.mouhibmahadbi.online" target="_blank" rel="noopener noreferrer" style="color: var(--color-olive); text-decoration: underline; margin-inline-start: 0.35rem;">
+          writeups.mouhibmahadbi.online
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Related Articles -->
+  <ContinueReading currentArticleId="how-contactless-payment-works" lang="ar" />
+
+</ArticleLayout>

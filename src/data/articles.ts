@@ -2,7 +2,7 @@ export interface ArticleMeta {
   id: string;
   number: string;
   slug: string;
-  filterKey: 'cybersecurity' | 'networking' | 'privacy' | 'mobile';
+  filterKey: 'cybersecurity' | 'networking' | 'privacy' | 'mobile' | 'payments';
   featured?: boolean;
   status: 'published' | 'draft';
   publishedAt: string;
@@ -128,7 +128,7 @@ export const ARTICLES: ArticleMeta[] = [
     featured: false,
     status: 'published',
     publishedAt: '2026-09-23',
-    relatedId: 'session-hijacking',
+    relatedId: 'how-your-message-reaches-another-phone',
     category: {
       ar: 'الهواتف / أندرويد',
       en: 'MOBILE / ANDROID'
@@ -144,6 +144,66 @@ export const ARTICLES: ArticleMeta[] = [
     excerpt: {
       ar: 'ماذا يفعل Android بملف APK قبل أول تشغيل؟ من Manifest والتوقيع إلى UID وSandbox والصلاحيات وART.',
       en: 'What does Android do with an APK before the first launch? From the manifest and signing identity to UID isolation, permissions, the sandbox and ART.'
+    },
+    readingTime: {
+      ar: '15 دقيقة قراءة',
+      en: '15 min read'
+    }
+  },
+  {
+    id: 'how-your-message-reaches-another-phone',
+    number: '05',
+    slug: 'how-your-message-reaches-another-phone',
+    filterKey: 'networking',
+    featured: false,
+    status: 'published',
+    publishedAt: '2026-09-25',
+    relatedId: 'how-contactless-payment-works',
+    category: {
+      ar: 'الشبكات / المراسلة',
+      en: 'NETWORKING / MESSAGING'
+    },
+    title: {
+      ar: 'ضغطت Send… كيف وصلت رسالتك إلى هاتف شخص آخر؟',
+      en: 'You Pressed Send. How Did Your Message Reach Another Phone?'
+    },
+    subtitle: {
+      ar: 'الرسالة لا تطير في الهواء مباشرة من هاتفك إلى هاتف صديقك. خلف كل فقاعة محادثة بنية تحتية موزعة، اتصالات مستمرة، طوابير تخزين، شبكات إشعار ومفاتيح تشفير.',
+      en: 'A message does not fly directly from your phone to your friend\'s phone. Behind every chat bubble lies distributed routing, persistent connections, store-and-forward queues, push notifications, and cryptographic handshakes.'
+    },
+    excerpt: {
+      ar: 'رحلة الرسالة الفورية خطوة بخطوة: من تشفير الحزمة والاتصال بالخادم، إلى معالجة البوابات وطوابير الانتظار، واستيقاظ الهاتف عبر الإشعارات وفك التشفير محليًا.',
+      en: 'The step-by-step journey of an instant message: from serialization and transport security to edge gateways, store-and-forward queues, push notification wakeups, and local decryption.'
+    },
+    readingTime: {
+      ar: '16 دقيقة قراءة',
+      en: '16 min read'
+    }
+  },
+  {
+    id: 'how-contactless-payment-works',
+    number: '06',
+    slug: 'how-contactless-payment-works',
+    filterKey: 'payments',
+    featured: false,
+    status: 'published',
+    publishedAt: '2026-09-25',
+    relatedId: 'session-hijacking',
+    category: {
+      ar: 'الأجهزة / المدفوعات',
+      en: 'HARDWARE / PAYMENTS'
+    },
+    title: {
+      ar: 'قرّبت بطاقتك من جهاز الدفع… كيف تمت العملية في ثوانٍ؟',
+      en: 'You Tapped Your Card on a Payment Terminal. How Was the Payment Approved in Seconds?'
+    },
+    subtitle: {
+      ar: 'بين ملامسة البطاقة للجهاز وسماع صوت التأكيد، دارت محادثة كهرومغناطيسية وتشفيرية قطعت آلاف الكيلومترات بين قارئ المتجر، شبكات البطاقات، وخوادم البنك المصدر.',
+      en: 'Between the tap and the confirmation beep, an electromagnetic and cryptographic exchange crossed thousands of kilometers across merchant terminals, card switches, and bank authorization engines.'
+    },
+    excerpt: {
+      ar: 'تفكيك شامل لعملية الدفع اللاتلامسي: من الحث الكهرومغناطيسي لـNFC وبروتوكول EMV، إلى توليد التشفير الديناميكي ARQC، ورسائل شبكات الدفع، وقرار البنك المصدر.',
+      en: 'A technical teardown of contactless payment: from NFC inductive coupling and the EMV protocol to dynamic ARQC cryptograms, ISO message routing, and issuer bank authorization.'
     },
     readingTime: {
       ar: '15 دقيقة قراءة',

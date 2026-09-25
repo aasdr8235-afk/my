@@ -1,0 +1,95 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'المخطط الشامل للتنسيق الموزع لمنظومة المراسلة الفورية' : 'Comprehensive distributed architecture and delivery lifecycle summary'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">
+      {lang === 'ar' ? 'مخطط 08 / التنسيق الموزع' : 'FIGURE 08 / DISTRIBUTED MACHINERY'}
+    </span>
+    <span>
+      {lang === 'ar' ? 'المنظومة الكاملة: التشفير، التوجيه، التنبيه وفك التشفير' : 'The complete delivery lifecycle and dual-direction acknowledgment'}
+    </span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 680px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="fin-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+        <marker id="fin-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="fin-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Forward Delivery Flow (Top Half) -->
+      <g transform="translate(25, 25)">
+        <rect width="770" height="110" fill="#F4F1E9" stroke="#151515" stroke-width="1.2"/>
+        <rect width="770" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="0.8"/>
+        <text x="12" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">FORWARD FLIGHT: SENDER → PROVIDER INFRASTRUCTURE → RECIPIENT</text>
+
+        <!-- Node 1: Sender -->
+        <rect x="15" y="32" width="160" height="66" fill="#FAF8F2" stroke="#151515" stroke-width="0.8"/>
+        <text x="25" y="50" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">1. SENDER APP</text>
+        <text x="25" y="66" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Encrypts message payload</text>
+        <text x="25" y="80" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Wraps in transport envelope</text>
+
+        <line x1="175" y1="65" x2="235" y2="65" stroke="#5F6849" stroke-width="1.6" marker-end="url(#fin-arrow-olive)"/>
+
+        <!-- Node 2: Provider Edge & Queue -->
+        <rect x="240" y="32" width="280" height="66" fill="#FAF8F2" stroke="#5F6849" stroke-width="1.2"/>
+        <text x="250" y="50" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">2. EDGE ROUTER & STORE-AND-FORWARD</text>
+        <text x="250" y="66" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Authenticates sender & verifies session</text>
+        <text x="250" y="80" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Queues in pending mailbox if recipient disconnected</text>
+
+        <line x1="520" y1="65" x2="585" y2="65" stroke="#5F6849" stroke-width="1.6" marker-end="url(#fin-arrow-olive)"/>
+
+        <!-- Node 3: Recipient -->
+        <rect x="590" y="32" width="165" height="66" fill="#FAF8F2" stroke="#151515" stroke-width="0.8"/>
+        <text x="600" y="50" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">3. RECIPIENT APP</text>
+        <text x="600" y="66" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Receives ciphertext frame</text>
+        <text x="600" y="80" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Decrypts with local key & stores</text>
+      </g>
+
+      <!-- Reverse ACK & Feedback Flow (Bottom Half) -->
+      <g transform="translate(25, 148)">
+        <rect width="770" height="110" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.2"/>
+        <rect width="770" height="22" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="12" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">REVERSE FLIGHT: ACKNOWLEDGMENTS, RECEIPTS & STATUS PROPAGATION</text>
+
+        <!-- Recipient Emits Ack -->
+        <rect x="590" y="32" width="165" height="66" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="600" y="50" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">DEVICE ACK EMISSION</text>
+        <text x="600" y="66" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Confirms payload receipt</text>
+        <text x="600" y="80" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Emits delivery receipt frame</text>
+
+        <line x1="590" y1="65" x2="525" y2="65" stroke="#151515" stroke-width="1.6" marker-end="url(#fin-arrow)"/>
+
+        <!-- Provider Processes Ack -->
+        <rect x="240" y="32" width="280" height="66" fill="#FAF8F2" stroke="#151515" stroke-width="0.8"/>
+        <text x="250" y="50" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">RECEIPT ROUTING & QUEUE PURGE</text>
+        <text x="250" y="66" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Purges message from pending mailbox</text>
+        <text x="250" y="80" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Routes delivery confirmation back to sender</text>
+
+        <line x1="240" y1="65" x2="180" y2="65" stroke="#151515" stroke-width="1.6" marker-end="url(#fin-arrow)"/>
+
+        <!-- Sender Updates UI -->
+        <rect x="15" y="32" width="160" height="66" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="25" y="50" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">SENDER UI STATUS</text>
+        <text x="25" y="66" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Updates status to Delivered</text>
+        <text x="25" y="80" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Double checkmark rendered</text>
+      </g>
+    </svg>
+  </div>
+</figure>

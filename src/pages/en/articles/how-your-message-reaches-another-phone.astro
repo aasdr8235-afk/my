@@ -1,0 +1,471 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import SectionHeading from '../../../components/SectionHeading.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import TechnicalNote from '../../../components/TechnicalNote.astro';
+import ContinueReading from '../../../components/ContinueReading.astro';
+
+// Technical SVG Diagrams
+import MessageSendOverviewDiagram from '../../../components/diagrams/MessageSendOverviewDiagram.astro';
+import MessageAsDataDiagram from '../../../components/diagrams/MessageAsDataDiagram.astro';
+import MessagingEncryptionDiagram from '../../../components/diagrams/MessagingEncryptionDiagram.astro';
+import MessagingServerPathDiagram from '../../../components/diagrams/MessagingServerPathDiagram.astro';
+import RecipientOfflineQueueDiagram from '../../../components/diagrams/RecipientOfflineQueueDiagram.astro';
+import NotificationFlowDiagram from '../../../components/diagrams/NotificationFlowDiagram.astro';
+import MessageStatusDiagram from '../../../components/diagrams/MessageStatusDiagram.astro';
+import MessageDeliveryFinalDiagram from '../../../components/diagrams/MessageDeliveryFinalDiagram.astro';
+
+const tocItems = [
+  { id: 'sec-01', num: '01', title: 'Data Anatomy' },
+  { id: 'sec-02', num: '02', title: 'Transport & Uplink' },
+  { id: 'sec-03', num: '03', title: 'Encryption Models' },
+  { id: 'sec-04', num: '04', title: 'Provider Edge' },
+  { id: 'sec-05', num: '05', title: 'Store-and-Forward' },
+  { id: 'sec-06', num: '06', title: 'Push Notifications' },
+  { id: 'sec-07', num: '07', title: 'Local Processing' },
+  { id: 'sec-08', num: '08', title: 'Delivery States' },
+  { id: 'sec-09', num: '09', title: 'Media Sidecars' },
+  { id: 'sec-10', num: '10', title: 'Distributed Systems' }
+];
+
+const pageTitle = "You Pressed Send. How Did Your Message Reach Another Phone?";
+const pageSubtitle = "A message does not fly directly from your phone to your friend's phone. Behind every chat bubble lies distributed routing, persistent connections, store-and-forward queues, push notifications, and cryptographic handshakes.";
+const pageDescription = "The step-by-step journey of an instant message: from serialization and transport security to edge gateways, store-and-forward queues, push notification wakeups, and local decryption.";
+const socialTitle = "You Pressed Send. How Did Your Message Actually Cross the Planet?";
+const ogImage = "/assets/og/how-your-message-reaches-another-phone.jpg";
+
+const references = [
+  {
+    num: '[01]',
+    title: 'The Double Ratchet Algorithm & End-to-End Cryptographic Protocols',
+    org: 'Signal Foundation / Messaging Research',
+    link: 'https://signal.org/docs/specifications/doubleratchet/'
+  },
+  {
+    num: '[02]',
+    title: 'Apple Push Notification service (APNs) Architecture and Device Token Routing',
+    org: 'Apple Developer Documentation',
+    link: 'https://developer.apple.com/documentation/usernotifications'
+  },
+  {
+    num: '[03]',
+    title: 'Firebase Cloud Messaging (FCM) Connection Server Protocols & Heartbeats',
+    org: 'Google Cloud Platform Documentation',
+    link: 'https://firebase.google.com/docs/cloud-messaging'
+  },
+  {
+    num: '[04]',
+    title: 'RFC 9000 & RFC 8446: Modern Transport Layer Security & Multiplexing',
+    org: 'Internet Engineering Task Force (IETF)',
+    link: 'https://www.rfc-editor.org/rfc/rfc8446'
+  }
+];
+---
+
+<ArticleLayout
+  title={pageTitle}
+  subtitle={pageSubtitle}
+  description={pageDescription}
+  lang="en"
+  arUrl="/ar/articles/how-your-message-reaches-another-phone/"
+  enUrl="/en/articles/how-your-message-reaches-another-phone/"
+  currentPath="/en/articles/how-your-message-reaches-another-phone/"
+  tocItems={tocItems}
+  categoryText="NETWORKING / MESSAGING"
+  articleMeta="ARTICLE 05 / MESSAGING & DISTRIBUTED SYSTEMS"
+  references={references}
+  socialTitle={socialTitle}
+  ogImage={ogImage}
+  publishedDate="2026-09-25"
+  modifiedDate="2026-09-25"
+  breadcrumbCategory="Networks & Messaging"
+  breadcrumbCurrent="Instant Message Journey"
+>
+
+  <!-- 01 / WHAT IS A MESSAGE AT DATA LEVEL -->
+  <section class="article-section">
+    <SectionHeading
+      number="01"
+      tag="DATA ANATOMY"
+      title="A Message Is Not Just Text: The Envelope and Payload"
+      id="sec-01"
+    />
+
+    <p>
+      You type &quot;Where are you?&quot; and tap <span class="term" dir="ltr">Send</span>. Within a fraction of a second, the chat bubble slides into view on your screen alongside an initial status indicator, while a phone thousands of kilometers away chimes to display the exact same words.
+    </p>
+
+    <p>
+      In modern computing and telecommunications, <strong>there is no direct, peer-to-peer radio link between two standard mobile phones</strong> in everyday operation. Messages do not broadcast through the open air from one handset to another. What actually transpires is an orchestrated sequence of cryptographic and distributed systems routines: converting user input into a serialized data packet, transmitting it over authenticated network sockets to intermediate service infrastructure, and routing it through platform notification daemons to reach the receiving operating system.
+    </p>
+
+    <p>
+      The first engineering reality is that the messaging application does not handle your text as raw, unstructured characters. Instead, it constructs a <strong>structured data object</strong> conceptually separated into two distinct layers:
+    </p>
+
+    <ul>
+      <li>
+        <strong>The Routing Envelope (<bdi dir="ltr">Metadata</bdi>):</strong> Administrative information essential for intermediate network infrastructure to process and route the packet. This includes a globally unique message identifier (<span class="term" dir="ltr">message_id</span>), sender account credentials (<span class="term" dir="ltr">sender_id</span>), recipient or group conversation identifiers (<span class="term" dir="ltr">recipient_id / conv_id</span>), client-side generation timestamps, and protocol version flags. The provider's servers must be able to read this envelope to determine which account queue should receive the payload.
+      </li>
+      <li>
+        <strong>The Encrypted Payload (<bdi dir="ltr">Ciphertext</bdi>):</strong> In architectures employing End-to-End Encryption (<span class="term" dir="ltr">E2EE</span>), the actual communication content (plain text, emoji, media keys, or reaction metadata) is sealed into an <strong>opaque ciphertext blob</strong> unreadable to intermediate servers. This payload is paired with a Message Authentication Code (<span class="term" dir="ltr">MAC</span>) or AEAD authentication tag to prevent tampering in transit.
+      </li>
+    </ul>
+
+    <!-- Diagram 02: Message As Data -->
+    <MessageAsDataDiagram lang="en" />
+
+    <TechnicalNote
+      title="Serialization Formats: Conceptual Models vs Concrete Implementations"
+      category="DATA SERIALIZATION"
+      lang="en"
+    >
+      Before transmission across network interfaces, in-memory objects (represented in Swift, Kotlin, or Rust) must be flattened into continuous byte sequences via binary serialization.<br /><br />
+      Some high-scale platforms utilize <strong>Protocol Buffers (Protobuf)</strong> for compact wire footprint and low deserialization CPU overhead. Other architectures leverage <strong>CBOR</strong> (Concise Binary Object Representation), proprietary <strong>BSON</strong> variants, or structured <strong>JSON</strong> frames over persistent WebSockets. While the conceptual division between routing envelope and payload remains standard, the underlying serialization format varies across service architectures.
+    </TechnicalNote>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 02 / TRANSPORT AND CONNECTION -->
+  <section class="article-section">
+    <SectionHeading
+      number="02"
+      tag="TRANSPORT &amp; UPLINK"
+      title="From Client to Cloud: Establishing the Secure Uplink"
+      id="sec-02"
+    />
+
+    <p>
+      Once packaged and serialized, the client must deliver the data packet to the service provider. In conventional web applications, clients issue standalone <span class="term" dir="ltr">HTTP POST</span> requests that close or idle once a single transaction completes. In low-latency messaging, this paradigm introduces unacceptable handshake latency and battery overhead.
+    </p>
+
+    <p>
+      Modern mobile messaging apps maintain a <strong>persistent or periodically established secure service connection</strong> between the client and the provider's edge infrastructure:
+    </p>
+
+    <ul>
+      <li>
+        <strong>Transport Layer Security (<bdi dir="ltr">TLS 1.3</bdi>):</strong> Every uplink connection performs a cryptographic TLS handshake with the provider's nearest Edge Point of Presence (PoP). This encrypts all traffic traversing local Wi-Fi hotspots, cellular base stations, and upstream Internet Service Providers (<span class="term" dir="ltr">ISPs</span>).
+      </li>
+      <li>
+        <strong>Multiplexed Framing (<bdi dir="ltr">WebSockets / HTTP/2 / QUIC</bdi>):</strong> Rather than opening a new TCP socket for each interaction, clients utilize persistent framing protocols. Connections over WebSockets, custom TCP binary protocols, or QUIC streams allow hundreds of outgoing messages, typing indicators, and delivery receipts to travel concurrently across a single established link.
+      </li>
+      <li>
+        <strong>Keep-Alive Heartbeats:</strong> Cellular carriers and NAT routers aggressively drop idle connections from their translation tables to conserve state. To keep the channel open, the app exchanges compact heartbeat pings (often just a few bytes) at calculated intervals, preventing socket collapse without draining the device battery.
+      </li>
+    </ul>
+
+    <p>
+      Because this secure channel is already established, tapping <span class="term" dir="ltr">Send</span> does not trigger a full DNS resolution and TCP/TLS negotiation from scratch; the payload is pushed directly into the open socket buffer, reaching the provider's edge servers in tens of milliseconds.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 03 / ENCRYPTION MODELS -->
+  <section class="article-section">
+    <SectionHeading
+      number="03"
+      tag="ENCRYPTION MODELS"
+      title="In-Transit Security vs End-to-End Encryption: The Trust Boundary"
+      id="sec-03"
+    />
+
+    <p>
+      A foundational distinction in messaging engineering is <strong>who has access to the cryptographic keys required to decipher your message</strong>:
+    </p>
+
+    <!-- Diagram 03: Messaging Encryption Models -->
+    <MessagingEncryptionDiagram lang="en" />
+
+    <p>
+      <strong>Model A: In-Transit Encryption Only (<bdi dir="ltr">TLS Hop-by-Hop</bdi>)</strong><br />
+      In centralized cloud messaging models (common in traditional IRC, standard email, and cloud-synced platforms), packets are encrypted between your device and the provider using TLS. However, once inside the provider's data center, <strong>the payload is decrypted in server memory</strong> and written as clear text or server-encrypted database records. The service provider can inspect content, run server-side search indexes, and extract intelligence. If the server infrastructure is compromised or compelled by legal orders, historical messages can be accessed.
+    </p>
+
+    <p>
+      <strong>Model B: End-to-End Encryption (<bdi dir="ltr">E2EE</bdi>)</strong><br />
+      In an E2EE architecture, the sender's client encrypts the message content using <strong>keys known exclusively to the recipient's device</strong>. As the packet traverses the provider's infrastructure, the servers can inspect only the outer envelope required for routing. The payload itself remains mathematically indistinguishable from random noise. The provider acts purely as a blind courier, lacking the mathematical secrets necessary to read or alter the payload.
+    </p>
+
+    <TechnicalNote
+      title="Cryptographic Key Exchange: Differentiating Common Concepts from Implementations"
+      category="CRYPTOGRAPHIC PROTOCOLS"
+      lang="en"
+    >
+      Not all E2EE services implement the same cryptographic state machine. The widely referenced <strong>Signal Protocol</strong> utilizes an ephemeral key exchange known as the <strong>Double Ratchet Algorithm</strong>, deriving fresh cryptographic keys for every individual message to guarantee Forward Secrecy and Break-in Recovery.<br /><br />
+      Other platforms employ distinct protocols: Matrix utilizes the Olm/Megolm ratchets for scalable group states, Apple iMessage utilizes a hybrid RSA/EC public key directory, and Telegram's Secret Chats rely on MTProto. <strong>End-to-End Encryption is an architectural paradigm</strong>, not a single monolithic algorithm.
+    </TechnicalNote>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 04 / PROVIDER EDGE AND ROUTING -->
+  <section class="article-section">
+    <SectionHeading
+      number="04"
+      tag="PROVIDER EDGE"
+      title="Inside the Cloud: Ingress Gateways and Session Directories"
+      id="sec-04"
+    />
+
+    <p>
+      Once the message leaves the sender's handset, it enters the provider's distributed infrastructure. What occurs inside this backend cluster within the first 50 milliseconds?
+    </p>
+
+    <!-- Diagram 04: Messaging Server Path -->
+    <MessagingServerPathDiagram lang="en" />
+
+    <p>
+      The ingestion pipeline distributes work across dedicated architectural tiers:
+    </p>
+
+    <ol>
+      <li>
+        <strong>Edge Ingress Gateways:</strong> Front-line reverse proxies terminate incoming TLS connections, enforce DDoS protections, and validate the sender's authentication token. Upon verifying the packet's structural validity, the gateway immediately returns an acknowledgment frame back down the sender's socket. This instantaneous response transitions the UI clock icon to the first status mark.
+      </li>
+      <li>
+        <strong>Session Directory &amp; Router:</strong> The system inspects the envelope's <span class="term" dir="ltr">recipient_id</span>. It queries an in-memory session registry (such as a sharded Redis cluster or specialized distributed routing table): <em>Is the recipient connected right now? If so, which edge gateway instance holds their open socket?</em>
+      </li>
+      <li>
+        <strong>Message Broker &amp; Distributed Log:</strong> The packet is written into a fault-tolerant message queue (such as Apache Kafka, RabbitMQ, or an internal distributed commit log). This decouples packet ingestion from delivery, ensuring zero message loss during peak traffic spikes and preserving sequential order per conversation.
+      </li>
+    </ol>
+
+    <p>
+      At this stage, the infrastructure branches into one of two paths: either the recipient possesses an <strong>active, open socket</strong>, or the device is <strong>offline or backgrounded</strong>.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 05 / OFFLINE STATE AND QUEUING -->
+  <section class="article-section">
+    <SectionHeading
+      number="05"
+      tag="STORE-AND-FORWARD"
+      title="The Recipient Is Offline: Store-and-Forward Queues"
+      id="sec-05"
+    />
+
+    <p>
+      If the recipient's phone has no battery, is in Airplane Mode, or is traveling through a cellular dead zone, immediate socket delivery is impossible. The infrastructure transitions into a <strong>Store-and-Forward</strong> model.
+    </p>
+
+    <!-- Diagram 05: Offline Queue -->
+    <RecipientOfflineQueueDiagram lang="en" />
+
+    <p>
+      Rather than discarding the unroutable frame, the backend deposits the packet into a durable, per-account mailbox buffer:
+    </p>
+
+    <ul>
+      <li>
+        <strong>Configured Retention Policies:</strong> Instant messaging providers do not maintain undelivered offline queues indefinitely. Every platform enforces a retention time-to-live policy (ranging from several days to a few weeks depending on infrastructure constraints). If the recipient device fails to reconnect within this window, the pending message is purged.
+      </li>
+      <li>
+        <strong>Multi-Device Fanout:</strong> If a user owns a smartphone, tablet, and desktop client linked to the same account identity, the provider duplicates the encrypted payload into separate per-device queues. Fetching a message on a desktop client does not prematurely purge the pending queue designated for the offline phone.
+      </li>
+      <li>
+        <strong>Queue Draining on Reconnect:</strong> As soon as the recipient device re-establishes a network link and authenticates its session with an edge gateway, the service detects the state transition and drains the pending queue, streaming queued messages in strict chronological sequence.
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 06 / PUSH NOTIFICATIONS -->
+  <section class="article-section">
+    <SectionHeading
+      number="06"
+      tag="PUSH PLATFORMS"
+      title="Waking a Sleeping Device: Push Notification Platforms"
+      id="sec-06"
+    />
+
+    <p>
+      If an app is suspended in the background and the screen is locked, how does the handset discover that a message has arrived?
+    </p>
+
+    <p>
+      On modern mobile operating systems (iOS and Android), background execution is tightly restricted to preserve battery life and memory. Third-party applications cannot keep arbitrary background TCP sockets open indefinitely. Instead, the mobile operating system maintains a <strong>single, highly optimized, low-power system channel</strong> connected to centralized vendor servers:
+    </p>
+
+    <ul>
+      <li>Apple devices: Apple Push Notification service (<bdi dir="ltr">APNs</bdi>).</li>
+      <li>Android devices: Firebase Cloud Messaging (<bdi dir="ltr">FCM</bdi>).</li>
+    </ul>
+
+    <!-- Diagram 06: Notification Flow -->
+    <NotificationFlowDiagram lang="en" />
+
+    <p>
+      When the messaging backend determines that the recipient is not actively connected via an application socket, it constructs a push notification ticket containing the recipient's registered device push token and dispatches it over HTTP/2 to APNs or FCM.
+    </p>
+
+    <TechnicalNote
+      title="Push Notifications in E2EE Architectures: Silent Wakeups vs Display Payloads"
+      category="PUSH ARCHITECTURE"
+      lang="en"
+    >
+      A common security question is whether Apple or Google can read private messages as push notifications pass through their gateways.<br /><br />
+      In privacy-focused E2EE systems, <strong>the push notification payload sent through APNs or FCM does not contain the message text</strong>. Instead, the server issues a <strong>Silent Background Push</strong>. The mobile OS receives this low-level trigger, briefly launches the messaging app's background extension, and provides a narrow execution window (typically 10 to 30 seconds). The awakened app establishes a secure TLS connection directly to the messaging provider, fetches the encrypted ciphertext, decrypts it locally using keys residing in on-device secure storage, and presents the local notification alert to the user.
+    </TechnicalNote>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 07 / RECIPIENT LOCAL PROCESSING -->
+  <section class="article-section">
+    <SectionHeading
+      number="07"
+      tag="LOCAL PROCESSING"
+      title="Arrival at the Destination: Decryption, Persistence, and State Update"
+      id="sec-07"
+    />
+
+    <p>
+      The encrypted binary payload has arrived inside the recipient's application process. What execution steps occur on the device before the text becomes visible?
+    </p>
+
+    <p>
+      The client software performs a sequence of deterministic steps in sub-second time:
+    </p>
+
+    <ol>
+      <li>
+        <strong>Cryptographic Verification (<bdi dir="ltr">Integrity &amp; AEAD Check</bdi>):</strong> The application validates the attached authentication tag against the received ciphertext. If even a single bit was corrupted during transmission or modified by an attacker, the calculation fails and the packet is discarded immediately.
+      </li>
+      <li>
+        <strong>Key Resolution &amp; Decryption:</strong> The client identifies the conversation context and retrieves the corresponding session key material from encrypted on-device storage. The payload is decrypted in application memory, restoring the plaintext message and metadata.
+      </li>
+      <li>
+        <strong>Local Database Persistence:</strong> The decrypted message is written to the app's local relational database (frequently SQLite with hardware-backed encryption extensions such as SQLCipher).
+      </li>
+      <li>
+        <strong>UI Rendering &amp; Audio Feedback:</strong> The new message is rendered into the conversation view hierarchy, and the operating system triggers the designated haptic vibration and notification chime.
+      </li>
+      <li>
+        <strong>Return Delivery Acknowledgment:</strong> The recipient client transmits a delivery acknowledgment frame back to the messaging provider's edge gateway, confirming successful receipt and local storage.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 08 / MESSAGE STATES AND CHECKS -->
+  <section class="article-section">
+    <SectionHeading
+      number="08"
+      tag="DELIVERY STATES"
+      title="The Semantics of Status Checkmarks in Distributed Systems"
+      id="sec-08"
+    />
+
+    <p>
+      The ubiquitous UI status indicators (clock icon, single checkmark, double checkmark, colored read receipt) are not merely visual design flourishes; they represent <strong>discrete consensus states in an asynchronous distributed state machine</strong>.
+    </p>
+
+    <!-- Diagram 07: Message Status Transitions -->
+    <MessageStatusDiagram lang="en" />
+
+    <p>
+      The technical semantics map directly to network milestones:
+    </p>
+
+    <ul>
+      <li>
+        <strong>Clock / Pending Icon (<bdi dir="ltr">Local Outbox</bdi>):</strong> The message exists exclusively within the sender's client database. The socket is either establishing its TLS session, waiting for an active radio interface, or holding the packet in the client-side socket buffer.
+      </li>
+      <li>
+        <strong>Single Checkmark (<bdi dir="ltr">Sent / Ingested State</bdi>):</strong> The edge gateway has accepted the packet, verified authentication, and committed the message to its ingestion queue. <strong>Responsibility has transitioned from the sender device to the service infrastructure</strong>. This state does not indicate that the recipient device has received or even been alerted to the message.
+      </li>
+      <li>
+        <strong>Double Checkmark (<bdi dir="ltr">Delivered State</bdi>):</strong> The recipient device established a connection, downloaded the payload, and returned a cryptographically signed delivery acknowledgment to the server, which subsequently relayed that receipt back to the sender. Crucially: in most protocols, <strong>Delivered confirms device receipt</strong>; it does not universally guarantee that decryption has executed or that the user has seen the screen.
+      </li>
+      <li>
+        <strong>Colored Checkmark / Read Receipt (<bdi dir="ltr">Read / Seen State</bdi>):</strong> The recipient user opened the specific conversation view, bringing the message into the active display viewport. If read receipts are enabled by both participants, a dedicated read signal is transmitted back to update the sender's database.
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 09 / MEDIA AND ATTACHMENTS -->
+  <section class="article-section">
+    <SectionHeading
+      number="09"
+      tag="MEDIA SIDECARS"
+      title="Media Attachments: The Out-of-Band Sidecar Pipeline"
+      id="sec-09"
+    />
+
+    <p>
+      When a user attaches a 50-megabyte video file or high-resolution photo, does that heavy binary stream travel across the same low-latency messaging socket?
+    </p>
+
+    <p>
+      In high-scale messaging architectures, <strong>it does not</strong>. Saturating persistent messaging channels with large multimedia blobs would introduce Head-of-Line blocking and degrade responsiveness for lightweight text messages. Systems instead employ an <strong>Out-of-Band Sidecar Architecture</strong>:
+    </p>
+
+    <ol>
+      <li>
+        <strong>Client-Side Media Encryption:</strong> Before uploading, the sender's handset generates a random, single-use symmetric encryption key (such as AES-256) and encrypts the media file locally.
+      </li>
+      <li>
+        <strong>Direct Object Storage Upload:</strong> The encrypted blob is uploaded via an independent <span class="term" dir="ltr">HTTPS PUT</span> request directly to a distributed object storage repository or Content Delivery Network (<span class="term" dir="ltr">CDN</span>). The storage cluster returns an access URL and a cryptographic SHA-256 digest of the encrypted file.
+      </li>
+      <li>
+        <strong>Sending the Lightweight Envelope:</strong> The sender transmits a tiny text-sized message over the primary messaging socket containing the download URL, the digest checksum, and the decryption key sealed inside the E2EE conversation payload.
+      </li>
+      <li>
+        <strong>Recipient Fetch &amp; Decrypt:</strong> The recipient receives the metadata message, pulls the encrypted blob from the nearest CDN edge node, validates its integrity checksum, and decrypts the media locally using the provided key. The CDN hosts only an unreadable encrypted file and never accesses the visual media.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 10 / DISTRIBUTED MACHINERY SUMMARY -->
+  <section class="article-section">
+    <SectionHeading
+      number="10"
+      tag="DISTRIBUTED SYSTEMS"
+      title="The Distributed Engine: Milliseconds of Orchestration"
+      id="sec-10"
+    />
+
+    <!-- Diagram 08: Message Delivery Final -->
+    <MessageDeliveryFinalDiagram lang="en" />
+
+    <p style="font-size: 1.25rem; font-weight: 600; color: var(--color-ink); line-height: 1.85;">
+      Instant messaging is not a simple direct transmission between two handheld devices.
+    </p>
+
+    <p>
+      It is an orchestration across multiple domains of computer science: client-side cryptographic key management, persistent TLS socket multiplexing, distributed edge ingestion, store-and-forward mailboxes, platform push notification wakeups, and asynchronous reverse acknowledgments.
+    </p>
+
+    <p style="font-size: 1.15rem; color: var(--color-ink-muted); line-height: 1.8;">
+      The entire distributed pipeline executes within one or two seconds, creating the quiet illusion that the person you are speaking with is sitting right next to you.
+    </p>
+
+    <!-- Standard Site CTA Box -->
+    <div style="padding: 1.5rem; border: 1px solid var(--color-hairline); background-color: var(--color-bg-warm); margin-block: 2.5rem;">
+      <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--color-olive); margin-block-end: 0.5rem;">
+        FOR MORE IN-DEPTH ANALYSIS
+      </div>
+      <p style="margin: 0; font-size: 1.15rem; font-weight: 600; line-height: 1.85; color: var(--color-ink);">
+        Explore more technical teardowns of security, networking, and systems architecture at:
+        <a href="https://writeups.mouhibmahadbi.online" target="_blank" rel="noopener noreferrer" style="color: var(--color-olive); text-decoration: underline; margin-inline-start: 0.35rem;">
+          writeups.mouhibmahadbi.online
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Related Articles -->
+  <ContinueReading currentArticleId="how-your-message-reaches-another-phone" lang="en" />
+
+</ArticleLayout>

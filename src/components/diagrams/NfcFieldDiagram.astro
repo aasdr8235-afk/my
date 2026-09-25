@@ -1,0 +1,114 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'آلية الحث الكهرومغناطيسي وتغذية شريحة البطاقة بالطاقة' : 'Electromagnetic induction and power harvesting mechanism in contactless cards'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">
+      {lang === 'ar' ? 'مخطط 02 / فيزياء الحث' : 'FIGURE 02 / INDUCTIVE POWERING'}
+    </span>
+    <span>
+      {lang === 'ar' ? 'تردد 13.56 ميجاهرتز وتغذية الشريحة بالطاقة عبر الحث الكهرومغناطيسي' : '13.56 MHz electromagnetic coupling & power harvesting'}
+    </span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 680px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="nfc-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+        <marker id="nfc-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="nfc-arr-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Stage 1: Terminal Transmitter Coil -->
+      <g transform="translate(25, 35)">
+        <rect width="220" height="210" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="220" height="26" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="12" y="17" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">1. TERMINAL READER COIL</text>
+
+        <rect x="12" y="38" width="196" height="50" fill="#FAF8F2" stroke="#151515" stroke-width="0.8"/>
+        <text x="18" y="52" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">POWER SOURCE</text>
+        <text x="18" y="66" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Constant AC power from mains/battery</text>
+        <text x="18" y="78" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Generates 13.56 MHz carrier frequency</text>
+
+        <rect x="12" y="96" width="196" height="50" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="18" y="110" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">OSCILLATING MAGNETIC FIELD</text>
+        <text x="18" y="124" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Emits alternating magnetic flux (B-field)</text>
+        <text x="18" y="136" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Forms near-field transformer primary</text>
+
+        <rect x="12" y="154" width="196" height="42" fill="#EBE7DE" stroke="#151515" stroke-width="0.7"/>
+        <text x="18" y="170" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#151515">ISO/IEC 14443-2 EMISSION</text>
+        <text x="18" y="184" font-family="sans-serif" font-size="7" fill="#5F5D56">Carrier envelope amplitude modulated</text>
+      </g>
+
+      <!-- Middle Coupling Arrow & Flux -->
+      <g transform="translate(260, 115)">
+        <line x1="0" y1="25" x2="35" y2="25" stroke="#5F6849" stroke-width="2" marker-end="url(#nfc-arr-olive)"/>
+        <text x="-5" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">FLUX COUPLING</text>
+        <text x="2" y="45" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">Induces EMF</text>
+      </g>
+
+      <!-- Stage 2: Card Antenna & Rectifier -->
+      <g transform="translate(310, 35)">
+        <rect width="235" height="210" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.6"/>
+        <rect width="235" height="26" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="12" y="17" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#5F6849">2. CONTACTLESS CARD LOOP</text>
+
+        <rect x="12" y="38" width="211" height="50" fill="#FAF8F2" stroke="#151515" stroke-width="0.8"/>
+        <text x="18" y="52" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">FARADAY INDUCTION</text>
+        <text x="18" y="66" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Card copper loop acts as secondary coil</text>
+        <text x="18" y="78" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Induces alternating voltage in loop</text>
+
+        <rect x="12" y="96" width="211" height="50" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="18" y="110" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">POWER HARVESTING RECTIFIER</text>
+        <text x="18" y="124" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Diode bridge rectifies AC into steady DC</text>
+        <text x="18" y="136" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Charges capacitor: powers microprocessor</text>
+
+        <rect x="12" y="154" width="211" height="42" fill="url(#nfc-hatch)" stroke="#5F6849" stroke-width="0.7"/>
+        <text x="18" y="170" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#151515">CHIP BOOTS IN &lt; 10 MILLISECONDS</text>
+        <text x="18" y="184" font-family="sans-serif" font-size="7" fill="#5F5D56">No battery needed; powered entirely by terminal field</text>
+      </g>
+
+      <!-- Arrow 2 -> 3 -->
+      <g transform="translate(555, 115)">
+        <line x1="0" y1="25" x2="35" y2="25" stroke="#151515" stroke-width="1.8" marker-end="url(#nfc-arr)"/>
+        <text x="-5" y="15" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#151515">LOAD MOD</text>
+        <text x="0" y="45" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F6849">Reply data</text>
+      </g>
+
+      <!-- Stage 3: Communication & Load Modulation -->
+      <g transform="translate(600, 35)">
+        <rect width="195" height="210" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="195" height="26" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="12" y="17" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">3. DATA RETURN</text>
+
+        <rect x="10" y="38" width="175" height="50" fill="#FAF8F2" stroke="#151515" stroke-width="0.8"/>
+        <text x="16" y="52" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">LOAD MODULATION</text>
+        <text x="16" y="66" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Card toggles resistive load</text>
+        <text x="16" y="78" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Varies current drawn from field</text>
+
+        <rect x="10" y="96" width="175" height="50" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="16" y="110" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">READER SENSING</text>
+        <text x="16" y="124" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Terminal senses voltage drop</text>
+        <text x="16" y="136" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Demodulates into 1s and 0s</text>
+
+        <rect x="10" y="154" width="175" height="42" fill="#EBE7DE" stroke="#151515" stroke-width="0.7"/>
+        <text x="16" y="170" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#151515">FULL DUPLEX PROTOCOL</text>
+        <text x="16" y="184" font-family="sans-serif" font-size="7" fill="#5F5D56">Ready for EMV APDU exchange</text>
+      </g>
+    </svg>
+  </div>
+</figure>

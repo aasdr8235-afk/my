@@ -1,0 +1,110 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'توليد التشفير الديناميكي للعملية ومنع إعادة الاستخدام' : 'Dynamic transaction cryptogram (ARQC) derivation and replay prevention'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">
+      {lang === 'ar' ? 'مخطط 04 / التشفير الديناميكي' : 'FIGURE 04 / DYNAMIC CRYPTOGRAM'}
+    </span>
+    <span>
+      {lang === 'ar' ? 'توليد الـARQC: كيف تمنع الشريحة نسخ البطاقة وإعادة العمليات؟' : 'ARQC calculation: Combining ATC, Unpredictable Number, and session keys'}
+    </span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 680px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="dyn-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+        <marker id="dyn-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="dyn-arr-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Left Column: Input Vectors -->
+      <g transform="translate(25, 30)">
+        <rect width="250" height="220" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="250" height="26" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="12" y="17" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">1. TRANSACTION & DYNAMIC INPUTS</text>
+
+        <rect x="10" y="36" width="230" height="34" fill="#FAF8F2" stroke="#151515" stroke-width="0.7"/>
+        <text x="16" y="50" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">AMOUNT & CURRENCY</text>
+        <text x="16" y="63" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F5D56">$24.50 USD • 840 • Date: 2026-09-25</text>
+
+        <rect x="10" y="76" width="230" height="40" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="16" y="90" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">UNPREDICTABLE NUMBER (UN)</text>
+        <text x="16" y="103" font-family="sans-serif" font-size="7" fill="#5F5D56">32-bit random nonce chosen by reader</text>
+        <text x="16" y="113" font-family="'JetBrains Mono', monospace" font-size="6.5" fill="#5F6849">0x4E7A91B0 (Prevents pre-play)</text>
+
+        <rect x="10" y="122" width="230" height="42" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="16" y="136" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">TRANSACTION COUNTER (ATC)</text>
+        <text x="16" y="149" font-family="sans-serif" font-size="7" fill="#5F5D56">Chip internal non-volatile counter: #0142</text>
+        <text x="16" y="159" font-family="sans-serif" font-size="6.5" fill="#5F5D56">Strictly increments every tap (No replays)</text>
+
+        <rect x="10" y="170" width="230" height="34" fill="#EBE7DE" stroke="#151515" stroke-width="0.6"/>
+        <text x="16" y="184" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="600" fill="#151515">TERMINAL QUALIFIERS & COUNTRY</text>
+        <text x="16" y="196" font-family="sans-serif" font-size="7" fill="#5F5D56">Reader capabilities & merchant ID</text>
+      </g>
+
+      <!-- Arrow 1 -> 2 -->
+      <line x1="275" y1="140" x2="315" y2="140" stroke="#5F6849" stroke-width="1.8" marker-end="url(#dyn-arr-olive)"/>
+
+      <!-- Middle: Chip Cryptographic Engine -->
+      <g transform="translate(325, 30)">
+        <rect width="240" height="220" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.6"/>
+        <rect width="240" height="26" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="12" y="17" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">2. CHIP CRYPTOGRAPHIC CORE</text>
+
+        <rect x="10" y="36" width="220" height="50" fill="#FAF8F2" stroke="#151515" stroke-width="0.8"/>
+        <text x="16" y="50" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">CARD MASTER DERIVATION KEY</text>
+        <text x="16" y="64" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Injected into secure silicon during card issuance</text>
+        <text x="16" y="76" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Never exported; hardware protected</text>
+
+        <rect x="10" y="94" width="220" height="52" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="16" y="108" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">SESSION KEY DERIVATION</text>
+        <text x="16" y="122" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Derived using Card Key + ATC</text>
+        <text x="16" y="136" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Unique 128-bit key for this tap only</text>
+
+        <rect x="10" y="154" width="220" height="48" fill="url(#dyn-hatch)" stroke="#5F6849" stroke-width="0.7"/>
+        <text x="16" y="170" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">MAC COMPUTATION (3DES / AES)</text>
+        <text x="16" y="184" font-family="sans-serif" font-size="7.5" fill="#151515">Combines all transaction bytes with session key</text>
+        <text x="16" y="196" font-family="sans-serif" font-size="7" fill="#5F5D56">Tamper with $1 -> Cryptogram becomes invalid</text>
+      </g>
+
+      <!-- Arrow 2 -> 3 -->
+      <line x1="565" y1="140" x2="605" y2="140" stroke="#5F6849" stroke-width="1.8" marker-end="url(#dyn-arr-olive)"/>
+
+      <!-- Right: Generated Output (ARQC) -->
+      <g transform="translate(615, 30)">
+        <rect width="180" height="220" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="180" height="26" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="17" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">3. OUTPUT CRYPTOGRAM</text>
+
+        <rect x="10" y="36" width="160" height="74" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="14" y="52" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">ARQC CRYPTOGRAM</text>
+        <text x="14" y="70" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">0x8A1F4C92E0D711B3</text>
+        <text x="14" y="86" font-family="sans-serif" font-size="7" fill="#5F5D56">Dynamic 8-byte cryptographic proof of authenticity</text>
+        <text x="14" y="100" font-family="sans-serif" font-size="6.5" fill="#5F6849">Only issuing bank can verify</text>
+
+        <rect x="10" y="120" width="160" height="82" fill="#EBE7DE" stroke="#151515" stroke-width="0.7"/>
+        <text x="14" y="136" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">DEFENSE GUARANTEE</text>
+        <text x="14" y="152" font-family="sans-serif" font-size="7" fill="#5F5D56">• Cannot be copied to another card</text>
+        <text x="14" y="166" font-family="sans-serif" font-size="7" fill="#5F5D56">• Cannot be reused for 2nd transaction</text>
+        <text x="14" y="180" font-family="sans-serif" font-size="7" fill="#5F5D56">• Cannot alter price or currency</text>
+        <text x="14" y="194" font-family="'JetBrains Mono', monospace" font-size="6.5" font-weight="600" fill="#151515">CLONING RESISTANT</text>
+      </g>
+    </svg>
+  </div>
+</figure>

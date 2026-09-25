@@ -1,0 +1,245 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'مخطط هاتف المرسل، البنية التحتية، وهاتف المستلم' : 'Visual diagram showing sender phone, cloud servers, and recipient phone'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">
+      {lang === 'ar' ? 'مخطط 05 / رحلة المراسلة' : 'FIGURE 05 / INSTANT MESSAGING'}
+    </span>
+    <span>
+      {lang === 'ar' ? 'هاتف المرسل ← خوادم وسيطة ← هاتف المستلم' : 'Sender Phone → Service Servers → Recipient Phone'}
+    </span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 640px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="msg-th-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+        <pattern id="msg-th-olive-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#5F6849" stroke-width="0.75" stroke-opacity="0.25"/>
+        </pattern>
+        <marker id="msg-th-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="msg-th-arr-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Corner Accents -->
+      <line x1="8" y1="24" x2="8" y2="8" stroke="#151515" stroke-width="2"/>
+      <line x1="8" y1="8" x2="24" y2="8" stroke="#151515" stroke-width="2"/>
+      <line x1="812" y1="256" x2="812" y2="272" stroke="#151515" stroke-width="2"/>
+      <line x1="812" y1="272" x2="796" y2="272" stroke="#151515" stroke-width="2"/>
+
+      <!-- ============================================== -->
+      <!-- 01 / LEFT OBJECT: SENDER SMARTPHONE            -->
+      <!-- ============================================== -->
+      <g transform="translate(35, 24)">
+        <!-- Phone Outer Body -->
+        <rect width="205" height="232" rx="16" fill="#F4F1E9" stroke="#151515" stroke-width="1.8"/>
+        
+        <!-- Speaker Slit & Front Camera Sensor -->
+        <rect x="75" y="7" width="45" height="4" rx="2" fill="#151515" fill-opacity="0.3"/>
+        <circle cx="132" cy="9" r="2.5" fill="#151515" fill-opacity="0.4"/>
+
+        <!-- Phone Screen Bezel -->
+        <rect x="8" y="18" width="189" height="196" rx="8" fill="#FAF8F2" stroke="#151515" stroke-width="1"/>
+
+        <!-- Status Bar -->
+        <text x="18" y="32" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#151515">09:41</text>
+        <g transform="translate(162, 26)">
+          <path d="M 0 5 A 5 5 0 0 1 8 5" fill="none" stroke="#151515" stroke-width="1"/>
+          <rect x="12" y="2" width="10" height="5" rx="1" fill="#151515"/>
+        </g>
+
+        <!-- App Chat Header -->
+        <rect x="8" y="38" width="189" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="0.6"/>
+        <circle cx="22" cy="49" r="6" fill="#5F6849" fill-opacity="0.3" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="34" y="52" font-family="-apple-system, sans-serif" font-size="8" font-weight="700" fill="#151515">
+          {lang === 'ar' ? 'محادثة مشفرة' : 'Secure Chat'}
+        </text>
+
+        <!-- Chat Bubble 1 (Incoming Previous Message) -->
+        <rect x="16" y="68" width="115" height="28" rx="6" fill="#EBE7DE" stroke="#151515" stroke-width="0.6"/>
+        <text x="24" y="85" font-family="-apple-system, sans-serif" font-size="8" fill="#151515">
+          {lang === 'ar' ? 'مرحبًا، هل أنت متفرغ؟' : 'Hey, are you free?'}
+        </text>
+
+        <!-- Chat Bubble 2 (Outgoing Sent Message — Featured) -->
+        <rect x="52" y="104" width="137" height="38" rx="6" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.4"/>
+        <text x="60" y="122" font-family="-apple-system, sans-serif" font-size="8.5" font-weight="700" fill="#151515">
+          {lang === 'ar' ? 'أين أنت الآن؟' : 'Where are you now?'}
+        </text>
+        <text x="60" y="135" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F6849">
+          09:41
+        </text>
+        <!-- Single Checkmark (Sent) -->
+        <path d="M 172 131 L 176 135 L 182 127" fill="none" stroke="#5F6849" stroke-width="1.5" stroke-linecap="round"/>
+
+        <!-- Text Input & Send Action Bar -->
+        <rect x="16" y="174" width="144" height="26" rx="13" fill="#EBE7DE" stroke="#151515" stroke-width="0.8"/>
+        <text x="28" y="190" font-family="-apple-system, sans-serif" font-size="7.5" fill="#5F5D56">
+          {lang === 'ar' ? 'اكتب رسالة...' : 'Type a message...'}
+        </text>
+        <!-- Circular Send Button -->
+        <circle cx="178" cy="187" r="11" fill="#5F6849" stroke="#151515" stroke-width="1"/>
+        <path d="M 178 181 L 178 193 M 174 185 L 178 181 L 182 185" fill="none" stroke="#FAF8F2" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- Label below phone -->
+        <text x="102" y="224" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">
+          {lang === 'ar' ? '01 / هاتف المرسل' : '01 / SENDER PHONE'}
+        </text>
+      </g>
+
+      <!-- ============================================== -->
+      <!-- DATA TRANSMISSION ARROW (SENDER -> SERVER)     -->
+      <!-- ============================================== -->
+      <g transform="translate(245, 120)">
+        <line x1="0" y1="0" x2="60" y2="0" stroke="#5F6849" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#msg-th-arr-olive)"/>
+        <!-- Animated Packet Envelope Representation -->
+        <rect x="18" y="-18" width="28" height="16" rx="2" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <path d="M 18 -18 L 32 -8 L 46 -18" fill="none" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="32" y="14" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#5F6849">TLS</text>
+      </g>
+
+      <!-- ============================================== -->
+      <!-- 02 / CENTER OBJECT: CLOUD / SERVER INFRA       -->
+      <!-- ============================================== -->
+      <g transform="translate(315, 24)">
+        <!-- Infrastructure Container -->
+        <rect width="190" height="232" rx="10" fill="#FAF8F2" stroke="#5F6849" stroke-width="1.2" stroke-dasharray="4 3"/>
+
+        <!-- Header Tag -->
+        <rect x="25" y="12" width="140" height="18" rx="2" fill="#EBE7DE" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="95" y="24" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">
+          {lang === 'ar' ? 'خوادم الخدمة' : 'SERVICE SERVERS'}
+        </text>
+
+        <!-- Physical Server Rack Tower -->
+        <g transform="translate(30, 42)">
+          <rect width="130" height="142" rx="4" fill="#F4F1E9" stroke="#151515" stroke-width="1.6"/>
+          
+          <!-- Server Blade 1: Ingress Edge Gateway -->
+          <rect x="8" y="10" width="114" height="34" rx="2" fill="#FAF8F2" stroke="#151515" stroke-width="0.9"/>
+          <text x="14" y="24" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">EDGE GATEWAY</text>
+          <text x="14" y="36" font-family="sans-serif" font-size="7" fill="#5F5D56">Socket Termination</text>
+          <circle cx="106" cy="22" r="3" fill="#5F6849"/>
+          <circle cx="114" cy="22" r="3" fill="#151515" fill-opacity="0.3"/>
+
+          <!-- Server Blade 2: Store & Forward Queue -->
+          <rect x="8" y="52" width="114" height="40" rx="2" fill="url(#msg-th-hatch)" stroke="#5F6849" stroke-width="1.2"/>
+          <text x="14" y="66" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">MESSAGE QUEUE</text>
+          <text x="14" y="80" font-family="sans-serif" font-size="7" fill="#151515">Store-and-Forward</text>
+          <circle cx="106" cy="64" r="3" fill="#5F6849"/>
+          <circle cx="114" cy="64" r="3" fill="#5F6849"/>
+
+          <!-- Server Blade 3: Platform Push Dispatcher -->
+          <rect x="8" y="100" width="114" height="34" rx="2" fill="#EBE7DE" stroke="#151515" stroke-width="0.9"/>
+          <text x="14" y="114" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">PUSH DISPATCHER</text>
+          <text x="14" y="126" font-family="sans-serif" font-size="7" fill="#5F5D56">APNs / FCM Wakeup</text>
+          <circle cx="106" cy="112" r="3" fill="#5F6849"/>
+          <circle cx="114" cy="112" r="3" fill="#151515" fill-opacity="0.3"/>
+        </g>
+
+        <!-- Center Label below -->
+        <text x="95" y="210" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">
+          {lang === 'ar' ? '02 / البنية السحابية' : '02 / SERVICE CLOUD'}
+        </text>
+        <text x="95" y="222" text-anchor="middle" font-family="sans-serif" font-size="7" fill="#5F5D56">
+          {lang === 'ar' ? 'التوجيه وطوابير التخزين' : 'Routing & Mailbox Queues'}
+        </text>
+      </g>
+
+      <!-- ============================================== -->
+      <!-- DATA TRANSMISSION ARROW (SERVER -> RECIPIENT)  -->
+      <!-- ============================================== -->
+      <g transform="translate(515, 120)">
+        <line x1="0" y1="0" x2="60" y2="0" stroke="#5F6849" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#msg-th-arr-olive)"/>
+        <!-- Push Wake Signal Waves -->
+        <path d="M 22 -14 A 14 14 0 0 1 22 14" fill="none" stroke="#5F6849" stroke-width="1.4"/>
+        <path d="M 28 -10 A 10 10 0 0 1 28 10" fill="none" stroke="#5F6849" stroke-width="1.2"/>
+        <text x="32" y="20" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#5F6849">PUSH</text>
+      </g>
+
+      <!-- ============================================== -->
+      <!-- 03 / RIGHT OBJECT: RECIPIENT SMARTPHONE        -->
+      <!-- ============================================== -->
+      <g transform="translate(580, 24)">
+        <!-- Phone Outer Body -->
+        <rect width="205" height="232" rx="16" fill="#F4F1E9" stroke="#151515" stroke-width="1.8"/>
+        
+        <!-- Speaker Slit & Front Camera Sensor -->
+        <rect x="75" y="7" width="45" height="4" rx="2" fill="#151515" fill-opacity="0.3"/>
+        <circle cx="132" cy="9" r="2.5" fill="#151515" fill-opacity="0.4"/>
+
+        <!-- Ring / Chime Indicator Waves (Phone Waking Up!) -->
+        <g transform="translate(185, 2)">
+          <path d="M 6 0 A 10 10 0 0 1 12 14" fill="none" stroke="#5F6849" stroke-width="1.4"/>
+          <path d="M 12 -4 A 16 16 0 0 1 20 18" fill="none" stroke="#5F6849" stroke-width="1.4"/>
+        </g>
+
+        <!-- Phone Screen Bezel -->
+        <rect x="8" y="18" width="189" height="196" rx="8" fill="#FAF8F2" stroke="#151515" stroke-width="1"/>
+
+        <!-- Status Bar -->
+        <text x="18" y="32" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#151515">09:41</text>
+        <g transform="translate(162, 26)">
+          <path d="M 0 5 A 5 5 0 0 1 8 5" fill="none" stroke="#151515" stroke-width="1"/>
+          <rect x="12" y="2" width="10" height="5" rx="1" fill="#151515"/>
+        </g>
+
+        <!-- App Chat Header -->
+        <rect x="8" y="38" width="189" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="0.6"/>
+        <circle cx="22" cy="49" r="6" fill="#151515" fill-opacity="0.2" stroke="#151515" stroke-width="0.8"/>
+        <text x="34" y="52" font-family="-apple-system, sans-serif" font-size="8" font-weight="700" fill="#151515">
+          {lang === 'ar' ? 'محب (متصل الآن)' : 'Mouhib (Online)'}
+        </text>
+
+        <!-- Chat Bubble 1 (Sent Previously by Recipient) -->
+        <rect x="66" y="68" width="123" height="28" rx="6" fill="#FAF8F2" stroke="#151515" stroke-width="0.6"/>
+        <text x="74" y="85" font-family="-apple-system, sans-serif" font-size="8" fill="#5F5D56">
+          {lang === 'ar' ? 'مرحبًا، هل أنت متفرغ؟' : 'Hey, are you free?'}
+        </text>
+
+        <!-- Chat Bubble 2 (Incoming Delivered Message — Featured) -->
+        <rect x="16" y="104" width="144" height="38" rx="6" fill="#EBE7DE" stroke="#5F6849" stroke-width="1.4"/>
+        <text x="24" y="122" font-family="-apple-system, sans-serif" font-size="8.5" font-weight="700" fill="#151515">
+          {lang === 'ar' ? 'أين أنت الآن؟' : 'Where are you now?'}
+        </text>
+        <text x="24" y="135" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F6849">
+          09:41
+        </text>
+        <!-- Double Checkmark (Delivered!) -->
+        <g transform="translate(136, 126)">
+          <path d="M 0 5 L 4 9 L 10 1" fill="none" stroke="#5F6849" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M 5 5 L 9 9 L 15 1" fill="none" stroke="#5F6849" stroke-width="1.4" stroke-linecap="round"/>
+        </g>
+
+        <!-- Decryption / Security Verification Pill -->
+        <g transform="translate(16, 154)">
+          <rect width="169" height="20" rx="3" fill="#F4F1E9" stroke="#151515" stroke-width="0.6"/>
+          <circle cx="10" cy="10" r="3" fill="#5F6849"/>
+          <text x="18" y="13" font-family="'JetBrains Mono', monospace" font-size="6.5" font-weight="600" fill="#151515">
+            {lang === 'ar' ? 'تم التحقق من التوقيع وفك التشفير' : 'E2EE DECRYPTED & VERIFIED'}
+          </text>
+        </g>
+
+        <!-- Label below phone -->
+        <text x="102" y="224" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">
+          {lang === 'ar' ? '03 / هاتف المستلم' : '03 / RECIPIENT PHONE'}
+        </text>
+      </g>
+    </svg>
+  </div>
+</figure>

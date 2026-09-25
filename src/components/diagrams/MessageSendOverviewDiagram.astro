@@ -1,0 +1,134 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'المسار الإجمالي لرحلة الرسالة من المرسل إلى المستلم' : 'High-level overview of message delivery journey from sender to recipient'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">
+      {lang === 'ar' ? 'مخطط عام / رحلة الرسالة' : 'OVERVIEW / MESSAGE JOURNEY'}
+    </span>
+    <span>
+      {lang === 'ar' ? 'المسار المفاهيمي لرحلة الرسالة الفورية' : 'Conceptual flow from sender client to recipient client'}
+    </span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 280" width="100%" height="auto" style="min-width: 680px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="msg-ov-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+        <marker id="msg-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#151515"/>
+        </marker>
+        <marker id="msg-arrow-olive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#5F6849"/>
+        </marker>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="264" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Sender Client -->
+      <g transform="translate(25, 35)">
+        <rect width="165" height="210" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="165" height="26" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="12" y="17" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">01 / SENDER CLIENT</text>
+
+        <rect x="10" y="38" width="145" height="48" fill="#FAF8F2" stroke="#151515" stroke-width="0.8"/>
+        <text x="16" y="52" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">USER ACTION</text>
+        <text x="16" y="67" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Taps "Send" button</text>
+        <text x="16" y="80" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• UI renders pending state</text>
+
+        <rect x="10" y="94" width="145" height="52" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="16" y="108" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">PAYLOAD ENCRYPTION</text>
+        <text x="16" y="122" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Payload encrypted (if E2EE)</text>
+        <text x="16" y="136" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Enclosed in transport frame</text>
+
+        <rect x="10" y="154" width="145" height="44" fill="#EBE7DE" stroke="#151515" stroke-width="0.7"/>
+        <text x="16" y="170" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#151515">SECURE TRANSPORT</text>
+        <text x="16" y="184" font-family="sans-serif" font-size="7" fill="#5F5D56">TLS / Established socket</text>
+      </g>
+
+      <!-- Arrow 1 -> 2 -->
+      <line x1="190" y1="140" x2="230" y2="140" stroke="#5F6849" stroke-width="1.8" marker-end="url(#msg-arrow-olive)"/>
+      <text x="195" y="130" font-family="'JetBrains Mono', monospace" font-size="7" fill="#5F6849">TLS uplink</text>
+
+      <!-- Provider Edge & Core -->
+      <g transform="translate(235, 35)">
+        <rect width="215" height="210" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.6"/>
+        <rect width="215" height="26" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="12" y="17" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#5F6849">02 / SERVICE INFRASTRUCTURE</text>
+
+        <rect x="10" y="38" width="195" height="46" fill="#FAF8F2" stroke="#151515" stroke-width="0.8"/>
+        <text x="16" y="52" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">EDGE GATEWAY</text>
+        <text x="16" y="66" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Authenticates sender session</text>
+        <text x="16" y="78" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Sends immediate Server Ack</text>
+
+        <rect x="10" y="90" width="195" height="54" fill="#FAF8F2" stroke="#151515" stroke-width="0.8"/>
+        <text x="16" y="104" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#151515">ROUTING & LOOKUP</text>
+        <text x="16" y="118" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Resolves recipient account ID</text>
+        <text x="16" y="132" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Checks active connection state</text>
+
+        <rect x="10" y="150" width="195" height="48" fill="url(#msg-ov-hatch)" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="16" y="166" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">STORE-AND-FORWARD</text>
+        <text x="16" y="180" font-family="sans-serif" font-size="7.5" fill="#151515">Direct delivery OR retention queue</text>
+      </g>
+
+      <!-- Arrow 2 -> 3 -->
+      <line x1="450" y1="140" x2="490" y2="140" stroke="#151515" stroke-width="1.6" marker-end="url(#msg-arrow)"/>
+      <text x="455" y="130" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">Delivery</text>
+
+      <!-- Push Gateway (APNs / FCM) -->
+      <g transform="translate(495, 35)">
+        <rect width="130" height="95" fill="#F4F1E9" stroke="#151515" stroke-width="1.2"/>
+        <rect width="130" height="22" fill="#EBE7DE" stroke="#151515" stroke-width="0.8"/>
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">PUSH PLATFORMS</text>
+        <text x="8" y="38" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Apple APNs / Google FCM</text>
+        <text x="8" y="52" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Device OS wake-up signal</text>
+        <text x="8" y="66" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Does not need plaintext</text>
+        <text x="8" y="80" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="600" fill="#5F6849">WAKES RECIPIENT APP</text>
+      </g>
+
+      <!-- Direct or Polled Delivery Path -->
+      <g transform="translate(495, 145)">
+        <rect width="130" height="100" fill="#FAF8F2" stroke="#5F6849" stroke-width="1.2"/>
+        <rect width="130" height="22" fill="#EBE7DE" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="8" y="15" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">DIRECT DOWNLINK</text>
+        <text x="8" y="38" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Active secure socket</text>
+        <text x="8" y="52" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Immediate push to client</text>
+        <text x="8" y="66" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Or fetch upon wake</text>
+        <text x="8" y="82" font-family="'JetBrains Mono', monospace" font-size="7" fill="#151515">STREAM / FETCH</text>
+      </g>
+
+      <!-- Arrow to Recipient -->
+      <line x1="625" y1="195" x2="645" y2="195" stroke="#5F6849" stroke-width="1.8" marker-end="url(#msg-arrow-olive)"/>
+
+      <!-- Recipient Client -->
+      <g transform="translate(650, 35)">
+        <rect width="145" height="210" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="145" height="26" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+        <text x="10" y="17" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">03 / RECIPIENT</text>
+
+        <rect x="8" y="38" width="129" height="46" fill="#FAF8F2" stroke="#151515" stroke-width="0.8"/>
+        <text x="12" y="52" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#151515">RECEIVE PAYLOAD</text>
+        <text x="12" y="66" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Incoming frame parsed</text>
+        <text x="12" y="78" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Delivery ack emitted</text>
+
+        <rect x="8" y="90" width="129" height="54" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+        <text x="12" y="104" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#5F6849">LOCAL DECRYPT</text>
+        <text x="12" y="118" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Resolves session keys</text>
+        <text x="12" y="130" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Decrypts ciphertext</text>
+        <text x="12" y="140" font-family="sans-serif" font-size="7.5" fill="#5F5D56">• Authenticates payload</text>
+
+        <rect x="8" y="150" width="129" height="48" fill="#EBE7DE" stroke="#151515" stroke-width="0.7"/>
+        <text x="12" y="165" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#151515">LOCAL STORAGE & UI</text>
+        <text x="12" y="179" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Database save & bubble render</text>
+      </g>
+    </svg>
+  </div>
+</figure>

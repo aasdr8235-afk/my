@@ -1,0 +1,474 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import SectionHeading from '../../../components/SectionHeading.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import TechnicalNote from '../../../components/TechnicalNote.astro';
+import ContinueReading from '../../../components/ContinueReading.astro';
+
+// Technical SVG Diagrams
+import MessageSendOverviewDiagram from '../../../components/diagrams/MessageSendOverviewDiagram.astro';
+import MessageAsDataDiagram from '../../../components/diagrams/MessageAsDataDiagram.astro';
+import MessagingEncryptionDiagram from '../../../components/diagrams/MessagingEncryptionDiagram.astro';
+import MessagingServerPathDiagram from '../../../components/diagrams/MessagingServerPathDiagram.astro';
+import RecipientOfflineQueueDiagram from '../../../components/diagrams/RecipientOfflineQueueDiagram.astro';
+import NotificationFlowDiagram from '../../../components/diagrams/NotificationFlowDiagram.astro';
+import MessageStatusDiagram from '../../../components/diagrams/MessageStatusDiagram.astro';
+import MessageDeliveryFinalDiagram from '../../../components/diagrams/MessageDeliveryFinalDiagram.astro';
+
+const tocItems = [
+  { id: 'sec-01', num: '01', title: 'بنية البيانات' },
+  { id: 'sec-02', num: '02', title: 'الاتصال والنقل' },
+  { id: 'sec-03', num: '03', title: 'نماذج التشفير' },
+  { id: 'sec-04', num: '04', title: 'بوابات المزود' },
+  { id: 'sec-05', num: '05', title: 'طوابير التخزين' },
+  { id: 'sec-06', num: '06', title: 'شبكات الإشعار' },
+  { id: 'sec-07', num: '07', title: 'الاستلام وفك التشفير' },
+  { id: 'sec-08', num: '08', title: 'حالات التسليم' },
+  { id: 'sec-09', num: '09', title: 'مسار الوسائط' },
+  { id: 'sec-10', num: '10', title: 'المنظومة الكاملة' }
+];
+
+const pageTitle = "ضغطت Send… كيف وصلت رسالتك إلى هاتف شخص آخر؟";
+const pageSubtitle = "الرسالة لا تطير في الهواء مباشرة من هاتفك إلى هاتف صديقك. خلف كل فقاعة محادثة بنية تحتية موزعة، اتصالات مستمرة، طوابير تخزين، شبكات إشعار ومفاتيح تشفير.";
+const pageDescription = "رحلة الرسالة الفورية خطوة بخطوة: من تشفير الحزمة والاتصال بالخادم، إلى معالجة البوابات وطوابير الانتظار، واستيقاظ الهاتف عبر الإشعارات وفك التشفير محليًا.";
+const socialTitle = "ضغطت Send… كيف وصلت رسالتك إلى هاتف شخص آخر؟";
+const ogImage = "/assets/og/how-your-message-reaches-another-phone.jpg";
+
+const references = [
+  {
+    num: '[01]',
+    title: 'The Double Ratchet Algorithm & End-to-End Cryptographic Protocols',
+    org: 'Signal Foundation / Messaging Research',
+    link: 'https://signal.org/docs/specifications/doubleratchet/'
+  },
+  {
+    num: '[02]',
+    title: 'Apple Push Notification service (APNs) Architecture and Device Token Routing',
+    org: 'Apple Developer Documentation',
+    link: 'https://developer.apple.com/documentation/usernotifications'
+  },
+  {
+    num: '[03]',
+    title: 'Firebase Cloud Messaging (FCM) Connection Server Protocols & Heartbeats',
+    org: 'Google Cloud Platform Documentation',
+    link: 'https://firebase.google.com/docs/cloud-messaging'
+  },
+  {
+    num: '[04]',
+    title: 'RFC 9000 & RFC 8446: Modern Transport Layer Security & Multiplexing',
+    org: 'Internet Engineering Task Force (IETF)',
+    link: 'https://www.rfc-editor.org/rfc/rfc8446'
+  }
+];
+
+const displayTitle = 'ضغطت <span class="term" dir="ltr">Send</span>… كيف وصلت رسالتك إلى هاتف شخص آخر؟';
+---
+
+<ArticleLayout
+  title={pageTitle}
+  displayTitle={displayTitle}
+  subtitle={pageSubtitle}
+  description={pageDescription}
+  lang="ar"
+  arUrl="/ar/articles/how-your-message-reaches-another-phone/"
+  enUrl="/en/articles/how-your-message-reaches-another-phone/"
+  currentPath="/ar/articles/how-your-message-reaches-another-phone/"
+  tocItems={tocItems}
+  categoryText="الشبكات / المراسلة"
+  articleMeta="مقال 05 / هندسة المراسلة والأنظمة الموزعة"
+  references={references}
+  socialTitle={socialTitle}
+  ogImage={ogImage}
+  publishedDate="2026-09-25"
+  modifiedDate="2026-09-25"
+  breadcrumbCategory="الشبكات / المراسلة"
+  breadcrumbCurrent="رحلة الرسالة الفورية"
+>
+
+  <!-- 01 / WHAT IS A MESSAGE AT DATA LEVEL -->
+  <section class="article-section">
+    <SectionHeading
+      number="01"
+      tag="بنية البيانات"
+      title="الرسالة ليست مجرد نص… هي حزمة بيانات وغلاف توجيهي"
+      id="sec-01"
+    />
+
+    <p>
+      تكتب &quot;أين أنت؟&quot; وتضغط على زر الإرسال <span class="term" dir="ltr">Send</span>. بعد أجزاء من الثانية، ترتفع فقاعة المحادثة على شاشتك مصحوبة بعلامة تأكيد، بينما يرن هاتف صديقك على بعد آلاف الكيلومترات معلنًا وصول الكلمات ذاتها.
+    </p>
+
+    <p>
+      في الأجهزة والأنظمة الموزعة، <strong>لا توجد قناة اتصال لاسلكية مباشرة</strong> بين هاتفين عاديين في الحياة اليومية. الرسالة لا &quot;تطير في الهواء&quot; من جهاز إلى آخر. ما يحدث فعليًا هو سلسلة متقنة من العمليات البرمجية والتشفيرية التي تحول ضغطة زر واحدة إلى حزمة بيانات مهيكلة، تُسلَّم عبر اتصالات شبكية مؤمنة إلى خوادم وسيطة، ثم تُعاد جدولتها وحقنها في أنظمة التشغيل لتصل إلى الشاشة المقابلة.
+    </p>
+
+    <p>
+      أول حقيقة هندسية يجب إدراكها هي أن التطبيق عندما يتعامل مع رسالتك، لا يرسل النص المجرد ككتلة خام. بدلاً من ذلك، يبني التطبيق <strong>كائن بيانات مهيكل (<bdi dir="ltr">Structured Data Object</bdi>)</strong> يتكون مفاهيميًا من مستويين متميزين تمامًا:
+    </p>
+
+    <ul>
+      <li>
+        <strong>الغلاف التوجيهي (<bdi dir="ltr">Routing Envelope / Metadata</bdi>):</strong> معلومات إدارية ضرورية يحتاجها مزود الخدمة لتوجيه الحزمة. تشمل معرّف الرسالة الفريد (<span class="term" dir="ltr">message_id</span>)، هوية المرسل وحسابه (<span class="term" dir="ltr">sender_id</span>)، هوية المستلم أو معرّف المحادثة (<span class="term" dir="ltr">recipient_id / conv_id</span>)، التوقيت الزمني الصادر من العميل، وإصدار البروتوكول. هذه الترويسة يجب أن تكون قابلة للقراءة من خوادم المزود لتعرف إلى أي حساب وأي خادم يجب توجيه الطرد.
+      </li>
+      <li>
+        <strong>الحمولة المشفرة (<bdi dir="ltr">Encrypted Payload</bdi>):</strong> في الأنظمة الحديثة التي تعتمد التشفير بين الطرفين (<span class="term" dir="ltr">End-to-End Encryption</span>)، يكون المحتوى الفعلي (النص، الرموز التعبيرية، أو مفاتيح فك تشفير الوسائط) عبارة عن <strong>كتلة ثنائية مشفرة (<bdi dir="ltr">Ciphertext Blob</bdi>)</strong> غير مفهومة لأي جهة وسيطة، ومرفقة برمز مصادقة الرسالة (<span class="term" dir="ltr">Authentication Tag / MAC</span>) لمنع أي تلاعب بمحتواها أثناء النقل.
+      </li>
+    </ul>
+
+    <!-- Diagram 02: Message As Data -->
+    <MessageAsDataDiagram lang="ar" />
+
+    <TechnicalNote
+      title="صيغ التسلسل: مفهوم عام ونماذج تطبيقية"
+      category="DATA SERIALIZATION"
+      lang="ar"
+    >
+      قبل أن تُرسل هذه الحزمة عبر بطاقة الشبكة، يجب تحويلها من هياكل الذاكرة في لغة البرمجة (مثل كائنات Swift أو Kotlin) إلى سيل من البايتات الثنائية عبر عملية التسلسل (<bdi dir="ltr">Serialization</bdi>).<br /><br />
+      تستخدم بعض المنصات الشهيرة تنسيق <strong>Protocol Buffers (Protobuf)</strong> من جوجل لصغر حجمه وسرعة معالجته الثنائية، بينما تعتمد تطبيقات أخرى صيغًا ثنائية مضغوطة بديلة مثل <strong>CBOR</strong>، أو أطر عمل خاصة مبنية على <strong>BSON</strong>، أو حتى رسائل <strong>JSON</strong> عبر مقابس الويب. نموذج البيانات واحد من الناحية المفاهيمية، لكن صيغة التمثيل الثنائي تختلف حسب قرارات الأداء وهندسة التطبيق.
+    </TechnicalNote>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 02 / TRANSPORT AND CONNECTION -->
+  <section class="article-section">
+    <SectionHeading
+      number="02"
+      tag="الاتصال والنقل"
+      title="من التطبيق إلى السحابة: كيف ينقل الهاتف الرسالة؟"
+      id="sec-02"
+    />
+
+    <p>
+      بمجرد تغليف الحزمة وتجهيزها، يحتاج التطبيق إلى تسليمها لمزود الخدمة. في متصفحات الويب التقليدية، يتم إرسال طلب <span class="term" dir="ltr">HTTP POST</span> مستقل لكل إجراء، ثم يُغلق الاتصال أو يُترك خاملًا. لكن في تطبيقات المراسلة الفورية، يكون هذا النموذج مكلفًا وبطيئًا للغاية.
+    </p>
+
+    <p>
+      لذلك، تعتمد تطبيقات المراسلة الحديثة على <strong>قناة اتصال آمنة ومستمرة أو دورية التأسيس (<bdi dir="ltr">Persistent or Periodically Established Secure Connection</bdi>)</strong> بين هاتف المرسل وبوابات المزود:
+    </p>
+
+    <ul>
+      <li>
+        <strong>تأسيس نفق النقل المؤمن (<bdi dir="ltr">TLS Uplink</bdi>):</strong> يجري الهاتف مصافحة <span class="term" dir="ltr">TLS 1.3</span> مع أقرب نقطة وصول (<span class="term" dir="ltr">Edge Point of Presence</span>) لمزود الخدمة. هذا التشفير يحمي البيانات من المتلصصين على شبكة الـ<span class="term" dir="ltr">Wi-Fi</span> المحلية ومزودي خدمة الإنترنت (<span class="term" dir="ltr">ISPs</span>).
+      </li>
+      <li>
+        <strong>بروتوكولات النقل الثنائية المزدوجة (<bdi dir="ltr">Multiplexed Framing</bdi>):</strong> غالبًا ما يُدار هذا الاتصال عبر مقابس <span class="term" dir="ltr">WebSockets</span>، أو اتصالات <span class="term" dir="ltr">TCP</span> ثنائية مباشرة مخصصة، أو عبر بروتوكول <span class="term" dir="ltr">HTTP/2 / HTTP/3 (QUIC)</span> الذي يسمح بتمرير مئات الرسائل والإشارات داخل تدفقات متعددة (<span class="term" dir="ltr">Streams</span>) دون الحاجة لإعادة التفاوض على الاتصال عند كل رسالة.
+      </li>
+      <li>
+        <strong>إشارات النبض للحفاظ على الاتصال (<bdi dir="ltr">Keep-Alive &amp; Heartbeats</bdi>):</strong> لضمان ألا تقوم بوابات الـ<span class="term" dir="ltr">NAT</span> في شبكات الاتصالات الخلوية بإغلاق المقبس بسبب الخمول، يتبادل الهاتف مع الخادم حزمًا صغيرة جدًا (بضع بايتات) بشكل دوري لإبقاء المسار سالكًا وجاهزًا للإرسال الفوري.
+      </li>
+    </ul>
+
+    <p>
+      عندما يضغط المستخدم <span class="term" dir="ltr">Send</span>، لا ينتظر التطبيق إقامة نفق كامل من الصفر؛ بل يُلقي بالحزمة مباشرة داخل هذا المقبس المفتوح بالفعل، مما يقلص زمن نقل الرسالة من الهاتف إلى خوادم الحوسبة السحابية إلى بضع عشرات من الأجزاء من الثانية.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 03 / ENCRYPTION MODELS -->
+  <section class="article-section">
+    <SectionHeading
+      number="03"
+      tag="نماذج التشفير"
+      title="التشفير أثناء النقل مقابل التشفير بين الطرفين: أين تقف خوادم المزود؟"
+      id="sec-03"
+    />
+
+    <p>
+      هنا نصل إلى أحد أهم الفروق المعمارية في هندسة المراسلة: <strong>من يملك القدرة على قراءة محتوى الرسالة؟</strong> في عالم المراسلة، توجد فلسفتان رئيسيتان:
+    </p>
+
+    <!-- Diagram 03: Messaging Encryption Models -->
+    <MessagingEncryptionDiagram lang="ar" />
+
+    <p>
+      <strong>النموذج الأول: التشفير أثناء النقل فقط (<bdi dir="ltr">In-Transit Encryption / TLS Hop-by-Hop</bdi>)</strong><br />
+      في هذا النموذج (المستخدم في بعض الخدمات السحابية التقليدية أو بروتوكولات المراسلة القديمة مثل IRC)، تُشفر الرسالة أثناء سفرها بين هاتف المرسل وخادم المزود عبر <span class="term" dir="ltr">TLS</span>. لكن بمجرد وصولها إلى الخادم، <strong>يتم فك تشفيرها</strong> وتخزينها كنص صريح في قواعد بيانات المزود. يستطيع المزود هنا البحث في محادثاتك، وفهرستها، وتوليد إشعارات ذكية استنادًا إلى نصها. في هذا النموذج، إذا اختُرقت خوادم المزود أو صدر أمر قضائي بالإفصاح، يمكن قراءة جميع الرسائل بالكامل.
+    </p>
+
+    <p>
+      <strong>النموذج الثاني: التشفير بين الطرفين (<bdi dir="ltr">End-to-End Encryption / E2EE</bdi>)</strong><br />
+      في هذا النموذج، يقوم هاتف المرسل بتشفير محتوى الرسالة محليًا باستخدام <strong>مفتاح تشفير سري لا يعرفه سوى هاتف المستلم</strong>. عندما تصل الحزمة إلى خوادم المزود، يرى الخادم غلاف التوجيه الخارجي فقط (من أرسل ولمن)، أما حمولة المحادثة فهي مجرد أرقام عشوائية عديمة المعنى. لا يملك المزود المفاتيح الرياضية اللازمة لفك هذا التشفير، وتنحصر مسؤوليته فقط في دور ساعي البريد الأعمى الذي ينقل طردًا مغلقًا بأقفال فولاذية.
+    </p>
+
+    <TechnicalNote
+      title="بروتوكولات إدارة الجلسات والمفاتيح: ليس كل تطبيق يماثل الآخر"
+      category="CRYPTOGRAPHIC PROTOCOLS"
+      lang="ar"
+    >
+      من الأخطاء الشائعة الاعتقاد بأن كل تطبيق <span class="term" dir="ltr">E2EE</span> يعمل بنفس الآلية التشفيرية بالتطابق. على سبيل المثال، يعتمد تطبيق <strong>Signal</strong> وبروتوكول <strong>Signal Protocol</strong> (المعتمد أيضًا في واتساب) على خوارزمية <strong>Double Ratchet</strong> التي تولد مفاتيح جديدة لكل رسالة على حدة، مما يوفر حماية مستقبلية وسرية متقدمة (<bdi dir="ltr">Forward Secrecy &amp; Break-in Recovery</bdi>).<br /><br />
+      بينما تستخدم بروتوكولات أخرى (مثل Matrix عبر Olm/Megolm، أو iMessage عبر تشفير RSA/EC المختلط، أو Telegram في المحادثات السرية MTProto) آليات مختلفة لتبادل المفاتيح وتوزيع الجلسات الجماعية. الفكرة التأسيسية الثابتة هي أن <strong>التشفير بين الطرفين مفهوم معماري عام</strong> وليس خوارزمية واحدة محددة.
+    </TechnicalNote>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 04 / PROVIDER EDGE AND ROUTING -->
+  <section class="article-section">
+    <SectionHeading
+      number="04"
+      tag="بوابات المزود"
+      title="داخل السحابة: بوابات الدخول وموجهات الجلسات"
+      id="sec-04"
+    />
+
+    <p>
+      وصلت الحزمة الآن إلى خوادم مزود الخدمة. ما الذي يجري داخل هذه المنظومة الموزعة خلال الأجزاء القليلة من الثانية التي تلي ذلك؟
+    </p>
+
+    <!-- Diagram 04: Messaging Server Path -->
+    <MessagingServerPathDiagram lang="ar" />
+
+    <p>
+      تتوزع عملية المعالجة السحابية عبر عدة طبقات مستقلة وعالية التوسع:
+    </p>
+
+    <ol>
+      <li>
+        <strong>بوابات الدخول وإنهاء الاتصال (<bdi dir="ltr">Edge Ingress Gateways</bdi>):</strong> تتلقى مئات آلاف الاتصالات المتزامنة، وتتولى فحص صلاحية رمز الجلسة (<span class="term" dir="ltr">Session Token</span>) للمرسل للتحقق من هويته، ومكافحة هجمات حجب الخدمة، وتطبيق حدود معدل الإرسال (<span class="term" dir="ltr">Rate Limiting</span>). بمجرد قبول الحزمة، ترسل البوابة إشعار تأكيد فوري لهاتف المرسل يعلن قبول الرسالة (وهذا ما يحول علامة الساعة إلى أول علامة صح).
+      </li>
+      <li>
+        <strong>موجه الجلسات ودليل الحسابات (<bdi dir="ltr">Session &amp; Account Directory</bdi>):</strong> تفحص المنظومة معرّف المستلم (<span class="term" dir="ltr">recipient_id</span>). تستعلم الخدمة من سجل جلسات فائق السرعة يعمل في الذاكرة (مثل مجموعات موجهة من <span class="term" dir="ltr">Redis</span> أو أنظمة ذاكرة موزعة): <em>هل هاتف المستلم متصل بالشبكة حاليًا؟ وعلى أي خادم بوابة تستقر جلسته النشطة؟</em>
+      </li>
+      <li>
+        <strong>وسيط الرسائل وتدفق المعالجة (<bdi dir="ltr">Message Broker &amp; Ingestion Log</bdi>):</strong> تُحقن الرسالة داخل وسيط رسائل موزع (مثل <span class="term" dir="ltr">Apache Kafka</span> أو مجموعات كلاسترات وسيطة) لضمان عدم ضياع أي رسالة تحت أي ضغط تشغيلي، والحفاظ على الترتيب التسلسلي للمحادثات، وتوزيع المهام على المعالجات الفرعية.
+      </li>
+    </ol>
+
+    <p>
+      عند هذه النقطة، تواجه البنية التحتية أحد مسارين لا ثالث لهما: إما أن يكون هاتف المستلم <strong>متصلًا ومفتوحًا</strong>، أو يكون <strong>غير متصل أو في وضع الخمول</strong>.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 05 / OFFLINE STATE AND QUEUING -->
+  <section class="article-section">
+    <SectionHeading
+      number="05"
+      tag="طوابير التخزين"
+      title="المستلم غير متصل: طوابير التخزين وإعادة التمرير"
+      id="sec-05"
+    />
+
+    <p>
+      إذا كان هاتف صديقك مغلقًا، أو في وضع الطيران، أو يمر بنفق أرضي بلا شبكة، فلا يمكن تسليم الرسالة فورًا. هنا يدخل النظام في نموذج <strong>التخزين وإعادة التمرير (<bdi dir="ltr">Store-and-Forward Queuing</bdi>)</strong>.
+    </p>
+
+    <!-- Diagram 05: Offline Queue -->
+    <RecipientOfflineQueueDiagram lang="ar" />
+
+    <p>
+      بدلًا من إسقاط الحزمة، تُنقل الرسالة إلى صندوق بريد رقمي مؤقت (<span class="term" dir="ltr">Pending Inbound Mailbox</span>) خاص بحساب المستلم:
+    </p>
+
+    <ul>
+      <li>
+        <strong>سياسات الاحتفاظ المؤقت (<bdi dir="ltr">Retention Policies</bdi>):</strong> لا تحتفظ خوادم المراسلة الفورية بالرسائل المعلقة إلى الأبد؛ فلكل خدمة سياسة تخزين زمنية تحدد عمر الرسالة في الطابور (قد تتراوح بين بضعة أيام إلى أسابيع أو شهر حسب نوع الخدمة وتصميمها). إذا لم يتصل الهاتف طوال تلك الفترة، تنتهي صلاحية الرسالة وتُحذف نهائيًا.
+      </li>
+      <li>
+        <strong>تعدد الأجهزة (<bdi dir="ltr">Multi-Device Synchronization</bdi>):</strong> إذا كان لدى المستخدم هاتف وجهاز لوحي وحاسوب محمول مسجلة على الحساب نفسه، تُنشئ معظم الأنظمة الحديثة نسخًا مستقلة من الحمولة لكل جهاز على حدة، وتنتظر كل جهاز ليتصل ويسحب رسائله بشكل مستقل دون أن يؤثر سحب الهاتف على طابور الحاسوب.
+      </li>
+      <li>
+        <strong>التفريغ التسلسلي عند العودة (<bdi dir="ltr">Queue Drain upon Reconnect</bdi>):</strong> بمجرد أن يلتقط هاتف المستلم إشارة الشبكة ويعيد مصافحة خادم البوابة، يتعرف النظام على عودته، ويبدأ تفريغ الطابور وضخ الرسائل المعلقة بالتتابع إلى الهاتف وفق تسلسلها الزمني.
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 06 / PUSH NOTIFICATIONS -->
+  <section class="article-section">
+    <SectionHeading
+      number="06"
+      tag="شبكات الإشعار"
+      title="كيف يستيقظ هاتف نائم؟ شبكات الإشعارات الرسمية"
+      id="sec-06"
+    />
+
+    <p>
+      إذا كان التطبيق مغلقًا في هاتف المستلم وشاشته مطفأة، فكيف يعلم الهاتف بوجود رسالة جديدة؟
+    </p>
+
+    <p>
+      في أنظمة الهواتف الذكية الحديثة (iOS وAndroid)، لا تستطيع التطبيقات إبقاء عشرات الاتصالات الشبكية المفتوحة في الخلفية إلى ما لا نهاية؛ لأن ذلك سيستنزف بطارية الهاتف ويستهلك الذاكرة في دقائق. لحل هذه المعضلة، تحتفظ نواة نظام التشغيل <strong>باتصال شبكي منخفض الطاقة واحد وموحد</strong> يربط الهاتف مباشرة بخوادم الشركة المطورة للنظام:
+    </p>
+
+    <ul>
+      <li>في هواتف آبل: خدمة إشعارات آبل (<bdi dir="ltr">Apple Push Notification service / APNs</bdi>).</li>
+      <li>في هواتف أندرويد: خدمة المراسلة السحابية من جوجل (<bdi dir="ltr">Firebase Cloud Messaging / FCM</bdi>).</li>
+    </ul>
+
+    <!-- Diagram 06: Notification Flow -->
+    <NotificationFlowDiagram lang="ar" />
+
+    <p>
+      عندما تستقبل خوادم تطبيق المراسلة حزمة موجهة لهاتف غير متصل بمقبس التطبيق النشط، لا تحاول خوادم التطبيق الاتصال بالهاتف مباشرة؛ بل ترسل طلب استدعاء (<span class="term" dir="ltr">Push Notification Ticket</span>) إلى شبكة آبل أو جوجل يحمل رمز تعريف الهاتف المشفر (<span class="term" dir="ltr">Device Push Token</span>).
+    </p>
+
+    <TechnicalNote
+      title="الإشعارات في بيئات E2EE: إشعار استيقاظ صامت وليس نص الرسالة"
+      category="PUSH ARCHITECTURE"
+      lang="ar"
+    >
+      تتساءل دائمًا: هل تقرأ آبل أو جوجل نصوص رسائلي أثناء تمرير الإشعار؟<br /><br />
+      في التطبيقات المشفرة بين الطرفين، <strong>لا تحتوي حزمة الإشعار المرسلة إلى APNs أو FCM على نص المحادثة أصلًا</strong>. ما ترسله خوادم التطبيق هو ما يُعرف بـ <strong>الإشعار الصامت المستحث (<bdi dir="ltr">Silent Data Push / Background Wakeup</bdi>)</strong>. تستقبل نواة هاتف المستلم هذه الإشارة، فتمنح تطبيق المراسلة تصريحًا بالاستيقاظ في الخلفية لبضع ثوانٍ معدودة. يقوم التطبيق المستيقظ بفتح اتصاله المؤمن مباشرة مع خوادم المراسلة، وسحب كتلة البيانات المشفرة، وفك تشفيرها محليًا باستخدام المفاتيح المخزنة في عتاد الهاتف، ثم يطلب من نظام التشغيل عرض التنبيه للمستخدم محليًا.
+    </TechnicalNote>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 07 / RECIPIENT LOCAL PROCESSING -->
+  <section class="article-section">
+    <SectionHeading
+      number="07"
+      tag="الاستلام والفك"
+      title="وصول الرسالة إلى الجهاز: المعالجة، فك التشفير، وحفظ السجل"
+      id="sec-07"
+    />
+
+    <p>
+      الآن، الحزمة المشفرة داخل هاتف المستلم. ماذا يفعل كود التطبيق قبل أن تراها العين؟
+    </p>
+
+    <p>
+      يمر الجهاز بعدة خطوات متزامنة لا تستغرق أكثر من بضعة أجزاء من الألف من الثانية:
+    </p>
+
+    <ol>
+      <li>
+        <strong>التحقق من سلامة الحزمة والتوثيق (<bdi dir="ltr">MAC &amp; Integrity Check</bdi>):</strong> يفحص التطبيق رمز المصادقة التشفيري المرفق مع الحزمة. إذا تعرضت أي بايت واحدة للتعديل أو الفساد أثناء الرحلة، تفشل المعادلة الرياضية فورًا وتُرفض الحزمة منعًا لأي هجمات حقن أو تلاعب.
+      </li>
+      <li>
+        <strong>اشتقاق مفاتيح فك التشفير (<bdi dir="ltr">Key Resolution &amp; Decryption</bdi>):</strong> يسترجع التطبيق مفتاح الجلسة المشترك المرتبط بهذه المحادثة والمحفوظ داخل المساحة الآمنة للهاتف. تُفك شفرة الحمولة الثنائية، ليعود النص الصريح والصور المرفقة إلى طبيعتها داخل ذاكرة التطبيق المعزولة.
+      </li>
+      <li>
+        <strong>التخزين في قاعدة البيانات المحلية (<bdi dir="ltr">Local Persistence</bdi>):</strong> تُكتب الرسالة في قاعدة البيانات المحلية المشفرة للتطبيق (التي تكون غالبًا مبنية على محركات قواعد بيانات محلية مدمجة مثل <span class="term" dir="ltr">SQLite</span> مع تشفير عتادي مثل <span class="term" dir="ltr">SQLCipher</span>، أو أنظمة تخزين مهيكلة مكافئة).
+      </li>
+      <li>
+        <strong>تحديث واجهة المستخدم (<bdi dir="ltr">UI State Update &amp; Sound</bdi>):</strong> تُضاف فقاعة المحادثة إلى واجهة العرض، وتُشغل نغمة التنبيه المحددة واهتزاز المحرك اللمسي.
+      </li>
+      <li>
+        <strong>إطلاق إشعار التسليم العكسي (<bdi dir="ltr">Delivery Acknowledgment</bdi>):</strong> يرسل هاتف المستلم فورًا عبر المقبس حزمة صغيرة باتجاه الخادم تؤكد: <em>&quot;الرسالة رقم X تم استلامها وكتابتها بنجاح على الجهاز&quot;</em>.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 08 / MESSAGE STATES AND CHECKS -->
+  <section class="article-section">
+    <SectionHeading
+      number="08"
+      tag="حالات التسليم"
+      title="ماذا تعني علامات الصح تقنيًا في الأنظمة الموزعة؟"
+      id="sec-08"
+    />
+
+    <p>
+      الرموز الصغيرة المجاورة لفقاعة المحادثة (الساعة، علامة صح واحدة، علامتا صح رماديتان، علامتا صح زرقاوان) ليست مجرد لمسات جمالية؛ بل هي <strong>انعكاس مرئي لحالات متتابعة في بروتوكول التوافق الموزع (<bdi dir="ltr">Distributed State Machine</bdi>)</strong>.
+    </p>
+
+    <!-- Diagram 07: Message Status Transitions -->
+    <MessageStatusDiagram lang="ar" />
+
+    <p>
+      تتوزع هذه الحالات هندسيًا كالآتي:
+    </p>
+
+    <ul>
+      <li>
+        <strong>أيقونة الساعة / الانتظار (<bdi dir="ltr">Pending / Outbox Buffer</bdi>):</strong> الرسالة ما تزال محصورة داخل جهاز المرسل. إما أن الهاتف يبحث عن شبكة، أو أن مصافحة الـ<span class="term" dir="ltr">TLS</span> قيد التأسيس، أو أن الحزمة ما زالت في طابور الإرسال في ذاكرة الهاتف ولم تغادره بعد.
+      </li>
+      <li>
+        <strong>علامة صح واحدة (<bdi dir="ltr">Sent / Ingested State</bdi>):</strong> استلمت بوابات المزود الرسالة وتحققت من صحة هوية المرسل وكتبتها في وسيط الرسائل أو سجل الإدخال. عند هذه النقطة، <strong>انتقلت مسؤولية الاحتفاظ بالرسالة من الهاتف إلى البنية التحتية للمزود</strong>. هذا لا يعني إطلاقًا أن هاتف المستلم قد رآها؛ فقد يكون المستلم مغلق الهاتف تمامًا.
+      </li>
+      <li>
+        <strong>علامتا صح (<bdi dir="ltr">Delivered State</bdi>):</strong> استلم هاتف المستلم الحزمة بالفعل، وأرسل إشعار تأكيد عكسي (<span class="term" dir="ltr">Delivery Ack</span>) وصل إلى خوادم المزود وتمت إعادة توجيهه إلى هاتف المرسل. النقطة الدقيقة هنا: في معظم البروتوكولات، <strong>التسليم يعني تأكيد الاستلام العتادي/التطبيقي من جهاز المستلم</strong>، ولا يشترط بالضرورة أن التطبيق قد أنهى فك التشفير وعرض المحتوى إذا كان النظام مقيدًا بالخلفية.
+      </li>
+      <li>
+        <strong>علامتا صح زرقاوان أو مؤشر القراءة (<bdi dir="ltr">Read / Seen State</bdi>):</strong> فتح المستلم شاشة المحادثة المحددة، وأصبح نص الرسالة مرئيًا على شاشته. إذا كانت خاصية &quot;مؤشرات القراءة&quot; مفعلة لدى الطرفين، يرسل جهاز المستلم إشارة صغيرة منفصلة (<span class="term" dir="ltr">Read Receipt Frame</span>) تُحدث حالة قاعدة البيانات على جهاز المرسل ليتحول لون العلامتين.
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 09 / MEDIA AND ATTACHMENTS -->
+  <section class="article-section">
+    <SectionHeading
+      number="09"
+      tag="مسار الوسائط"
+      title="الصور والفيديوهات: المسار الجانبي عبر خوادم التخزين السحابي"
+      id="sec-09"
+    />
+
+    <p>
+      إذا كانت الرسالة تحتوي على مقطع فيديو بحجم 50 ميغابايت، فهل تسافر هذه الميغابايتات الضخمة عبر نفس مقبس الرسائل الفورية؟
+    </p>
+
+    <p>
+      الجواب هو <strong>قطعًا لا</strong>. تمرير كتل الوسائط الضخمة عبر مقابس الرسائل السريعة سيؤدي إلى انسداد طوابير المعالجة وتأخير آلاف الرسائل النصية الخفيفة. لذلك، تعتمد المنظومات الحديثة على <strong>المسار الجانبي المنفصل (<bdi dir="ltr">Out-of-Band Sidecar Upload</bdi>)</strong>:
+    </p>
+
+    <ol>
+      <li>
+        <strong>التشفير المحلي للوسائط:</strong> يقوم هاتف المرسل بتوليد مفتاح تشفير متماثل عشوائي وخاص بهذا الملف فقط (مثل مفتاح <span class="term" dir="ltr">AES-256</span> لمرة واحدة)، ويشفر ملف الفيديو بالكامل على ذاكرة الهاتف قبل أن يغادره.
+      </li>
+      <li>
+        <strong>الرفع إلى مخازن الكتل السحابية (<bdi dir="ltr">Object Storage Upload</bdi>):</strong> يرفع الهاتف الملف المشفر ككتلة ثنائية مبهمة (<span class="term" dir="ltr">Ciphertext Blob</span>) عبر طلب <span class="term" dir="ltr">HTTPS PUT</span> منفصل إلى خوادم التخزين السحابي الموزعة (مثل خوادم شبكات توصيل المحتوى <span class="term" dir="ltr">CDN</span> أو وحدات التخزين الكائنية). يحصل الهاتف بالمقابل على رابط تنزيل مباشر وبصمة تجزئة تشفيرية (<span class="term" dir="ltr">SHA-256 Digest</span>) للملف المشفر.
+      </li>
+      <li>
+        <strong>إرسال رسالة الوصف الصغيرة:</strong> يرسل الهاتف عبر قناة المراسلة الفورية المعتادة رسالة صغيرة جدًا (بضع مئات من البايتات) تحتوي على: رابط تحميل الملف المشفر، بصمة التجزئة للتحقق من سلامته، ومفتاح فك التشفير الخاص بالملف مشفرًا بدوره داخل حمولة <span class="term" dir="ltr">E2EE</span> الموجهة للمستلم.
+      </li>
+      <li>
+        <strong>التنزيل والفك لدى المستلم:</strong> عندما يستلم الطرف الآخر هذه الرسالة الخفيفة، يستخرج الرابط ويقوم بتنزيل الكتلة المشفرة عبر أقرب خادم <span class="term" dir="ltr">CDN</span> له، ثم يستخدم المفتاح المرفق لفك تشفير الفيديو وعرضه في المحادثة. خوادم التخزين السحابية لم ترَ قط أي مشهد من الفيديو؛ كل ما استضافته كان مجرد ملف عشوائي مشفر لا يمكن فك رموزه.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 10 / THE DISTRIBUTED MACHINERY SUMMARY -->
+  <section class="article-section">
+    <SectionHeading
+      number="10"
+      tag="المنظومة الكاملة"
+      title="الخلاصة: المراسلة أوركسترا موزعة تعمل في أجزاء من الثانية"
+      id="sec-10"
+    />
+
+    <!-- Diagram 08: Message Delivery Final -->
+    <MessageDeliveryFinalDiagram lang="ar" />
+
+    <p style="font-size: 1.25rem; font-weight: 600; color: var(--color-ink); line-height: 1.85;">
+      الرسالة الفورية ليست إرسالًا خطيًا بسيطًا من جهاز إلى آخر.
+    </p>
+
+    <p>
+      هي منظومة كاملة من هندسة الأنظمة الموزعة: تشفير محلي، مقابس شبكية مبنية على <span class="term" dir="ltr">TLS</span>، بوابات سحابية تتعامل مع ملايين الجلسات، طوابير تخزين تحفظ الرسائل عند انقطاع الاتصال، شبكات إشعار مركزية توقظ أنظمة التشغيل، وإشارات تأكيد عكسية تتنقل في الاتجاه المعاكس لتحديث شاشة المرسل.
+    </p>
+
+    <p style="font-size: 1.15rem; color: var(--color-ink-muted); line-height: 1.8;">
+      كل هذا التعقيد يحدث في صمت تام، خلال ثانيتين فقط، لتشعر أنت بأنك تتبادل الكلمات مع شخص يجلس بجانبك مباشرة.
+    </p>
+
+    <!-- Standard Site CTA Box -->
+    <div style="padding: 1.5rem; border: 1px solid var(--color-hairline); background-color: var(--color-bg-warm); margin-block: 2.5rem;">
+      <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--color-olive); margin-block-end: 0.5rem;">
+        لشرح أعمق وتفاصيل أكثر
+      </div>
+      <p style="margin: 0; font-size: 1.15rem; font-weight: 600; line-height: 1.85; color: var(--color-ink);">
+        تابع المزيد من الملاحظات التقنية وتفكيك الأنظمة عبر:
+        <a href="https://writeups.mouhibmahadbi.online" target="_blank" rel="noopener noreferrer" style="color: var(--color-olive); text-decoration: underline; margin-inline-start: 0.35rem;">
+          writeups.mouhibmahadbi.online
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Related Articles -->
+  <ContinueReading currentArticleId="how-your-message-reaches-another-phone" lang="ar" />
+
+</ArticleLayout>

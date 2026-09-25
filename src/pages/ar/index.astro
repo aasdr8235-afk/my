@@ -9,6 +9,8 @@ import VpnTrustShiftDiagram from '../../components/diagrams/VpnTrustShiftDiagram
 import DnsResolutionDiagram from '../../components/diagrams/DnsResolutionDiagram.astro';
 import LoginFlowDiagram from '../../components/diagrams/LoginFlowDiagram.astro';
 import ApkThumbnailDiagram from '../../components/diagrams/ApkThumbnailDiagram.astro';
+import MessageThumbnailDiagram from '../../components/diagrams/MessageThumbnailDiagram.astro';
+import PaymentThumbnailDiagram from '../../components/diagrams/PaymentThumbnailDiagram.astro';
 
 const pageTitle = "Mouhib Writeups — ملاحظات تقنية حول الأمن، الشبكات والأنظمة";
 const pageDescription = "ملاحظات وكتابات تقنية حول أمن الويب، الشبكات، Linux وهندسة الأنظمة. أتعلم الأشياء بعمق، أجرّبها، وأشرح كيف تعمل فعليًا. بقلم محب م.ح.";
@@ -79,11 +81,12 @@ const pageDescription = "ملاحظات وكتابات تقنية حول أمن 
     <nav id="topics" class="topic-filters-wrapper" aria-label="تصنيف المواضيع">
       <span class="topic-filters-label">تصفية حسب التخصص:</span>
       <div class="topic-filter-buttons" role="tablist">
-        <button type="button" class="topic-btn is-active" data-filter="all">الكل (4)</button>
+        <button type="button" class="topic-btn is-active" data-filter="all">الكل (6)</button>
         <button type="button" class="topic-btn" data-filter="cybersecurity">الأمن السيبراني (1)</button>
-        <button type="button" class="topic-btn" data-filter="networking">الشبكات (1)</button>
+        <button type="button" class="topic-btn" data-filter="networking">الشبكات (2)</button>
         <button type="button" class="topic-btn" data-filter="privacy">الخصوصية والأنفاق (1)</button>
         <button type="button" class="topic-btn" data-filter="mobile">الهواتف وأندرويد (1)</button>
+        <button type="button" class="topic-btn" data-filter="payments">أنظمة الدفع (1)</button>
       </div>
     </nav>
 
@@ -91,8 +94,74 @@ const pageDescription = "ملاحظات وكتابات تقنية حول أمن 
     <section id="articles" class="editorial-pub-rows" aria-label="المقالات">
       <div class="index-section-header">
         <span class="index-section-title">جميع المقالات المنشورة</span>
-        <span class="index-section-count">4 مقالات تقنية</span>
+        <span class="index-section-count">6 مقالات تقنية</span>
       </div>
+
+      <!-- Row 06: How Contactless Payment Works -->
+      <article class="editorial-pub-row is-reversed" data-category="payments">
+        <div class="pub-row-content">
+          <div class="pub-row-meta">
+            <span class="pub-row-number">06</span>
+            <span>/</span>
+            <span class="pub-row-category">الأجهزة / المدفوعات</span>
+            <span>•</span>
+            <span class="pub-row-time">15 دقيقة قراءة</span>
+          </div>
+
+          <h2 class="pub-row-title">
+            <a href="/ar/articles/how-contactless-payment-works/">
+              قرّبت بطاقتك من جهاز الدفع… كيف تمت العملية في ثوانٍ؟
+            </a>
+          </h2>
+
+          <p class="pub-row-excerpt">
+            تفكيك شامل لعملية الدفع اللاتلامسي: من الحث الكهرومغناطيسي لـ<span class="term" dir="ltr">NFC</span> وبروتوكول <span class="term" dir="ltr">EMV</span>، إلى توليد التشفير الديناميكي <span class="term" dir="ltr">ARQC</span>، ورسائل شبكات الدفع، وقرار البنك المصدر.
+          </p>
+
+          <div class="pub-row-action">
+            <a href="/ar/articles/how-contactless-payment-works/" class="pub-row-link">
+              اقرأ المقال ←
+            </a>
+          </div>
+        </div>
+
+        <div class="pub-row-visual">
+          <PaymentThumbnailDiagram lang="ar" />
+        </div>
+      </article>
+
+      <!-- Row 05: How Your Message Reaches Another Phone -->
+      <article class="editorial-pub-row" data-category="networking">
+        <div class="pub-row-content">
+          <div class="pub-row-meta">
+            <span class="pub-row-number">05</span>
+            <span>/</span>
+            <span class="pub-row-category">الشبكات / المراسلة</span>
+            <span>•</span>
+            <span class="pub-row-time">16 دقيقة قراءة</span>
+          </div>
+
+          <h2 class="pub-row-title">
+            <a href="/ar/articles/how-your-message-reaches-another-phone/">
+              ضغطت <span class="term" dir="ltr">Send</span>… كيف وصلت رسالتك إلى هاتف شخص آخر؟
+            </a>
+          </h2>
+
+          <p class="pub-row-excerpt">
+            رحلة الرسالة الفورية خطوة بخطوة: من تشفير الحزمة والاتصال بالخادم، إلى معالجة البوابات وطوابير الانتظار، واستيقاظ الهاتف عبر الإشعارات وفك التشفير محليًا.
+          </p>
+
+          <div class="pub-row-action">
+            <a href="/ar/articles/how-your-message-reaches-another-phone/" class="pub-row-link">
+              اقرأ المقال ←
+            </a>
+          </div>
+        </div>
+
+        <div class="pub-row-visual">
+          <MessageThumbnailDiagram lang="ar" />
+        </div>
+      </article>
 
       <!-- Row 04: What Happens When You Install an APK -->
       <article class="editorial-pub-row is-reversed" data-category="mobile">

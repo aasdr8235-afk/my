@@ -1,0 +1,487 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import SectionHeading from '../../../components/SectionHeading.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import TechnicalNote from '../../../components/TechnicalNote.astro';
+import ContinueReading from '../../../components/ContinueReading.astro';
+
+// Technical SVG Diagrams
+import ContactlessTapDiagram from '../../../components/diagrams/ContactlessTapDiagram.astro';
+import NfcFieldDiagram from '../../../components/diagrams/NfcFieldDiagram.astro';
+import PaymentDataExchangeDiagram from '../../../components/diagrams/PaymentDataExchangeDiagram.astro';
+import DynamicTransactionDiagram from '../../../components/diagrams/DynamicTransactionDiagram.astro';
+import TerminalToAcquirerDiagram from '../../../components/diagrams/TerminalToAcquirerDiagram.astro';
+import PaymentNetworkRoutingDiagram from '../../../components/diagrams/PaymentNetworkRoutingDiagram.astro';
+import IssuerDecisionDiagram from '../../../components/diagrams/IssuerDecisionDiagram.astro';
+import ApproveDeclineReturnDiagram from '../../../components/diagrams/ApproveDeclineReturnDiagram.astro';
+import CardVsPhoneWalletDiagram from '../../../components/diagrams/CardVsPhoneWalletDiagram.astro';
+import ContactlessSummaryDiagram from '../../../components/diagrams/ContactlessSummaryDiagram.astro';
+
+const tocItems = [
+  { id: 'sec-01', num: '01', title: 'Inductive Coupling' },
+  { id: 'sec-02', num: '02', title: 'Protocol Handshake' },
+  { id: 'sec-03', num: '03', title: 'APDU Exchange' },
+  { id: 'sec-04', num: '04', title: 'Dynamic ARQC' },
+  { id: 'sec-05', num: '05', title: 'Terminal to Acquirer' },
+  { id: 'sec-06', num: '06', title: 'Card Schemes' },
+  { id: 'sec-07', num: '07', title: 'Issuer Decision' },
+  { id: 'sec-08', num: '08', title: 'The Return Path' },
+  { id: 'sec-09', num: '09', title: 'Phone Wallets' },
+  { id: 'sec-10', num: '10', title: 'Settlement' }
+];
+
+const pageTitle = "You Tapped Your Card on a Payment Terminal. How Was the Payment Approved in Seconds?";
+const pageSubtitle = "Between the tap and the confirmation beep, an electromagnetic and cryptographic exchange crossed thousands of kilometers across merchant terminals, card switches, and bank authorization engines.";
+const pageDescription = "A technical teardown of contactless payment: from NFC inductive coupling and the EMV protocol to dynamic ARQC cryptograms, ISO message routing, and issuer bank authorization.";
+const socialTitle = "You Tapped Your Card. What Actually Happened in Those Two Seconds?";
+const ogImage = "/assets/og/how-contactless-payment-works.jpg";
+
+const references = [
+  {
+    num: '[01]',
+    title: 'EMV Contactless Specifications for Payment Systems: Book C-2 & Architecture',
+    org: 'EMVCo Technical Architecture Group',
+    link: 'https://www.emvco.com/emv-technologies/contactless/'
+  },
+  {
+    num: '[02]',
+    title: 'ISO/IEC 14443: Identification Cards — Contactless Integrated Circuit Cards',
+    org: 'International Organization for Standardization (ISO)',
+    link: 'https://www.iso.org/standard/73596.html'
+  },
+  {
+    num: '[03]',
+    title: 'ISO 8583: Financial Transaction Card Originated Messages — Interchange Message Specifications',
+    org: 'ISO Financial Services Standards Committee',
+    link: 'https://www.iso.org/standard/31628.html'
+  },
+  {
+    num: '[04]',
+    title: 'PCI SSC: Point-to-Point Encryption (P2PE) Standard & Secure Elements',
+    org: 'Payment Card Industry Security Standards Council',
+    link: 'https://www.pcisecuritystandards.org/standards/p2pe/'
+  }
+];
+---
+
+<ArticleLayout
+  title={pageTitle}
+  subtitle={pageSubtitle}
+  description={pageDescription}
+  lang="en"
+  arUrl="/ar/articles/how-contactless-payment-works/"
+  enUrl="/en/articles/how-contactless-payment-works/"
+  currentPath="/en/articles/how-contactless-payment-works/"
+  tocItems={tocItems}
+  categoryText="HARDWARE / PAYMENTS"
+  articleMeta="ARTICLE 06 / FINTECH & PAYMENT PROTOCOLS"
+  references={references}
+  socialTitle={socialTitle}
+  ogImage={ogImage}
+  publishedDate="2026-09-25"
+  modifiedDate="2026-09-25"
+  breadcrumbCategory="Hardware & Payments"
+  breadcrumbCurrent="Contactless Payment"
+>
+
+  <!-- 01 / PHYSICAL CONTACT & INDUCTIVE COUPLING -->
+  <section class="article-section">
+    <SectionHeading
+      number="01"
+      tag="INDUCTIVE COUPLING"
+      title="The Card Has No Battery: Powering the Secure Chip"
+      id="sec-01"
+    />
+
+    <p>
+      You stand at the checkout counter and bring your bank card or smartphone within range of the Point-of-Sale (<span class="term" dir="ltr">POS</span>) reader. Within one or two seconds, four green lights illuminate, a melodic chime sounds, and the terminal display updates to read <span class="term" dir="ltr">&quot;APPROVED&quot;</span>.
+    </p>
+
+    <p>
+      In that brief window, the interaction was far more sophisticated than reading a static account number. It involved a multi-party technical pipeline: near-field electromagnetic induction harvesting energy to boot an unpowered microprocessor, cryptographic challenge-response exchanges, global fiber-optic routing across interbank networks, and real-time fraud evaluation on servers located thousands of miles away.
+    </p>
+
+    <p>
+      The initial engineering curiosity begins with physical power: <strong>a standard plastic payment card possesses no internal battery</strong>. How does its onboard microprocessor wake up and execute code?
+    </p>
+
+    <p>
+      The answer lies in <strong>electromagnetic inductive coupling</strong>:
+    </p>
+
+    <ul>
+      <li>
+        <strong>The Active Radio Frequency Field:</strong> The merchant POS terminal continuously energizes a loop antenna, projecting an alternating electromagnetic field at a carrier frequency of <strong>13.56 MHz</strong>, compliant with Near Field Communication (<span class="term" dir="ltr">NFC</span>) and <span class="term" dir="ltr">ISO/IEC 14443</span> specifications.
+      </li>
+      <li>
+        <strong>The Card Loop Antenna:</strong> Embedded within the plastic layers of the card is a fine copper coil tracing the perimeter, directly wired to the contactless smart card chip (<span class="term" dir="ltr">Contactless Payment Microcontroller</span>). When held in close proximity (typically a few centimeters), the oscillating magnetic flux passes through the card coil, inducing an electromotive force (<span class="term" dir="ltr">Induced EMF</span>) via Faraday's Law of Induction.
+      </li>
+      <li>
+        <strong>Energy Harvesting &amp; Microcontroller Boot:</strong> An on-chip bridge rectifier converts the induced alternating current into stable direct current (DC), charging an internal capacitor. In <strong>less than 10 milliseconds</strong>, the secure microcontroller boots its lightweight embedded operating system and is ready to process instructions.
+      </li>
+    </ul>
+
+    <!-- Diagram 02: NFC Field -->
+    <NfcFieldDiagram lang="en" />
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 02 / PROTOCOL HANDSHAKE -->
+  <section class="article-section">
+    <SectionHeading
+      number="02"
+      tag="PROTOCOL HANDSHAKE"
+      title="The ISO/IEC 14443 and EMV Contactless Negotiation"
+      id="sec-02"
+    />
+
+    <p>
+      Once energized, the reader and card initiate radio-frequency negotiation:
+    </p>
+
+    <ol>
+      <li>
+        <strong>Polling and Anticollision (<bdi dir="ltr">ISO/IEC 14443-3</bdi>):</strong> The terminal continuously transmits polling commands. If multiple contactless cards enter the field simultaneously (such as tapping an unshielded wallet containing several cards), the reader detects signal collision and runs an anticollision loop, isolating a single unique card identifier to establish an uncorrupted channel.
+      </li>
+      <li>
+        <strong>Modulation Type Determination:</strong> The devices align on modulation schemes (<span class="term" dir="ltr">Type A</span> with 100% ASK Miller coding, or <span class="term" dir="ltr">Type B</span> with 10% ASK NRZ coding) to establish physical bit-level synchronization.
+      </li>
+      <li>
+        <strong>Transport Framing (<bdi dir="ltr">ISO/IEC 14443-4 / T=CL</bdi>):</strong> The devices establish transport block framing with error correction and flow control, passing execution control up to the financial application layer: the <strong>EMV Contactless Kernel</strong>.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 03 / APDU DATA EXCHANGE -->
+  <section class="article-section">
+    <SectionHeading
+      number="03"
+      tag="APDU EXCHANGE"
+      title="The APDU Dialogue: What the Reader Asks and How the Chip Responds"
+      id="sec-03"
+    />
+
+    <p>
+      Communication between the POS terminal and the smart card occurs via structured byte commands known as <strong>Application Protocol Data Units (<bdi dir="ltr">APDUs</bdi>)</strong>.
+    </p>
+
+    <!-- Diagram 03: Payment Data Exchange -->
+    <PaymentDataExchangeDiagram lang="en" />
+
+    <p>
+      In a typical conceptual EMV contactless exchange, the terminal and card execute a rapid succession of structured commands:
+    </p>
+
+    <ul>
+      <li>
+        <strong>1. SELECT PPSE / AID:</strong> The terminal issues a select command for the Proximity Payment System Environment (<span class="term" dir="ltr">2PAY.SYS.DDF01</span>). The card returns its supported application directory (File Control Information / FCI), including Application Identifiers (<span class="term" dir="ltr">AIDs</span>) such as Visa (<span class="term" dir="ltr">A0000000031010</span>), Mastercard (<span class="term" dir="ltr">A0000000041010</span>), or regional debit schemes. The terminal selects the mutually supported application.
+      </li>
+      <li>
+        <strong>2. GET PROCESSING OPTIONS (GPO):</strong> The reader provides preliminary transaction context (amount, currency, terminal capabilities) formatted according to the Processing Options Data Object List (<span class="term" dir="ltr">PDOL</span>). The card responds with the Application Interchange Profile (<span class="term" dir="ltr">AIP</span>) and the Application File Locator (<span class="term" dir="ltr">AFL</span>), which indexes the internal records required for the transaction.
+      </li>
+      <li>
+        <strong>3. READ RECORDS:</strong> The terminal reads the files indicated by the AFL, extracting the Primary Account Number (<span class="term" dir="ltr">PAN</span>), expiration date, and cryptographic public key certificates provisioned by the card issuer.
+      </li>
+      <li>
+        <strong>4. GENERATE APPLICATION CRYPTOGRAM:</strong> The terminal requests cryptographic validation of the transaction parameters from the card's secure silicon.
+      </li>
+    </ul>
+
+    <TechnicalNote
+      title="Contactless Kernel Specifications: Variations Across Payment Schemes"
+      category="EMV ARCHITECTURE"
+      lang="en"
+    >
+      The specific sequence of APDU primitives is not universally identical across all terminals. The EMVCo organization certifies distinct proprietary kernels (such as Kernel 2 for Mastercard PayPass, Kernel 3 for Visa payWave, Kernel 4 for American Express, and regional kernels).<br /><br />
+      Certain specifications implement optimized execution flows (often termed <strong>Fast Path</strong>) that combine GPO and cryptogram generation into a single round-trip to minimize the duration a user must hold their card against the reader.
+    </TechnicalNote>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 04 / DYNAMIC CRYPTOGRAM -->
+  <section class="article-section">
+    <SectionHeading
+      number="04"
+      tag="DYNAMIC ARQC"
+      title="The Dynamic ARQC Cryptogram: Why Chip Cards Cannot Be Cloned"
+      id="sec-04"
+    />
+
+    <p>
+      In legacy magnetic stripe cards, account numbers, expiration dates, and service codes were recorded as static magnetic tracks. An attacker with a magnetic skimmer could duplicate that bit pattern onto blank plastic and authorize unauthorized charges indefinitely.
+    </p>
+
+    <p>
+      Contactless EMV eliminates this attack vector through <strong>dynamic cryptographic proof</strong>: the <strong>Application Request Cryptogram (<bdi dir="ltr">ARQC</bdi>)</strong>.
+    </p>
+
+    <!-- Diagram 04: Dynamic Transaction Diagram -->
+    <DynamicTransactionDiagram lang="en" />
+
+    <p>
+      How does the smart chip compute the ARQC?
+    </p>
+
+    <ul>
+      <li>
+        <strong>Card Derivation Key:</strong> Every card embeds a unique symmetric master key injected into tamper-resistant silicon during personalization, derived from the issuing bank's master key (<span class="term" dir="ltr">UDK / MDK</span>). This secret is mathematically locked and cannot be read over the NFC interface.
+      </li>
+      <li>
+        <strong>Terminal Unpredictable Number (UN):</strong> The terminal generates a fresh 32-bit pseudorandom nonce for every interaction, guaranteeing that no two transactions share the same input state, completely neutralizing replay attacks.
+      </li>
+      <li>
+        <strong>Application Transaction Counter (ATC):</strong> The chip maintains an internal non-volatile counter that strictly increments by 1 on every transaction attempt.
+      </li>
+      <li>
+        <strong>Cryptographic MAC Derivation:</strong> The secure coprocessor derives a single-use session key from its master key and the current ATC. It computes a Message Authentication Code (MAC using Triple-DES or AES) over the transaction amount, currency code, country code, UN, and ATC, yielding the 8-byte ARQC.
+      </li>
+    </ul>
+
+    <p>
+      If an eavesdropper records the radio transmissions during your purchase, the captured cryptogram is useless for subsequent fraud: the next transaction will require a new random nonce from the next terminal, the bank will reject any duplicate or decremented ATC, and altering even a single cent in the purchase amount immediately invalidates the MAC.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 05 / TERMINAL TO ACQUIRER -->
+  <section class="article-section">
+    <SectionHeading
+      number="05"
+      tag="TERMINAL TO ACQUIRER"
+      title="From POS to Acquirer: Formatting the Financial Authorization Message"
+      id="sec-05"
+    />
+
+    <p>
+      Once the terminal receives the ARQC and card records, the physical NFC phase concludes. The reader chirps to signal that the user may pull the card away, while the terminal shifts into financial network routing.
+    </p>
+
+    <!-- Diagram 05: Terminal to Acquirer -->
+    <TerminalToAcquirerDiagram lang="en" />
+
+    <p>
+      The POS terminal packages the transaction into a structured financial authorization request containing:
+    </p>
+
+    <ul>
+      <li>Merchant context: Merchant ID (<span class="term" dir="ltr">MID</span>), Terminal ID (<span class="term" dir="ltr">TID</span>), and Merchant Category Code (<span class="term" dir="ltr">MCC</span>).</li>
+      <li>Transaction specifics: Total amount, currency code, local timestamp, and System Trace Audit Number (<span class="term" dir="ltr">STAN</span>).</li>
+      <li>EMV Data (commonly Field 55 in <span class="term" dir="ltr">ISO 8583</span> messaging): The ARQC cryptogram, ATC, unpredictable number, and Terminal Verification Results (<span class="term" dir="ltr">TVR</span>).</li>
+    </ul>
+
+    <p>
+      Modern payment architectures secure this payload at the physical reader head using certified Point-to-Point Encryption (<span class="term" dir="ltr">P2PE</span>), ensuring that unencrypted cardholder data never touches the retailer's local cash register or local network.
+    </p>
+
+    <p>
+      The packet is dispatched across an encrypted TLS link (over fiber Ethernet or cellular 4G/5G) to the <strong>Merchant Acquirer / Payment Processor</strong>—the financial institution managing credit card acceptance and settlement for the merchant.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 06 / CARD SCHEME SWITCHING -->
+  <section class="article-section">
+    <SectionHeading
+      number="06"
+      tag="CARD SCHEMES"
+      title="Global Card Networks: Routing Across Continents to Your Bank"
+      id="sec-06"
+    />
+
+    <p>
+      If you purchase coffee in Tokyo using a card issued by a bank in London, how does the merchant's Japanese acquirer know which entity on Earth holds your funds?
+    </p>
+
+    <!-- Diagram 06: Payment Network Routing -->
+    <PaymentNetworkRoutingDiagram lang="en" />
+
+    <p>
+      This routing orchestration is handled by global <strong>Card Scheme Switches</strong> (such as VisaNet, Mastercard Banknet, or domestic interbank clearing networks):
+    </p>
+
+    <ol>
+      <li>
+        <strong>BIN / IIN Routing Tables:</strong> The initial 6 to 8 digits of a card number represent the <strong>Bank Identification Number (<bdi dir="ltr">BIN</bdi>)</strong> or Issuer Identification Number (<span class="term" dir="ltr">IIN</span>). The leading digit identifies the network brand (e.g., 4 for Visa, 5 or 2 for Mastercard).
+      </li>
+      <li>
+        <strong>Forwarding to the Scheme Switch:</strong> The acquirer inspects the card brand and dispatches the authorization message into the nearest regional switch gateway for that network.
+      </li>
+      <li>
+        <strong>Ultra-Low Latency Interbank Routing:</strong> Card network switches maintain authoritative, globally synchronized directories mapping every licensed BIN to the secure host endpoints of its issuing institution. The switch reads the BIN, looks up the target bank, and routes the transaction across private fiber networks in tens of milliseconds.
+      </li>
+    </ol>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 07 / ISSUING BANK DECISION -->
+  <section class="article-section">
+    <SectionHeading
+      number="07"
+      tag="ISSUER DECISION"
+      title="Inside the Issuing Bank: Cryptography, Funds, and Fraud Scoring"
+      id="sec-07"
+    />
+
+    <p>
+      The authorization request arrives at the central datacenter of the <strong>Issuing Bank</strong>—the institution managing your deposit or credit account.
+    </p>
+
+    <!-- Diagram 07: Issuer Decision -->
+    <IssuerDecisionDiagram lang="en" />
+
+    <p>
+      The issuer's core banking host executes an automated decision pipeline:
+    </p>
+
+    <ul>
+      <li>
+        <strong>1. Cryptographic Validation in Hardware Security Modules (HSMs):</strong> The EMV Field 55 data is passed into a dedicated, tamper-responsive HSM. The HSM uses the stored Issuer Master Key and the incoming ATC to regenerate the card's session key and calculate the expected ARQC. If the cryptogram matches, the bank mathematically confirms that <strong>the genuine physical chip generated the request</strong>. It also verifies that the ATC has strictly increased compared to the last recorded transaction.
+      </li>
+      <li>
+        <strong>2. Account &amp; Status Validation:</strong> The host verifies that the card is active, not marked stolen or compromised, and within its validity window.
+      </li>
+      <li>
+        <strong>3. Balance Verification &amp; Authorization Hold:</strong> The system queries ledger databases: Does the checking account or credit limit cover the $24.50 purchase? If approved, the bank places an immediate <strong>authorization hold</strong> on the funds, preventing double-spending.
+      </li>
+      <li>
+        <strong>4. Real-Time Fraud Heuristics:</strong> Machine learning risk scoring engines analyze velocity and behavioral context: Is the transaction location feasible given previous account activity? Does it match typical cardholder spending patterns? If the risk score falls within acceptable boundaries, the transaction is cleared.
+      </li>
+    </ul>
+
+    <p>
+      The issuing host formats an approval response: <strong>Response Code 00 (Approved)</strong>, along with a 6-character Authorization Code (e.g., <span class="term" dir="ltr">AUTH: 739201</span>) establishing an audit trail.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 08 / THE RETURN PATH -->
+  <section class="article-section">
+    <SectionHeading
+      number="08"
+      tag="THE RETURN PATH"
+      title="The Return Journey: Approval Delivery, Green LEDs, and the Confirmation Beep"
+      id="sec-08"
+    />
+
+    <p>
+      Once authorization is granted, the return packet traces the reverse path across the financial network:
+    </p>
+
+    <!-- Diagram 08: Approve Return Diagram -->
+    <ApproveDeclineReturnDiagram lang="en" />
+
+    <ol>
+      <li>The issuing bank dispatches the response message (<span class="term" dir="ltr">ISO 8583 Response 0110</span>) back to the card network switch.</li>
+      <li>The card network switch relays the response back to the merchant's acquiring processor.</li>
+      <li>The acquirer routes the response down the active TLS socket connected to the merchant's physical POS terminal.</li>
+      <li>The POS terminal processes the <span class="term" dir="ltr">00</span> approval code, flashes all four green status LEDs, triggers the confirmation audio tone, displays <span class="term" dir="ltr">APPROVED</span>, and generates the transaction record.</li>
+    </ol>
+
+    <p>
+      The complete round-trip — from inductive electromagnetic energization, across three separate banking systems and global fiber conduits, to the terminal display — <strong>executes in roughly 1.5 to 3 seconds</strong>.
+    </p>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 09 / CARDS VS PHONE WALLETS -->
+  <section class="article-section">
+    <SectionHeading
+      number="09"
+      tag="PHONE WALLETS"
+      title="Physical Cards vs Smartphone Wallets: Tokenization and CDCVM"
+      id="sec-09"
+    />
+
+    <p>
+      Consumers frequently ask whether tapping a smartphone or smartwatch (<span class="term" dir="ltr">Apple Pay</span>, <span class="term" dir="ltr">Google Wallet</span>) is identical to tapping a plastic card.
+    </p>
+
+    <!-- Diagram 09: Card Vs Phone Wallet -->
+    <CardVsPhoneWalletDiagram lang="en" />
+
+    <p>
+      At the radio frequency level, the phone emulates a contactless smart card using standard NFC protocols. However, mobile wallets implement two superior architectural security enhancements:
+    </p>
+
+    <ul>
+      <li>
+        <strong>Network Tokenization (<bdi dir="ltr">DPAN vs FPAN</bdi>):</strong> When provisioning a card onto a mobile wallet, the real 16-digit card number (<span class="term" dir="ltr">Funding PAN / FPAN</span>) is never stored on the handset. Instead, a Token Service Provider (<span class="term" dir="ltr">TSP</span>) issues a surrogate <strong>Device Primary Account Number (<bdi dir="ltr">DPAN</bdi>)</strong> tied uniquely to that physical device. Even if an adversary intercepting merchant records captures the DPAN, it cannot be used online without device-specific cryptograms, and the real card number remains completely undisclosed.
+      </li>
+      <li>
+        <strong>Consumer Device Cardholder Verification Method (<bdi dir="ltr">CDCVM</bdi>):</strong> A physical plastic card cannot verify who is holding it; an unauthorized finder can tap for small purchases up to regional limits without entering a PIN. Smartphones solve this by requiring on-device biometric validation (Face ID, Touch ID) or device passcodes prior to arming the NFC controller, cryptographically satisfying cardholder verification directly on the client device.
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider-hairline" />
+
+  <!-- 10 / AUTHORIZATION VS SETTLEMENT -->
+  <section class="article-section">
+    <SectionHeading
+      number="10"
+      tag="SETTLEMENT"
+      title="Authorization Is Not Settlement: The Clearing Lifecycle"
+      id="sec-10"
+    />
+
+    <!-- Diagram 10: Complete Payment Pipeline -->
+    <ContactlessSummaryDiagram lang="en" />
+
+    <p>
+      When the POS reader beeps and you walk away with your merchandise, it is intuitive to assume money was instantly transferred into the merchant's bank account.
+    </p>
+
+    <p>
+      In interbank financial architecture, <strong>that is not what happened</strong>. The 2-second exchange was solely an <strong>Authorization</strong>—a legally binding guarantee from the issuer reserving funds and promising payment.
+    </p>
+
+    <p>
+      The actual movement of monetary reserves between banking institutions occurs later through two structured phases:
+    </p>
+
+    <ul>
+      <li>
+        <strong>Clearing:</strong> At the close of the business day or at scheduled intervals determined by acquiring agreements, the merchant terminal transmits a consolidated batch file containing all captured authorization codes. The card network aggregates and nets transactions between member banks, calculating who owes what to whom.
+      </li>
+      <li>
+        <strong>Settlement:</strong> Central bank settlement accounts and automated clearing houses transfer net monetary balances between the acquiring bank and issuing bank. The acquirer subsequently credits the merchant's commercial account (minus interchange and processing discount fees), a settlement cycle that typically completes in one to two business days.
+      </li>
+    </ul>
+
+    <hr class="divider-hairline" />
+
+    <p style="font-size: 1.25rem; font-weight: 600; color: var(--color-ink); line-height: 1.85;">
+      That quiet, instantaneous confirmation beep is the product of decades of engineering across physics, cryptography, and distributed systems.
+    </p>
+
+    <p style="font-size: 1.15rem; color: var(--color-ink-muted); line-height: 1.8;">
+      Between touching your card to the glass and hearing the tone, an electromagnetic field powered silicon out of thin air, dynamic cryptograms neutralized fraud, and packets traversed continents to verify trust in the blink of an eye.
+    </p>
+
+    <!-- Standard Site CTA Box -->
+    <div style="padding: 1.5rem; border: 1px solid var(--color-hairline); background-color: var(--color-bg-warm); margin-block: 2.5rem;">
+      <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--color-olive); margin-block-end: 0.5rem;">
+        FOR MORE IN-DEPTH ANALYSIS
+      </div>
+      <p style="margin: 0; font-size: 1.15rem; font-weight: 600; line-height: 1.85; color: var(--color-ink);">
+        Explore more technical teardowns of security, networking, and systems architecture at:
+        <a href="https://writeups.mouhibmahadbi.online" target="_blank" rel="noopener noreferrer" style="color: var(--color-olive); text-decoration: underline; margin-inline-start: 0.35rem;">
+          writeups.mouhibmahadbi.online
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Related Articles -->
+  <ContinueReading currentArticleId="how-contactless-payment-works" lang="en" />
+
+</ArticleLayout>

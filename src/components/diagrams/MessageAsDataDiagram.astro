@@ -1,0 +1,104 @@
+---
+interface Props {
+  lang: 'ar' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<figure class="diagram-figure" aria-label={lang === 'ar' ? 'تشريح حزمة الرسالة على مستوى البيانات والترويسة' : 'Anatomy of a message packet at data and envelope level'}>
+  <div class="diagram-header">
+    <span class="diagram-tag">
+      {lang === 'ar' ? 'مخطط 01 / بنية البيانات' : 'FIGURE 01 / MESSAGE DATA ANATOMY'}
+    </span>
+    <span>
+      {lang === 'ar' ? 'الرسالة كحزمة بيانات: الغلاف التوجيهي والحمولة المشفرة' : 'Generic envelope structure vs encrypted payload'}
+    </span>
+  </div>
+
+  <div class="diagram-svg-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <svg viewBox="0 0 820 290" width="100%" height="auto" style="min-width: 680px; display: block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="data-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#151515" stroke-width="0.75" stroke-opacity="0.12"/>
+        </pattern>
+        <pattern id="data-olive-hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#5F6849" stroke-width="0.75" stroke-opacity="0.2"/>
+        </pattern>
+      </defs>
+
+      <!-- Frame -->
+      <rect x="8" y="8" width="804" height="274" fill="#FAF8F2" stroke="#151515" stroke-width="1.2" stroke-opacity="0.25"/>
+
+      <!-- Top Title of Container -->
+      <rect x="25" y="22" width="280" height="26" fill="#EBE7DE" stroke="#151515" stroke-width="1"/>
+      <text x="35" y="39" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700" fill="#151515">MESSAGE PACKET / ENVELOPE</text>
+      <text x="320" y="39" font-family="sans-serif" font-size="8" fill="#5F5D56">Common conceptual model (Serialized via Protobuf, CBOR, JSON, or custom framing)</text>
+
+      <!-- Left Column: Envelope / Routing Metadata (Clear to Provider Infrastructure) -->
+      <g transform="translate(25, 62)">
+        <rect width="365" height="205" fill="#F4F1E9" stroke="#151515" stroke-width="1.4"/>
+        <rect width="365" height="24" fill="#EBE7DE" stroke="#151515" stroke-width="0.8"/>
+        <text x="12" y="16" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#151515">ROUTING ENVELOPE (VISIBLE TO SERVER)</text>
+
+        <!-- Fields -->
+        <g transform="translate(12, 34)">
+          <rect width="341" height="26" fill="#FAF8F2" stroke="#151515" stroke-width="0.6"/>
+          <text x="10" y="17" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">message_id</text>
+          <text x="120" y="17" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F5D56">"msg_9f2a87c10b" (UUID / unique token)</text>
+        </g>
+
+        <g transform="translate(12, 66)">
+          <rect width="341" height="26" fill="#FAF8F2" stroke="#151515" stroke-width="0.6"/>
+          <text x="10" y="17" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">sender_id</text>
+          <text x="120" y="17" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F5D56">"usr_alice_489" / device_id: 1</text>
+        </g>
+
+        <g transform="translate(12, 98)">
+          <rect width="341" height="26" fill="#FAF8F2" stroke="#151515" stroke-width="0.6"/>
+          <text x="10" y="17" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">recipient_id</text>
+          <text x="120" y="17" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F5D56">"usr_bob_712" / conv_id: "c_339"</text>
+        </g>
+
+        <g transform="translate(12, 130)">
+          <rect width="341" height="26" fill="#FAF8F2" stroke="#151515" stroke-width="0.6"/>
+          <text x="10" y="17" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">client_timestamp</text>
+          <text x="120" y="17" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#5F5D56">1727280000000 (Epoch milliseconds)</text>
+        </g>
+
+        <rect x="12" y="162" width="341" height="30" fill="url(#data-hatch)" stroke="#151515" stroke-width="0.6"/>
+        <text x="20" y="181" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">Essential metadata needed by edge gateway to route packet</text>
+      </g>
+
+      <!-- Right Column: Encrypted Payload (Opaque to Provider if E2EE) -->
+      <g transform="translate(410, 62)">
+        <rect width="385" height="205" fill="#F4F1E9" stroke="#5F6849" stroke-width="1.6"/>
+        <rect width="385" height="24" fill="#FAF8F2" stroke="#5F6849" stroke-width="1"/>
+        <text x="12" y="16" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#5F6849">PAYLOAD (OPAQUE IN END-TO-END ENCRYPTED SYSTEMS)</text>
+
+        <!-- Payload Sections -->
+        <g transform="translate(12, 34)">
+          <rect width="361" height="42" fill="#FAF8F2" stroke="#5F6849" stroke-width="0.8"/>
+          <text x="10" y="16" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#5F6849">CIPHERTEXT BLOB</text>
+          <text x="10" y="32" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#151515">0x7B9C3F10A4E9B28D... (AES-GCM / ChaCha20-Poly1305 bytes)</text>
+        </g>
+
+        <g transform="translate(12, 82)">
+          <rect width="361" height="34" fill="#FAF8F2" stroke="#151515" stroke-width="0.6"/>
+          <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">CRYPTO HEADER / KEY EXCHANGE PARAMETERS</text>
+          <text x="10" y="27" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Ephemeral public key, counter/index, or ratchet header (if applicable)</text>
+        </g>
+
+        <g transform="translate(12, 122)">
+          <rect width="361" height="30" fill="#FAF8F2" stroke="#151515" stroke-width="0.6"/>
+          <text x="10" y="15" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#151515">AUTHENTICATION TAG (MAC)</text>
+          <text x="10" y="25" font-family="sans-serif" font-size="7.5" fill="#5F5D56">Protects ciphertext from tampering; verified before decryption</text>
+        </g>
+
+        <rect x="12" y="158" width="361" height="34" fill="url(#data-olive-hatch)" stroke="#5F6849" stroke-width="0.7"/>
+        <text x="20" y="174" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" fill="#5F6849">Plaintext content is never exposed to relay servers in E2EE</text>
+        <text x="20" y="186" font-family="sans-serif" font-size="7" fill="#5F5D56">Non-E2EE architectures store and inspect plaintext at provider layer</text>
+      </g>
+    </svg>
+  </div>
+</figure>

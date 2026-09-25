@@ -7,6 +7,34 @@
     <language>ar</language>
     <atom:link href="https://writeups.mouhibmahadbi.online/rss.xml" rel="self" type="application/rss+xml"/>
     <item>
+      <title>قرّبت بطاقتك من جهاز الدفع… كيف تمت العملية في ثوانٍ؟</title>
+      <link>https://writeups.mouhibmahadbi.online/ar/articles/how-contactless-payment-works/</link>
+      <guid>https://writeups.mouhibmahadbi.online/ar/articles/how-contactless-payment-works/</guid>
+      <pubDate>Fri, 25 Sep 2026 12:00:00 GMT</pubDate>
+      <description>تفكيك شامل لعملية الدفع اللاتلامسي: من الحث الكهرومغناطيسي لـNFC وبروتوكول EMV، إلى توليد التشفير الديناميكي ARQC، ورسائل شبكات الدفع، وقرار البنك المصدر.</description>
+    </item>
+    <item>
+      <title>You Tapped Your Card on a Payment Terminal. How Was the Payment Approved in Seconds?</title>
+      <link>https://writeups.mouhibmahadbi.online/en/articles/how-contactless-payment-works/</link>
+      <guid>https://writeups.mouhibmahadbi.online/en/articles/how-contactless-payment-works/</guid>
+      <pubDate>Fri, 25 Sep 2026 12:00:00 GMT</pubDate>
+      <description>A technical teardown of contactless payment: from NFC inductive coupling and the EMV protocol to dynamic ARQC cryptograms, ISO message routing, and issuer bank authorization.</description>
+    </item>
+    <item>
+      <title>ضغطت Send… كيف وصلت رسالتك إلى هاتف شخص آخر؟</title>
+      <link>https://writeups.mouhibmahadbi.online/ar/articles/how-your-message-reaches-another-phone/</link>
+      <guid>https://writeups.mouhibmahadbi.online/ar/articles/how-your-message-reaches-another-phone/</guid>
+      <pubDate>Fri, 25 Sep 2026 11:00:00 GMT</pubDate>
+      <description>رحلة الرسالة الفورية خطوة بخطوة: من تشفير الحزمة والاتصال بالخادم، إلى معالجة البوابات وطوابير الانتظار، واستيقاظ الهاتف عبر الإشعارات وفك التشفير محليًا.</description>
+    </item>
+    <item>
+      <title>You Pressed Send. How Did Your Message Reach Another Phone?</title>
+      <link>https://writeups.mouhibmahadbi.online/en/articles/how-your-message-reaches-another-phone/</link>
+      <guid>https://writeups.mouhibmahadbi.online/en/articles/how-your-message-reaches-another-phone/</guid>
+      <pubDate>Fri, 25 Sep 2026 11:00:00 GMT</pubDate>
+      <description>The step-by-step journey of an instant message: from serialization and transport security to edge gateways, store-and-forward queues, push notification wakeups, and local decryption.</description>
+    </item>
+    <item>
       <title>ضغطت Install على APK… ماذا يحدث داخل Android؟</title>
       <link>https://writeups.mouhibmahadbi.online/ar/articles/what-happens-when-you-install-an-apk/</link>
       <guid>https://writeups.mouhibmahadbi.online/ar/articles/what-happens-when-you-install-an-apk/</guid>
